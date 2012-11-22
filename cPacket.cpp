@@ -40,12 +40,24 @@ BOOL cPacket::ProcessPacket()
 		if ((unsigned short int)(IP_Header->ip_protocol) == TCP_PACKET)
 		{
 			cout << "TCP packet" << endl;
-			TCP_Header = (TCP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + sizeof(IP_HEADER));
+			TCP_Header = (TCP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
 			char * data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
 			
 			cout << "Data size: " << (Size - sizeof(ETHER_HEADER) - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4)) << endl;
 			cout << data << endl;
 		}
+		else if ((unsigned short int)(IP_Header->ip_protocol) == UDP_PACKET)
+		{
+			cout << "UDP packet" << endl;
+			UDP_Header = (UDP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
+			char* data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + sizeof(UDP_HEADER));
+			cout << data << endl;
+		}
+	}
+	else if (ntohs(Ether_Header->ether_type) == ETHERTYPE_ARP)
+	{
+		cout << "ARP packet" << endl;
+		ARP_Header = (ARP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER));
 	}
 	return true;
 };

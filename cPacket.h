@@ -21,4 +21,6 @@ public:
 	ETHER_HEADER* Ether_Header;
 	IP_HEADER* IP_Header;
 	TCP_HEADER* TCP_Header;
+	ARP_HEADER* ARP_Header;
+	UDP_HEADER* UDP_Header;
 };

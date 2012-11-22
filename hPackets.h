@@ -55,7 +55,7 @@ struct IP_HEADER
 };
 
 #define TCP_PACKET	6
-#define UDP_PACKET	16
+#define UDP_PACKET	17
 
 struct TCP_HEADER
 {
@@ -77,6 +77,42 @@ struct TCP_HEADER
 	unsigned short window;          // window
 	unsigned short checksum;        // checksum
 	unsigned short urgent_pointer;  // urgent pointer
+};
+
+struct	ARP_HEADER
+{
+	u_short	ar_hrd;		/* format of hardware address */
+
+#define ARPHRD_ETHER 	1	/* ethernet hardware format */
+#define ARPHRD_IEEE802	6	/* token-ring hardware format */
+#define ARPHRD_FRELAY 	15	/* frame relay hardware format */
+
+	u_short	ar_pro;		/* format of protocol address */
+	u_char	ar_hln;		/* length of hardware address */
+	u_char	ar_pln;		/* length of protocol address */
+	u_short	ar_op;		/* one of: */
+
+#define	ARPOP_REQUEST	1	/* request to resolve address */
+#define	ARPOP_REPLY	2	/* response to previous request */
+#define	ARPOP_REVREQUEST 3	/* request protocol address given hardware */
+#define	ARPOP_REVREPLY	4	/* response giving protocol address */
+#define ARPOP_INVREQUEST 8 	/* request to identify peer */
+#define ARPOP_INVREPLY	9	/* response identifying peer */
+
+#ifdef COMMENT_ONLY
+	u_char	ar_sha[];	/* sender hardware address */
+	u_char	ar_spa[];	/* sender protocol address */
+	u_char	ar_tha[];	/* target hardware address */
+	u_char	ar_tpa[];	/* target protocol address */
+#endif
+};
+
+struct UDP_HEADER
+{
+	u_short sport;          // Source port
+	u_short dport;          // Destination port
+	u_short len;            // Datagram length
+	u_short crc;            // Checksum
 };
 
 #endif
