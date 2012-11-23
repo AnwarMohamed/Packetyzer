@@ -21,10 +21,27 @@ BOOL cPacket::setFile(string filename)
 	return true;
 };
 
+BOOL cPacket::setPCAPFile(string filename)
+{
+	cFile* File = new cFile((char*)filename.c_str());
+	if (File->FileLength == 0) return false;
+	
+	PCAPBaseAddress = File->BaseAddress;
+	PCAPSize = File->FileLength;
+	return true;
+};
+
 BOOL cPacket::setBuffer(char* buffer, unsigned int size)
 {
 	BaseAddress = (DWORD)buffer;
 	Size = size;
+	return true;
+};
+
+BOOL cPacket::setPCAPBuffer(char* buffer, unsigned int size)
+{
+	PCAPBaseAddress = (DWORD)buffer;
+	PCAPSize = size;
 	return true;
 };
 
@@ -41,10 +58,14 @@ BOOL cPacket::ProcessPacket()
 		{
 			cout << "TCP packet" << endl;
 			TCP_Header = (TCP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
-			char * data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
 			
 			cout << "Data size: " << (Size - sizeof(ETHER_HEADER) - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4)) << endl;
-			cout << data << endl;
+
+			if (Size - sizeof(ETHER_HEADER) - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4) != 0)
+			{
+				char * data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
+				cout << data << endl;
+			}
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == UDP_PACKET)
 		{
@@ -76,6 +97,26 @@ BOOL cPacket::ProcessPacket()
 
 BOOL cPacket::ProcessPackets()
 {
+	return true;
+};
+
+BOOL cPacket::ProcessPCAP()
+{
+	PCAP_General_Header = (PCAP_GENERAL_HEADER*)PCAPBaseAddress;
+	unsigned int psize = 0;
+
+	PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(PCAPBaseAddress + sizeof(PCAP_GENERAL_HEADER));
+	psize = psize + PCAP_Packet_Header->incl_len;
+
+	/* getting number of packets inside file */
+	for(unsigned int i=1; PCAP_Packet_Header->incl_len !=0 ;i++)
+	{
+		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(PCAPBaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER) * i) + psize);
+		psize = psize + PCAP_Packet_Header->incl_len;
+		nPCAPPackets++;
+	}
+	
+
 	return true;
 };
 

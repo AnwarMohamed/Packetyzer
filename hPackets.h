@@ -248,4 +248,32 @@ struct IGMP_HEADER
 #define IGMP_HOST_NEW_MEMBERSHIP_REPORT	IGMP_V2_MEMBERSHIP_REPORT
 #define IGMP_HOST_LEAVE_MESSAGE		IGMP_V2_LEAVE_GROUP
 
+
+/*PCAP FILES*/
+
+typedef unsigned int guint32;
+typedef unsigned short guint16;
+typedef int gint32;
+
+struct PCAP_GENERAL_HEADER 
+{
+    guint32 magic_number;   /* magic number */
+    guint16 version_major;  /* major version number */
+    guint16 version_minor;  /* minor version number */
+    gint32  thiszone;       /* GMT to local correction */
+    guint32 sigfigs;        /* accuracy of timestamps */
+    guint32 snaplen;        /* max length of captured packets, in octets */
+    guint32 network;        /* data link type */
+};
+
+struct PCAP_PACKET_HEADER 
+{
+    guint32 ts_sec;         /* timestamp seconds */
+    guint32 ts_usec;        /* timestamp microseconds */
+    guint32 incl_len;       /* number of octets of packet saved in file */
+    guint32 orig_len;       /* actual length of packet */
+};
+
 #endif
+
+
