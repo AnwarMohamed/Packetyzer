@@ -53,6 +53,18 @@ BOOL cPacket::ProcessPacket()
 			char* data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + sizeof(UDP_HEADER));
 			cout << data << endl;
 		}
+		else if ((unsigned short int)(IP_Header->ip_protocol) == ICMP_PACKET)
+		{
+			cout << "ICMP packet" << endl;
+			ICMP_Header = (ICMP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
+			char* data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + sizeof(ICMP_HEADER));
+			cout << data << endl;
+		}
+		else if ((unsigned short int)(IP_Header->ip_protocol) == IGMP_PACKET)
+		{
+			cout << "IGMP packet" << endl;
+			IGMP_Header = (IGMP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
+		}
 	}
 	else if (ntohs(Ether_Header->ether_type) == ETHERTYPE_ARP)
 	{

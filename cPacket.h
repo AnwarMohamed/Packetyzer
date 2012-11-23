@@ -22,5 +22,7 @@ public:
 	IP_HEADER* IP_Header;
 	TCP_HEADER* TCP_Header;
 	ARP_HEADER* ARP_Header;
-	UDP_HEADER* UDP_Header;
+	UDP_HEADER*	UDP_Header;
+	ICMP_HEADER* ICMP_Header;
+	IGMP_HEADER* IGMP_Header;
 };
