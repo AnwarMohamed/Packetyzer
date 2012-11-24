@@ -274,6 +274,16 @@ struct PCAP_PACKET_HEADER
     guint32 orig_len;       /* actual length of packet */
 };
 
+
+#define SLL_ADDRLEN		8
+struct LINUX_COOKED_HEADER 
+{
+	u_int16_t sll_pkttype;          /* packet type */
+	u_int16_t sll_hatype;           /* link-layer address type */
+	u_int16_t sll_halen;            /* link-layer address length */
+	u_int8_t sll_addr[SLL_ADDRLEN]; /* link-layer address */
+	u_int16_t sll_protocol;         /* protocol */
+};
 #endif
 
 

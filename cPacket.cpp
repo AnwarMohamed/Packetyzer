@@ -9,6 +9,11 @@ using namespace std;
 
 cPacket::cPacket(void)
 {
+	nPCAPPackets = 0;
+	BaseAddress = 0;
+	PCAPBaseAddress = 0;
+	Size = 0;
+	PCAPSize = 0;
 };
 
 BOOL cPacket::setFile(string filename)
@@ -45,81 +50,114 @@ BOOL cPacket::setPCAPBuffer(char* buffer, unsigned int size)
 	return true;
 };
 
-BOOL cPacket::ProcessPacket()
+BOOL cPacket::ProcessPacket(BOOL PCAP = false)
 {
-	Ether_Header = (ETHER_HEADER*)BaseAddress;
+	ResetIs();
+	if (BaseAddress == 0 || Size == 0) return false;
+
+	if (PCAP)
+	{
+		Linux_Cooked_Header = (LINUX_COOKED_HEADER*)BaseAddress;
+		sHeader = sizeof(LINUX_COOKED_HEADER);
+		eType = ntohs(Linux_Cooked_Header->sll_protocol);
+	} else {
+
+		Ether_Header = (ETHER_HEADER*)BaseAddress;
+		sHeader = sizeof(ETHER_HEADER);
+		eType = ntohs(Ether_Header->ether_type);
+	}
 
 	/* packet ether type */
-	if (ntohs(Ether_Header->ether_type) == ETHERTYPE_IP)
+	if (eType == ETHERTYPE_IP)
 	{
-		cout << "IP packet" << endl;
-		IP_Header = (IP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER));
+		Packet.isIPPacket = true;
+		IP_Header = (IP_HEADER*)(BaseAddress + sHeader);
 		if ((unsigned short int)(IP_Header->ip_protocol) == TCP_PACKET)
 		{
-			cout << "TCP packet" << endl;
-			TCP_Header = (TCP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
+			Packet.isTCPPacket = true;
+			TCP_Header = (TCP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
 			
-			cout << "Data size: " << (Size - sizeof(ETHER_HEADER) - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4)) << endl;
+			//cout << "Data size: " << (Size - sHeader - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4)) << endl;
 
-			if (Size - sizeof(ETHER_HEADER) - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4) != 0)
+			if (Size - sHeader - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4) != 0)
 			{
-				char * data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
-				cout << data << endl;
+				char * data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
+				//cout << data << endl;
 			}
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == UDP_PACKET)
 		{
-			cout << "UDP packet" << endl;
-			UDP_Header = (UDP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
-			char* data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + sizeof(UDP_HEADER));
-			cout << data << endl;
+			Packet.isUDPPacket = true;
+			UDP_Header = (UDP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
+			char* data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(UDP_HEADER));
+			//cout << data << endl;
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == ICMP_PACKET)
 		{
-			cout << "ICMP packet" << endl;
-			ICMP_Header = (ICMP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
-			char* data = (char*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4) + sizeof(ICMP_HEADER));
-			cout << data << endl;
+			Packet.isICMPPacket = true;
+			ICMP_Header = (ICMP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
+			char* data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(ICMP_HEADER));
+			//cout << data << endl;
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == IGMP_PACKET)
 		{
-			cout << "IGMP packet" << endl;
-			IGMP_Header = (IGMP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER) + (IP_Header->ip_header_len*4));
+			Packet.isIGMPPacket = true;
+			IGMP_Header = (IGMP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
 		}
 	}
-	else if (ntohs(Ether_Header->ether_type) == ETHERTYPE_ARP)
+	else if (eType == ETHERTYPE_ARP)
 	{
-		cout << "ARP packet" << endl;
-		ARP_Header = (ARP_HEADER*)(BaseAddress + sizeof(ETHER_HEADER));
+		Packet.isARPPacket = true;
+		ARP_Header = (ARP_HEADER*)(BaseAddress + sHeader);
 	}
-	return true;
-};
-
-BOOL cPacket::ProcessPackets()
-{
 	return true;
 };
 
 BOOL cPacket::ProcessPCAP()
 {
+	ResetIs();
+	if (PCAPBaseAddress == 0 || PCAPSize == 0) return false;
 	PCAP_General_Header = (PCAP_GENERAL_HEADER*)PCAPBaseAddress;
 	unsigned int psize = 0;
 
 	PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(PCAPBaseAddress + sizeof(PCAP_GENERAL_HEADER));
 	psize = psize + PCAP_Packet_Header->incl_len;
-
+	
 	/* getting number of packets inside file */
 	for(unsigned int i=1; PCAP_Packet_Header->incl_len !=0 ;i++)
 	{
-		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(PCAPBaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER) * i) + psize);
+		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(PCAPBaseAddress + 
+			sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER) * i) + psize);
 		psize = psize + PCAP_Packet_Header->incl_len;
-		nPCAPPackets++;
+		nPCAPPackets = nPCAPPackets + 1;
 	}
-	
+
+	/* parse each packet*/
+	unsigned int fsize = 0;
+	unsigned int lsize = 0;
+
+	for (unsigned int i=0; i < nPCAPPackets; i++)
+	{
+		BaseAddress = (PCAPBaseAddress + sizeof(PCAP_GENERAL_HEADER) + 
+			(sizeof(PCAP_PACKET_HEADER)*(i+1)) + fsize);
+		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(PCAPBaseAddress + 
+			sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER)*(i)) + fsize);
+		
+		fsize = fsize + PCAP_Packet_Header->incl_len;
+		Size = PCAP_Packet_Header->incl_len;
+		
+		ProcessPacket(true);
+	}
 
 	return true;
 };
 
 cPacket::~cPacket(void)
 {
+};
+
+void cPacket::ResetIs()
+{
+	Packet.isTCPPacket,Packet.isUDPPacket,Packet.isICMPPacket,
+	Packet.isIGMPPacket,Packet.isARPPacket,Packet.isIPPacket = false;
 };
