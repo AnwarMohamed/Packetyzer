@@ -18,14 +18,16 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	cPacket Packetyzer;
 	//Packetyzer.setFile(string("C:\\HTTP.cap"));
-	//Packetyzer.setBuffer((char*)&buffer,sizeof(buffer));
-	Packetyzer.setPCAPFile(string("C:\\sample.pcap"));
+	Packetyzer.setBuffer((char*)&buffer,sizeof(buffer));
+	//Packetyzer.setPCAPFile(string("C:\\sample.pcap"));
 
-	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.PCAPBaseAddress << endl;
-	cout << "Buffer size: " << Packetyzer.PCAPSize << endl;
+	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.BaseAddress << endl;
+	cout << "Buffer size: " << Packetyzer.Size << endl;
 
-	//Packetyzer.ProcessPacket();
-	Packetyzer.ProcessPCAP();
+	Packetyzer.ProcessPacket();
+	//Packetyzer.ProcessPCAP();
+
+	cout << Packetyzer.Packet->EthernetHeader.ProtocolType.Name << endl;
 	system("PAUSE");
 	return 0;
 }

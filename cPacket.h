@@ -13,6 +13,21 @@ struct PACKET
 	BOOL isIGMPPacket;
 	BOOL isARPPacket;
 	BOOL isIPPacket;
+
+	struct PETHER_HEADER
+	{
+		string	DestinationHost;
+		string	SourceHost;
+		struct PROTOCOL_TYPE
+		{
+			string	Name;
+			WORD	Identifier;
+		} ProtocolType;
+	} EthernetHeader;
+
+
+
+
 };
 class cPacket
 {
@@ -31,7 +46,7 @@ class cPacket
 	UDP_HEADER*	UDP_Header;
 	ICMP_HEADER* ICMP_Header;
 	IGMP_HEADER* IGMP_Header;
-	LINUX_COOKED_HEADER* Linux_Cooked_Header;
+	SLL_HEADER* SLL_Header;
 
 public:
 	cPacket(void);
@@ -42,7 +57,7 @@ public:
 	BOOL setPCAPFile(string filename);
 	BOOL setPCAPBuffer(char* buffer,unsigned int size);
 
-	BOOL ProcessPacket(BOOL PCAP);
+	BOOL ProcessPacket(BOOL PCAP = false);
 	BOOL ProcessPCAP();
 
 	DWORD BaseAddress;
@@ -51,5 +66,5 @@ public:
 	unsigned int PCAPSize;
 
 	unsigned int nPCAPPackets;
-	PACKET Packet;
+	PACKET* Packet;
 };

@@ -50,16 +50,16 @@ BOOL cPacket::setPCAPBuffer(char* buffer, unsigned int size)
 	return true;
 };
 
-BOOL cPacket::ProcessPacket(BOOL PCAP = false)
+BOOL cPacket::ProcessPacket(BOOL PCAP)
 {
 	ResetIs();
 	if (BaseAddress == 0 || Size == 0) return false;
 
 	if (PCAP)
 	{
-		Linux_Cooked_Header = (LINUX_COOKED_HEADER*)BaseAddress;
-		sHeader = sizeof(LINUX_COOKED_HEADER);
-		eType = ntohs(Linux_Cooked_Header->sll_protocol);
+		SLL_Header = (SLL_HEADER*)BaseAddress;
+		sHeader = sizeof(SLL_HEADER);
+		eType = ntohs(SLL_Header->sll_protocol);
 	} else {
 
 		Ether_Header = (ETHER_HEADER*)BaseAddress;
@@ -70,44 +70,51 @@ BOOL cPacket::ProcessPacket(BOOL PCAP = false)
 	/* packet ether type */
 	if (eType == ETHERTYPE_IP)
 	{
-		Packet.isIPPacket = true;
+		Packet->isIPPacket = true;
 		IP_Header = (IP_HEADER*)(BaseAddress + sHeader);
 		if ((unsigned short int)(IP_Header->ip_protocol) == TCP_PACKET)
 		{
-			Packet.isTCPPacket = true;
-			TCP_Header = (TCP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
+			Packet->isTCPPacket = true;
+			TCP_Header = (TCP_HEADER*)(BaseAddress + sHeader + 
+				(IP_Header->ip_header_len*4));
 			
 			//cout << "Data size: " << (Size - sHeader - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4)) << endl;
 
-			if (Size - sHeader - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4) != 0)
+			if (Size - sHeader - (IP_Header->ip_header_len*4) - 
+				(TCP_Header->data_offset*4) != 0)
 			{
-				char * data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
+				char * data = (char*)(BaseAddress + sHeader + 
+					(IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
 				//cout << data << endl;
 			}
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == UDP_PACKET)
 		{
-			Packet.isUDPPacket = true;
-			UDP_Header = (UDP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
-			char* data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(UDP_HEADER));
+			Packet->isUDPPacket = true;
+			UDP_Header = (UDP_HEADER*)(BaseAddress + sHeader + 
+				(IP_Header->ip_header_len*4));
+			char* data = (char*)(BaseAddress + sHeader + 
+				(IP_Header->ip_header_len*4) + sizeof(UDP_HEADER));
 			//cout << data << endl;
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == ICMP_PACKET)
 		{
-			Packet.isICMPPacket = true;
-			ICMP_Header = (ICMP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
-			char* data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(ICMP_HEADER));
+			Packet->isICMPPacket = true;
+			ICMP_Header = (ICMP_HEADER*)(BaseAddress + sHeader + 
+				(IP_Header->ip_header_len*4));
+			char* data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + 
+				sizeof(ICMP_HEADER));
 			//cout << data << endl;
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == IGMP_PACKET)
 		{
-			Packet.isIGMPPacket = true;
+			Packet->isIGMPPacket = true;
 			IGMP_Header = (IGMP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
 		}
 	}
 	else if (eType == ETHERTYPE_ARP)
 	{
-		Packet.isARPPacket = true;
+		Packet->isARPPacket = true;
 		ARP_Header = (ARP_HEADER*)(BaseAddress + sHeader);
 	}
 	return true;
@@ -158,6 +165,6 @@ cPacket::~cPacket(void)
 
 void cPacket::ResetIs()
 {
-	Packet.isTCPPacket,Packet.isUDPPacket,Packet.isICMPPacket,
-	Packet.isIGMPPacket,Packet.isARPPacket,Packet.isIPPacket = false;
+	Packet->isTCPPacket,Packet->isUDPPacket,Packet->isICMPPacket,
+	Packet->isIGMPPacket,Packet->isARPPacket,Packet->isIPPacket = false;
 };

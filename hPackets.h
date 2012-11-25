@@ -276,7 +276,7 @@ struct PCAP_PACKET_HEADER
 
 
 #define SLL_ADDRLEN		8
-struct LINUX_COOKED_HEADER 
+struct SLL_HEADER 
 {
 	u_int16_t sll_pkttype;          /* packet type */
 	u_int16_t sll_hatype;           /* link-layer address type */
@@ -284,6 +284,7 @@ struct LINUX_COOKED_HEADER
 	u_int8_t sll_addr[SLL_ADDRLEN]; /* link-layer address */
 	u_int16_t sll_protocol;         /* protocol */
 };
+
 #endif
 
 
