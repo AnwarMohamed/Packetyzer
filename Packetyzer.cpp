@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (C) 2012  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
 #include "stdafx.h"
 #include "cPacket.h"
 #include <string>
@@ -36,17 +56,18 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "IP\t";
 			if (Packetyzer.PCAPPacket[i].isTCPPacket)
 			{
-				cout << "TCP" << endl;
+				cout << "TCP " << endl;
+				cout << "TCPData\n";
+
+				for(unsigned int j=0;j<Packetyzer.PCAPPacket[i].TCPDataSize;j++)
+				{
+					printf("%02x ",Packetyzer.PCAPPacket[i].TCPData[j]);
+				}
 			}
 			else if (Packetyzer.PCAPPacket[i].isUDPPacket)
 			{
 				cout << "UDP " << Packetyzer.PCAPPacket[i].UDPDataSize << " " << ntohs(Packetyzer.PCAPPacket[i].UDPHeader.DatagramLength) << endl;
 				cout << "UDPData\n";
-
-				for(unsigned int j=0;j<Packetyzer.PCAPPacket[i].UDPDataSize;j++)
-				{
-					printf("%02x ",Packetyzer.PCAPPacket[i].UDPData[j]);
-				}
 			}
 		}
 		else if (Packetyzer.PCAPPacket[i].isARPPacket)
