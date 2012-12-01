@@ -2,6 +2,7 @@
 #include "cPacket.h"
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -18,16 +19,46 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	cPacket Packetyzer;
 	//Packetyzer.setFile(string("C:\\HTTP.cap"));
-	Packetyzer.setBuffer((char*)&buffer,sizeof(buffer));
-	//Packetyzer.setPCAPFile(string("C:\\sample.pcap"));
+	//Packetyzer.setBuffer((char*)&buffer,sizeof(buffer));
+	Packetyzer.setPCAPFile(string("C:\\sample.pcap"));
 
-	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.BaseAddress << endl;
-	cout << "Buffer size: " << Packetyzer.Size << endl;
+	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.PCAPBaseAddress << endl;
+	cout << "Buffer size: " << Packetyzer.PCAPSize << endl;
 
-	Packetyzer.ProcessPacket();
-	//Packetyzer.ProcessPCAP();
+	//Packetyzer.ProcessPacket();
+	Packetyzer.ProcessPCAP();
 
-	cout << Packetyzer.Packet->EthernetHeader.ProtocolType.Name << endl;
+	for (unsigned int i=0; i < Packetyzer.nPCAPPackets; i++)
+	{
+		cout << i + 1 << "\t";
+		if (Packetyzer.PCAPPacket[i].isIPPacket)
+		{
+			cout << "IP\t";
+			if (Packetyzer.PCAPPacket[i].isTCPPacket)
+			{
+				cout << "TCP" << endl;
+			}
+			else if (Packetyzer.PCAPPacket[i].isUDPPacket)
+			{
+				cout << "UDP " << Packetyzer.PCAPPacket[i].UDPDataSize << " " << ntohs(Packetyzer.PCAPPacket[i].UDPHeader.DatagramLength) << endl;
+				cout << "UDPData\n";
+
+				for(unsigned int j=0;j<Packetyzer.PCAPPacket[i].UDPDataSize;j++)
+				{
+					printf("%02x ",Packetyzer.PCAPPacket[i].UDPData[j]);
+				}
+			}
+		}
+		else if (Packetyzer.PCAPPacket[i].isARPPacket)
+		{
+			cout << "ARP" << endl;
+		}
+		else
+		{
+			cout << endl;
+		}
+	}
+
 	system("PAUSE");
 	return 0;
 }
