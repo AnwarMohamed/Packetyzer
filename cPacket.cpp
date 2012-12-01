@@ -77,31 +77,33 @@ BOOL cPacket::ProcessPacket(BOOL PCAP)
 	ResetIs();
 	if (BaseAddress == 0 || Size == 0) return false;
 
-	if (PCAP)
+	/*if (PCAP)
 	{
 		SLL_Header = (SLL_HEADER*)BaseAddress;
 		sHeader = sizeof(SLL_HEADER);
 		eType = ntohs(SLL_Header->sll_protocol);
-	} else {
+	} else {*/
 
 		Ether_Header = (ETHER_HEADER*)BaseAddress;
 		sHeader = sizeof(ETHER_HEADER);
 		eType = ntohs(Ether_Header->ether_type);
 
 		memcpy((void*)&Packet->EthernetHeader,(void*)Ether_Header,sizeof(ETHER_HEADER));
-	}
+	//}
 
 	/* packet ether type */
 	if (eType == ETHERTYPE_IP)
 	{
 		Packet->isIPPacket = true;
 		IP_Header = (IP_HEADER*)(BaseAddress + sHeader);
+
 		memcpy((void*)&Packet->IPHeader,(void*)IP_Header,sizeof(IP_HEADER));
 
 		if ((unsigned short int)(IP_Header->ip_protocol) == TCP_PACKET)
 		{
 			Packet->isTCPPacket = true;
 			TCP_Header = (TCP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
+
 			memcpy((void*)&Packet->TCPHeader,(void*)TCP_Header,sizeof(TCP_HEADER));
 			
 			Packet->TCPDataSize =  Size - sHeader - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4);
@@ -110,6 +112,7 @@ BOOL cPacket::ProcessPacket(BOOL PCAP)
 			{
 				Packet->TCPData = new unsigned char[Packet->TCPDataSize];
 				unsigned char* data = (unsigned char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
+				
 				memcpy(Packet->TCPData,data,Packet->TCPDataSize);
 			}
 		}
@@ -117,6 +120,7 @@ BOOL cPacket::ProcessPacket(BOOL PCAP)
 		{
 			Packet->isUDPPacket = true;
 			UDP_Header = (UDP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
+
 			memcpy((void*)&Packet->UDPHeader,(void*)UDP_Header,sizeof(UDP_HEADER));
 
 			Packet->UDPDataSize = ntohs(Packet->UDPHeader.DatagramLength) - sizeof(UDP_HEADER);
@@ -124,24 +128,29 @@ BOOL cPacket::ProcessPacket(BOOL PCAP)
 			unsigned char* data = (unsigned char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(UDP_HEADER));
 
 			memcpy(Packet->UDPData,data,Packet->UDPDataSize);
-
-			/*cout << endl << endl;
-			for (size_t i=0; i < Packet->UDPDataSize; ++i)
-				printf("%02x ", (unsigned char*)Packet->UDPData[i]);*/
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == ICMP_PACKET)
 		{
 			Packet->isICMPPacket = true;
 			ICMP_Header = (ICMP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
+
 			memcpy((void*)&Packet->ICMPHeader,(void*)ICMP_Header,sizeof(ICMP_HEADER));
 
-			char* data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(ICMP_HEADER));
-			//cout << data << endl;
+			Packet->ICMPDataSize = Size - sHeader - (IP_Header->ip_header_len*4) - sizeof(ICMP_HEADER);
+			Packet->ICMPData = new unsigned char[Packet->ICMPDataSize];
+			unsigned char* data = (unsigned char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(ICMP_HEADER));
+
+			memcpy(Packet->ICMPData,data,Packet->ICMPDataSize);
+
+						/*cout << endl << endl;
+			for (size_t i=0; i < Packet->ICMPDataSize; ++i)
+				printf("%02x ", (unsigned char*)Packet->ICMPData[i]);*/
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == IGMP_PACKET)
 		{
 			Packet->isIGMPPacket = true;
 			IGMP_Header = (IGMP_HEADER*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4));
+
 			memcpy((void*)&Packet->IGMPHeader,(void*)IGMP_Header,sizeof(IGMP_HEADER));
 		}
 	}
@@ -149,6 +158,7 @@ BOOL cPacket::ProcessPacket(BOOL PCAP)
 	{
 		Packet->isARPPacket = true;
 		ARP_Header = (ARP_HEADER*)(BaseAddress + sHeader);
+
 		memcpy((void*)&Packet->ARPHeader,(void*)ARP_Header,sizeof(ARP_HEADER));
 	}
 	return true;
@@ -187,6 +197,7 @@ BOOL cPacket::ProcessPCAP()
 		Size = PCAP_Packet_Header->incl_len;
 		
 		ProcessPacket(true);
+
 		memcpy((void*)&PCAPPacket[i],(void*)Packet,sizeof(PACKET));
 	}
 
