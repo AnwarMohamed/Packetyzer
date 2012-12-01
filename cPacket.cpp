@@ -55,7 +55,6 @@ BOOL cPacket::setPCAPBuffer(char* buffer, unsigned int size)
 BOOL cPacket::ProcessPacket(BOOL PCAP)
 {
 	ResetIs();
-	//memset((void*)&Packet,NULL,sizeof(PACKET));
 	if (BaseAddress == 0 || Size == 0) return false;
 
 	if (PCAP)
@@ -87,12 +86,11 @@ BOOL cPacket::ProcessPacket(BOOL PCAP)
 			
 			Packet->TCPDataSize =  Size - sHeader - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4);
 
-			if (Size - sHeader - (IP_Header->ip_header_len*4) - (TCP_Header->data_offset*4) != 0)
+			if (Packet->TCPDataSize != 0)
 			{
-				Packet->TCPData = (unsigned char*)malloc(Packet->TCPDataSize+10);
-				char* data = (char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
-				strcpy_s((char*)Packet->TCPData,Packet->TCPDataSize+10,(char*)data);
-				//cout << hex << data << endl;
+				Packet->TCPData = new unsigned char[Packet->TCPDataSize];
+				unsigned char* data = (unsigned char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + (TCP_Header->data_offset*4));
+				memcpy(Packet->TCPData,data,Packet->TCPDataSize);
 			}
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == UDP_PACKET)
@@ -169,10 +167,7 @@ BOOL cPacket::ProcessPCAP()
 		Size = PCAP_Packet_Header->incl_len;
 		
 		ProcessPacket(true);
-		//PCAPPacket[i].UDPData = new unsigned char[Packet->UDPDataSize];
 		memcpy((void*)&PCAPPacket[i],(void*)Packet,sizeof(PACKET));
-
-		
 	}
 
 	return true;
