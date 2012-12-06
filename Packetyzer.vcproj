@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cPCAP.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Packetyzer.cpp"
 				>
 			</File>
@@ -214,6 +218,10 @@
 			</File>
 			<File
 				RelativePath=".\cPacket.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cPCAP.h"
 				>
 			</File>
 			<File

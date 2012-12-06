@@ -19,7 +19,7 @@
  */
 
 #include "stdafx.h"
-#include "cPacket.h"
+#include "cPCAP.h"
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -37,40 +37,39 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	cPacket Packetyzer;
+	cPCAP Packetyzer;
 	//Packetyzer.setFile(string("C:\\HTTP.cap"));
 	//Packetyzer.setBuffer((char*)&buffer,sizeof(buffer));
-	Packetyzer.setPCAPFile(string("C:\\sample.pcap"));
+	Packetyzer.setFile(string("G:\\sample.pcap"));
 
-	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.PCAPBaseAddress << endl;
-	cout << "Buffer size: " << Packetyzer.PCAPSize << endl;
+	//cout << "Buffer loaded at: " << (DWORD*)Packetyzer.PCAPBaseAddress << endl;
+	//cout << "Buffer size: " << Packetyzer.PCAPSize << endl;
 
 	//Packetyzer.ProcessPacket();
 	Packetyzer.ProcessPCAP();
 
-	for (unsigned int i=0; i < Packetyzer.nPCAPPackets; i++)
+	for (unsigned int i=0; i < Packetyzer.nPackets; i++)
 	{
 		cout << i + 1 << "\t";
-		if (Packetyzer.PCAPPacket[i].isIPPacket)
+		if (Packetyzer.Packets[i].isIPPacket)
 		{
 			cout << "IP\t";
-			if (Packetyzer.PCAPPacket[i].isTCPPacket)
+			if (Packetyzer.Packets[i].isTCPPacket)
 			{
 				cout << "TCP " << endl;
 				cout << "TCPData\n";
 
-				for(unsigned int j=0;j<Packetyzer.PCAPPacket[i].TCPDataSize;j++)
+				for(unsigned int j=0;j<Packetyzer.Packets[i].TCPDataSize;j++)
 				{
-					printf("%02x ",Packetyzer.PCAPPacket[i].TCPData[j]);
+					printf("%02x ",Packetyzer.Packets[i].TCPData[j]);
 				}
 			}
-			else if (Packetyzer.PCAPPacket[i].isUDPPacket)
+			else if (Packetyzer.Packets[i].isUDPPacket)
 			{
-				cout << "UDP " << Packetyzer.PCAPPacket[i].UDPDataSize << " " << ntohs(Packetyzer.PCAPPacket[i].UDPHeader.DatagramLength) << endl;
-				cout << "UDPData\n";
+				cout << "UDP" << endl;
 			}
 		}
-		else if (Packetyzer.PCAPPacket[i].isARPPacket)
+		else if (Packetyzer.Packets[i].isARPPacket)
 		{
 			cout << "ARP" << endl;
 		}

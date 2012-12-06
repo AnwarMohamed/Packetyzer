@@ -120,6 +120,7 @@ struct PACKET
 	} ICMPHeader;
 
 	unsigned char* ICMPData;
+	unsigned int ICMPDataSize;
 
 	struct PIGMP_HEADER
 	{
@@ -150,9 +151,6 @@ class cPacket
 	unsigned int sHeader;
 	unsigned int eType;
 
-	PCAP_GENERAL_HEADER* PCAP_General_Header;
-	PCAP_PACKET_HEADER* PCAP_Packet_Header;
-
 	void ResetIs();
 
 	ETHER_HEADER* Ether_Header;
@@ -170,18 +168,11 @@ public:
 
 	BOOL setFile(string filename);
 	BOOL setBuffer(char* buffer, unsigned int size);
-	BOOL setPCAPFile(string filename);
-	BOOL setPCAPBuffer(char* buffer,unsigned int size);
 
-	BOOL ProcessPacket(BOOL PCAP = false);
-	BOOL ProcessPCAP();
+	BOOL ProcessPacket();
 
 	DWORD BaseAddress;
 	unsigned int Size;
-	DWORD PCAPBaseAddress;
-	unsigned int PCAPSize;
 
-	unsigned int nPCAPPackets;
-	PACKET* PCAPPacket;
 	PACKET* Packet;
 };
