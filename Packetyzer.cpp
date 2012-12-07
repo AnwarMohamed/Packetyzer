@@ -28,7 +28,6 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-
 	unsigned char buffer[] = { 
 		0x00,0x1c,0xc0,0xe6,0xa2,0xab,0x00,0x24,0x2b,0x32,0xc3,0x55,0x08,0x00,
 		0x45,0x00,0x00,0x34,0xc5,0x47,0x40,0x00,0x40,0x06,0x61,0x6a,0x0a,0x00,
@@ -37,49 +36,43 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	cPCAP Packetyzer;
-	//Packetyzer.setFile(string("C:\\HTTP.cap"));
-	//Packetyzer.setBuffer((char*)&buffer,sizeof(buffer));
-	Packetyzer.setFile(string("G:\\sample.pcap"));
+	cPCAP Packetyzer("G:\\sample.pcap");
 
-	//cout << "Buffer loaded at: " << (DWORD*)Packetyzer.PCAPBaseAddress << endl;
-	//cout << "Buffer size: " << Packetyzer.PCAPSize << endl;
+	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.BaseAddress << endl;
+	cout << "Buffer size: " << Packetyzer.FileLength << endl;
 
-	//Packetyzer.ProcessPacket();
-	Packetyzer.ProcessPCAP();
-
-	for (unsigned int i=0; i < Packetyzer.nPackets; i++)
-	{
-		cout << i + 1 << "\t";
-		if (Packetyzer.Packets[i].isIPPacket)
+	if (Packetyzer.FileLoaded)
+		for (unsigned int i=0; i < Packetyzer.nPackets; i++)
 		{
-			cout << "IP\t";
-			if (Packetyzer.Packets[i].isTCPPacket)
+			cout << i + 1 << "\t";
+			if (Packetyzer.Packets[i].isIPPacket)
 			{
-				cout << "TCP " << endl;
-				cout << "TCPData\n";
-
-				for(unsigned int j=0;j<Packetyzer.Packets[i].TCPDataSize;j++)
+				cout << "IP\t";
+				if (Packetyzer.Packets[i].isTCPPacket)
 				{
-					printf("%02x ",Packetyzer.Packets[i].TCPData[j]);
+					cout << "TCP " << endl;
+					cout << "TCPData\n";
+
+					for(unsigned int j=0;j<Packetyzer.Packets[i].TCPDataSize;j++)
+					{
+						printf("%02x ",Packetyzer.Packets[i].TCPData[j]);
+					}
+				}
+				else if (Packetyzer.Packets[i].isUDPPacket)
+				{
+					cout << "UDP" << endl;
 				}
 			}
-			else if (Packetyzer.Packets[i].isUDPPacket)
+			else if (Packetyzer.Packets[i].isARPPacket)
 			{
-				cout << "UDP" << endl;
+				cout << "ARP" << endl;
+			}
+			else
+			{
+				cout << endl;
 			}
 		}
-		else if (Packetyzer.Packets[i].isARPPacket)
-		{
-			cout << "ARP" << endl;
-		}
-		else
-		{
-			cout << endl;
-		}
-	}
 
 	system("PAUSE");
 	return 0;
 }
-

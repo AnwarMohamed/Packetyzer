@@ -1,3 +1,24 @@
+/*
+ *
+ *  Copyright (C) 2012  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
+
 #include "StdAfx.h"
 #include "cPCAP.h"
 #include "cFile.h"
@@ -5,33 +26,15 @@
 
 using namespace std;
 
-cPCAP::cPCAP(void)
+cPCAP::cPCAP(char* szFilename) : cFile(szFilename)
 {
-	BaseAddress = 0;
-	Size = 0;
-	nPackets = 0;
+	FileLoaded = ProcessPCAP();
 }
-
-BOOL cPCAP::setFile(string filename)
-{
-	cFile* File = new cFile((char*)filename.c_str());
-	if (File->FileLength == 0) return false;
-	
-	BaseAddress = File->BaseAddress;
-	Size = File->FileLength;
-	return true;
-};
-
-BOOL cPCAP::setBuffer(char* buffer, unsigned int size)
-{
-	BaseAddress = (DWORD)buffer;
-	Size = size;
-	return true;
-};
 
 BOOL cPCAP::ProcessPCAP()
 {
-	if (BaseAddress == 0 || Size == 0) return false;
+	nPackets = 0;
+	if (BaseAddress == 0 || FileLength == 0) return false;
 	PCAP_General_Header = (PCAP_GENERAL_HEADER*)BaseAddress;
 	unsigned int psize = 0;
 
