@@ -19,7 +19,7 @@
  */
 
 #include "stdafx.h"
-#include "cPCAP.h"
+#include "cPcapFile.h"
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -45,7 +45,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		for (unsigned int i=0; i < Packetyzer.nPackets; i++)
 		{
 			cout << i + 1 << "\t";
-			if (Packetyzer.Packets[i].isIPPacket)
+			if(Packetyzer.Packets[i].isMalformed)
+				cout << "Malformed" << endl;
+			/*if (Packetyzer.Packets[i].isIPPacket)
 			{
 				cout << "IP\t";
 				if (Packetyzer.Packets[i].isTCPPacket)
@@ -70,7 +72,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			else
 			{
 				cout << endl;
-			}
+			}*/
 		}
 
 	system("PAUSE");

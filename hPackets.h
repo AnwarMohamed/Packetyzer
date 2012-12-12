@@ -305,6 +305,17 @@ struct SLL_HEADER
 	u_int16_t sll_protocol;         /* protocol */
 };
 
+#pragma pack(push, r1, 1)
+struct PSEUDO_HEADER
+{
+    unsigned long saddr;
+    unsigned long daddr;
+    unsigned char zero;
+    unsigned char protocol;
+    unsigned short length;
+};
+#pragma pack(pop, r1)
+
 #endif
 
 

@@ -36,6 +36,13 @@ struct PACKET
 	BOOL isARPPacket;
 	BOOL isIPPacket;
 
+	BOOL isMalformed;
+	WORD PacketError;
+
+#define PACKET_NOERROR		0x0000
+#define PACKET_IP_CHECKSUM	0x0001
+#define PACKET_TCP_CHECKSUM	0x0002
+
 	struct PETHER_HEADER
 	{
 		u_char	DestinationHost[ETHER_ADDR_LEN];
@@ -86,6 +93,8 @@ struct PACKET
 
 	unsigned char* TCPData;
 	unsigned int TCPDataSize;
+	unsigned char* TCPOptions;
+	unsigned int TCPOptionsSize;
 
 	struct PUDP_HEADER
 	{
@@ -148,6 +157,8 @@ struct PACKET
 
 class cPacket
 {
+	void CheckIfMalformed();
+
 	unsigned int sHeader;
 	unsigned int eType;
 
@@ -161,6 +172,8 @@ class cPacket
 	ICMP_HEADER* ICMP_Header;
 	IGMP_HEADER* IGMP_Header;
 	SLL_HEADER* SLL_Header;
+
+	USHORT GlobalChecksum(USHORT *buffer, unsigned int length);
 
 public:
 	cPacket(void);
@@ -176,3 +189,4 @@ public:
 
 	PACKET* Packet;
 };
+
