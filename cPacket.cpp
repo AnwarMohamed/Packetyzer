@@ -181,14 +181,16 @@ void cPacket::CheckIfMalformed()
 			psheader.zero = 0;
 
 			unsigned char *tcppacket;
-			tcppacket = (unsigned char*)malloc(sizeof(TCP_HEADER) + Packet->TCPOptionsSize + Packet->TCPDataSize + sizeof(PSEUDO_HEADER));
-			memset(tcppacket,0, sizeof(TCP_HEADER) + Packet->TCPOptionsSize + Packet->TCPDataSize + sizeof(PSEUDO_HEADER));
+			UINT packet_size = sizeof(TCP_HEADER) + Packet->TCPOptionsSize + Packet->TCPDataSize + sizeof(PSEUDO_HEADER);
+			packet_size = packet_size + ((packet_size%2)*2);
+			tcppacket = (unsigned char*)malloc(packet_size);
+			memset(tcppacket,0, packet_size);
 			memcpy((void*)&tcppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
 			memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER)], (void*)&tcpheader,sizeof(TCP_HEADER));
 			memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER)],(void*)Packet->TCPOptions,Packet->TCPOptionsSize);
 			memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER) + Packet->TCPOptionsSize],(void*)Packet->TCPData, Packet->TCPDataSize);
 
-			if (GlobalChecksum((USHORT*)tcppacket, sizeof(TCP_HEADER) + Packet->TCPOptionsSize + Packet->TCPDataSize + sizeof(PSEUDO_HEADER)) !=
+			if (GlobalChecksum((USHORT*)tcppacket,packet_size) !=
 				Packet->TCPHeader.Checksum)
 			{
 				Packet->isMalformed = true;
