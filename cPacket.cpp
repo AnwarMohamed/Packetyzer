@@ -129,10 +129,6 @@ BOOL cPacket::ProcessPacket()
 			unsigned char* data = (unsigned char*)(BaseAddress + sHeader + (IP_Header->ip_header_len*4) + sizeof(ICMP_HEADER));
 
 			memcpy(Packet->ICMPData,data,Packet->ICMPDataSize);
-
-						/*cout << endl << endl;
-			for (size_t i=0; i < Packet->ICMPDataSize; ++i)
-				printf("%02x ", (unsigned char*)Packet->ICMPData[i]);*/
 		}
 		else if ((unsigned short int)(IP_Header->ip_protocol) == IGMP_PACKET)
 		{
@@ -196,8 +192,36 @@ void cPacket::CheckIfMalformed()
 				Packet->isMalformed = true;
 				Packet->PacketError = PACKET_TCP_CHECKSUM;
 			}
-
 		}
+		else if (Packet->isUDPPacket)
+		{
+			UDP_HEADER udpheader;
+			memcpy((void*)&udpheader,(void*)&Packet->UDPHeader,sizeof(UDP_HEADER));
+			udpheader.crc = 0;
+
+			PSEUDO_HEADER psheader;
+			memcpy(&psheader.daddr, &Packet->IPHeader.DestinationAddress, sizeof(UINT));
+			memcpy(&psheader.saddr, &Packet->IPHeader.SourceAddress, sizeof(UINT));
+			psheader.protocol = Packet->IPHeader.Protocol;
+			psheader.length = htons((USHORT)(sizeof(UDP_HEADER) + Packet->UDPDataSize));
+			psheader.zero = 0;
+
+			unsigned char *udppacket;
+			UINT packet_size = sizeof(UDP_HEADER) + Packet->UDPDataSize + sizeof(PSEUDO_HEADER);
+			packet_size = packet_size + ((packet_size%2)*2);
+			udppacket = (unsigned char*)malloc(packet_size);
+			memset(udppacket,0, packet_size);
+			memcpy((void*)&udppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
+			memcpy((void*)&udppacket[sizeof(PSEUDO_HEADER)], (void*)&udpheader,sizeof(UDP_HEADER));
+			memcpy((void*)&udppacket[sizeof(PSEUDO_HEADER) + sizeof(UDP_HEADER)],(void*)Packet->UDPData,Packet->UDPDataSize);
+
+			if (GlobalChecksum((USHORT*)udppacket,packet_size) !=	Packet->UDPHeader.Checksum)
+			{
+				Packet->isMalformed = true;
+				Packet->PacketError = PACKET_UDP_CHECKSUM;
+			}
+		}
+
 	}
 };
 
