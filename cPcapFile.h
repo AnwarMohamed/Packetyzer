@@ -24,8 +24,20 @@
 #include "hPackets.h"
 #include "cPacket.h"
 #include "cFile.h"
+#include <vector>
 
 using namespace std;
+
+struct FOLLOW_STREAM
+{
+	UCHAR	ether_dhost[ETHER_ADDR_LEN];
+	UCHAR	ether_shost[ETHER_ADDR_LEN];
+	UINT	ip_srcaddr;
+	UINT	ip_destaddr;
+	UCHAR	ip_protocol;
+	USHORT	source_port;
+	USHORT	dest_port;
+};
 
 class cPCAP : public cFile
 {
@@ -35,9 +47,13 @@ class cPCAP : public cFile
 	BOOL ProcessPCAP();
 	cPacket* Packet;
 public:
-	unsigned int nPackets;
+	UINT nPackets;
 	PACKET* Packets;
 	BOOL FileLoaded;
 	cPCAP(char* szFilename);
 	~cPCAP(void);
+	void DetectMalformedPackets();
+	BOOL FollowStream(UINT id);
+	UINT nStreamPackets;
+	vector<UINT> StreamPacketsIDs;
 };

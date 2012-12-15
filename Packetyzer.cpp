@@ -28,7 +28,7 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	unsigned char buffer[] = { 
+	UCHAR buffer[] = { 
 		0x00,0x1c,0xc0,0xe6,0xa2,0xab,0x00,0x24,0x2b,0x32,0xc3,0x55,0x08,0x00,
 		0x45,0x00,0x00,0x34,0xc5,0x47,0x40,0x00,0x40,0x06,0x61,0x6a,0x0a,0x00,
 		0x00,0x09,0x0a,0x00,0x00,0x0a,0x90,0x1b,0x0d,0x3d,0x15,0x94,0x78,0x2a,
@@ -41,12 +41,19 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.BaseAddress << endl;
 	cout << "Buffer size: " << Packetyzer.FileLength << endl;
 
-	if (Packetyzer.FileLoaded)
-		for (unsigned int i=0; i < Packetyzer.nPackets; i++)
+	if (Packetyzer.FollowStream(33))
+	{
+		for (UINT i=0; i< Packetyzer.StreamPacketsIDs.size(); i++)
+		{
+			cout << Packetyzer.Packets[Packetyzer.StreamPacketsIDs[i]].TCPDataSize << endl;
+		}
+	}
+	/*if (Packetyzer.FileLoaded)
+		for (UINT i=0; i < Packetyzer.nPackets; i++)
 		{
 			cout << i + 1 << "\t";
 			if(Packetyzer.Packets[i].isMalformed)
-				cout << "Malformed" << endl;
+				cout << "Malformed" << endl;*/
 			/*if (Packetyzer.Packets[i].isIPPacket)
 			{
 				cout << "IP\t";
@@ -55,7 +62,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					cout << "TCP " << endl;
 					cout << "TCPData\n";
 
-					for(unsigned int j=0;j<Packetyzer.Packets[i].TCPDataSize;j++)
+					for(UINT j=0;j<Packetyzer.Packets[i].TCPDataSize;j++)
 					{
 						printf("%02x ",Packetyzer.Packets[i].TCPData[j]);
 					}
@@ -73,7 +80,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 				cout << endl;
 			}*/
-		}
+		//}
 
 	system("PAUSE");
 	return 0;

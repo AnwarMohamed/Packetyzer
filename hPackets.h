@@ -70,21 +70,21 @@ struct	ETHER_ADDR {
 
 struct IP_HEADER
 {
-	unsigned char  ip_header_len:4;  // 4-bit header length (in 32-bit words)
-	unsigned char  ip_version   :4;  // 4-bit IPv4 version
-	unsigned char  ip_tos;           // IP type of service
-	unsigned short ip_total_length;  // Total length
-	unsigned short ip_id;            // Unique identifier
-	unsigned char  ip_frag_offset   :5; // Fragment offset field
-	unsigned char  ip_more_fragment :1;
-	unsigned char  ip_dont_fragment :1;
-	unsigned char  ip_reserved_zero :1;
-	unsigned char  ip_frag_offset1;    //fragment offset
-	unsigned char  ip_ttl;           // Time to live
-	unsigned char  ip_protocol;      // Protocol(TCP,UDP etc)
-	unsigned short ip_checksum;      // IP checksum
-	unsigned int   ip_srcaddr;       // Source address
-	unsigned int   ip_destaddr;      // Source address
+	UCHAR  ip_header_len:4;  // 4-bit header length (in 32-bit words)
+	UCHAR  ip_version   :4;  // 4-bit IPv4 version
+	UCHAR  ip_tos;           // IP type of service
+	USHORT ip_total_length;  // Total length
+	USHORT ip_id;            // Unique identifier
+	UCHAR  ip_frag_offset   :5; // Fragment offset field
+	UCHAR  ip_more_fragment :1;
+	UCHAR  ip_dont_fragment :1;
+	UCHAR  ip_reserved_zero :1;
+	UCHAR  ip_frag_offset1;    //fragment offset
+	UCHAR  ip_ttl;           // Time to live
+	UCHAR  ip_protocol;      // Protocol(TCP,UDP etc)
+	USHORT ip_checksum;      // IP checksum
+	UINT   ip_srcaddr;       // Source address
+	UINT   ip_destaddr;      // Source address
 };
 
 
@@ -97,24 +97,24 @@ struct IP_HEADER
 
 struct TCP_HEADER
 {
-	unsigned short source_port;  // source port
-	unsigned short dest_port;    // destination port
-	unsigned int   sequence;     // sequence number - 32 bits
-	unsigned int   acknowledge;  // acknowledgement number - 32 bits
-	unsigned char  ns   :1;          //Nonce Sum Flag Added in RFC 3540.
-	unsigned char  reserved_part1:3; //according to rfc
-	unsigned char  data_offset:4;    //number of dwords in the TCP header.
-	unsigned char  fin  :1;      //Finish Flag
-	unsigned char  syn  :1;      //Synchronise Flag
-	unsigned char  rst  :1;      //Reset Flag
-	unsigned char  psh  :1;      //Push Flag
-	unsigned char  ack  :1;      //Acknowledgement Flag
-	unsigned char  urg  :1;      //Urgent Flag
-	unsigned char  ecn  :1;      //ECN-Echo Flag
-	unsigned char  cwr  :1;      //Congestion Window Reduced Flag
-	unsigned short window;          // window
-	unsigned short checksum;        // checksum
-	unsigned short urgent_pointer;  // urgent pointer
+	USHORT source_port;  // source port
+	USHORT dest_port;    // destination port
+	UINT   sequence;     // sequence number - 32 bits
+	UINT   acknowledge;  // acknowledgement number - 32 bits
+	UCHAR  ns   :1;          //Nonce Sum Flag Added in RFC 3540.
+	UCHAR  reserved_part1:3; //according to rfc
+	UCHAR  data_offset:4;    //number of dwords in the TCP header.
+	UCHAR  fin  :1;      //Finish Flag
+	UCHAR  syn  :1;      //Synchronise Flag
+	UCHAR  rst  :1;      //Reset Flag
+	UCHAR  psh  :1;      //Push Flag
+	UCHAR  ack  :1;      //Acknowledgement Flag
+	UCHAR  urg  :1;      //Urgent Flag
+	UCHAR  ecn  :1;      //ECN-Echo Flag
+	UCHAR  cwr  :1;      //Congestion Window Reduced Flag
+	USHORT window;          // window
+	USHORT checksum;        // checksum
+	USHORT urgent_pointer;  // urgent pointer
 };
 
 
@@ -271,27 +271,27 @@ struct IGMP_HEADER
 
 /*PCAP FILES*/
 
-typedef unsigned int guint32;
-typedef unsigned short guint16;
-typedef int gint32;
+typedef UINT UINT;
+typedef USHORT USHORT;
+typedef int INT;
 
 struct PCAP_GENERAL_HEADER 
 {
-    guint32 magic_number;   /* magic number */
-    guint16 version_major;  /* major version number */
-    guint16 version_minor;  /* minor version number */
-    gint32  thiszone;       /* GMT to local correction */
-    guint32 sigfigs;        /* accuracy of timestamps */
-    guint32 snaplen;        /* max length of captured packets, in octets */
-    guint32 network;        /* data link type */
+    UINT magic_number;   /* magic number */
+    USHORT version_major;  /* major version number */
+    USHORT version_minor;  /* minor version number */
+    INT  thiszone;       /* GMT to local correction */
+    UINT sigfigs;        /* accuracy of timestamps */
+    UINT snaplen;        /* max length of captured packets, in octets */
+    UINT network;        /* data link type */
 };
 
 struct PCAP_PACKET_HEADER 
 {
-    guint32 ts_sec;         /* timestamp seconds */
-    guint32 ts_usec;        /* timestamp microseconds */
-    guint32 incl_len;       /* number of octets of packet saved in file */
-    guint32 orig_len;       /* actual length of packet */
+    UINT ts_sec;         /* timestamp seconds */
+    UINT ts_usec;        /* timestamp microseconds */
+    UINT incl_len;       /* number of octets of packet saved in file */
+    UINT orig_len;       /* actual length of packet */
 };
 
 
@@ -310,9 +310,9 @@ struct PSEUDO_HEADER
 {
     unsigned long saddr;
     unsigned long daddr;
-    unsigned char zero;
-    unsigned char protocol;
-    unsigned short length;
+    UCHAR zero;
+    UCHAR protocol;
+    USHORT length;
 };
 #pragma pack(pop, r1)
 

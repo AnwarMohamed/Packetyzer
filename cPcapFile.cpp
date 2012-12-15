@@ -20,9 +20,10 @@
 
 
 #include "StdAfx.h"
-#include "cPCAP.h"
+#include "cPcapFile.h"
 #include "cFile.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -36,13 +37,13 @@ BOOL cPCAP::ProcessPCAP()
 	nPackets = 0;
 	if (BaseAddress == 0 || FileLength == 0) return false;
 	PCAP_General_Header = (PCAP_GENERAL_HEADER*)BaseAddress;
-	unsigned int psize = 0;
+	UINT psize = 0;
 
 	PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(BaseAddress + sizeof(PCAP_GENERAL_HEADER));
 	psize = psize + PCAP_Packet_Header->incl_len;
 	
 	/* getting number of packets inside file */
-	for(unsigned int i=1; PCAP_Packet_Header->incl_len !=0 ;i++)
+	for(UINT i=1; PCAP_Packet_Header->incl_len !=0 ;i++)
 	{
 		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER) * i) + psize);
 		psize = psize + PCAP_Packet_Header->incl_len;
@@ -50,18 +51,17 @@ BOOL cPCAP::ProcessPCAP()
 	}
 
 	/* parse each packet*/
-	unsigned int fsize = 0;
-	unsigned int lsize = 0;
+	UINT fsize = 0;
+	UINT lsize = 0;
 
 	Packets = (PACKET*)malloc(sizeof(PACKET) * nPackets);
-	for (unsigned int i=0; i < nPackets; i++)
+	for (UINT i=0; i < nPackets; i++)
 	{
 		DWORD PBaseAddress = (BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER)*(i+1)) + fsize);
 		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER)*(i)) + fsize);
 		
 		fsize = fsize + PCAP_Packet_Header->incl_len;
-		unsigned int PSize = PCAP_Packet_Header->incl_len;
-		cout << PSize << endl;
+		UINT PSize = PCAP_Packet_Header->incl_len;
 		
 		Packet = new cPacket;
 		Packet->setBuffer((char*)PBaseAddress,PSize);
@@ -75,4 +75,53 @@ BOOL cPCAP::ProcessPCAP()
 
 cPCAP::~cPCAP(void)
 {
-}
+};
+
+BOOL cPCAP::FollowStream(UINT id)
+{
+	StreamPacketsIDs.empty();
+	id = id-1;
+	if (id >= nPackets) return false;
+
+	for (UINT i=0; i<nPackets; i++)
+	{
+		if ((Packets[id].isIPPacket && Packets[i].isIPPacket) &&
+			(Packets[id].IPHeader.DestinationAddress == Packets[i].IPHeader.DestinationAddress &&
+			Packets[id].IPHeader.SourceAddress == Packets[i].IPHeader.SourceAddress))
+		{
+			if ((Packets[id].isTCPPacket && Packets[i].isTCPPacket) &&
+				(Packets[id].TCPHeader.DestinationPort == Packets[i].TCPHeader.DestinationPort &&
+				Packets[id].TCPHeader.SourcePort == Packets[i].TCPHeader.SourcePort))
+			{
+				StreamPacketsIDs.push_back(i);
+			}
+			else if ((Packets[id].isUDPPacket && Packets[i].isUDPPacket) &&
+				(Packets[id].UDPHeader.DestinationPort == Packets[i].UDPHeader.DestinationPort &&
+				Packets[id].UDPHeader.SourcePort == Packets[i].UDPHeader.SourcePort))
+			{
+				StreamPacketsIDs.push_back(i);
+			}
+		}
+		else if ((Packets[id].isIPPacket && Packets[i].isIPPacket) &&
+			(Packets[id].IPHeader.DestinationAddress == Packets[i].IPHeader.SourceAddress &&
+			Packets[id].IPHeader.SourceAddress == Packets[i].IPHeader.DestinationAddress))
+		{
+			if ((Packets[id].isTCPPacket && Packets[i].isTCPPacket) &&
+				(Packets[id].TCPHeader.DestinationPort == Packets[i].TCPHeader.SourcePort &&
+				Packets[id].TCPHeader.SourcePort == Packets[i].TCPHeader.DestinationPort))
+			{
+				StreamPacketsIDs.push_back(i);
+			}
+			else if ((Packets[id].isUDPPacket && Packets[i].isUDPPacket) &&
+				(Packets[id].UDPHeader.DestinationPort == Packets[i].UDPHeader.SourcePort &&
+				Packets[id].UDPHeader.SourcePort == Packets[i].UDPHeader.DestinationPort))
+			{
+				StreamPacketsIDs.push_back(i);
+			}
+		}
+
+	}
+
+	sort(StreamPacketsIDs.begin(), StreamPacketsIDs.end());
+	return true;
+};

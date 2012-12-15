@@ -27,7 +27,7 @@ using namespace std;
 
 struct PACKET
 {
-	unsigned int Size;
+	UINT Size;
 
 	BOOL isTCPPacket;
 	BOOL isUDPPacket;
@@ -53,49 +53,49 @@ struct PACKET
 
 	struct PIP_HEADER
 	{
-		unsigned char  HeaderLength:4;
-		unsigned char  Version   :4;
-		unsigned char  TypeOfService;
-		unsigned short TotalLength;
-		unsigned short Identification;
-		unsigned char  FragmentOffsetField   :5;
-		unsigned char  MoreFragment :1;
-		unsigned char  DonotFragment :1;
-		unsigned char  ReservedZero :1;
-		unsigned char  FragmentOffset;
-		unsigned char  TimeToLive;
-		unsigned char  Protocol;
-		unsigned short Checksum;
-		unsigned int   SourceAddress;
-		unsigned int   DestinationAddress;
+		UCHAR  HeaderLength:4;
+		UCHAR  Version   :4;
+		UCHAR  TypeOfService;
+		USHORT TotalLength;
+		USHORT Identification;
+		UCHAR  FragmentOffsetField   :5;
+		UCHAR  MoreFragment :1;
+		UCHAR  DonotFragment :1;
+		UCHAR  ReservedZero :1;
+		UCHAR  FragmentOffset;
+		UCHAR  TimeToLive;
+		UCHAR  Protocol;
+		USHORT Checksum;
+		UINT   SourceAddress;
+		UINT   DestinationAddress;
 	} IPHeader;
 
 	struct PTCP_HEADER
 	{
-		unsigned short SourcePort;
-		unsigned short DestinationPort;
-		unsigned int   Sequence;
-		unsigned int   Acknowledge;
-		unsigned char  NonceSumFlag   :1;
-		unsigned char  ReservedPart1:3;
-		unsigned char  DataOffset:4;
-		unsigned char  FinishFlag  :1;
-		unsigned char  SynchroniseFlag  :1;
-		unsigned char  ResetFlag  :1;
-		unsigned char  PushFlag  :1;
-		unsigned char  AcknowledgmentFlag  :1;
-		unsigned char  UrgentFlag  :1;
-		unsigned char  EchoFlag  :1;
-		unsigned char  CongestionWindowReducedFlag  :1;
-		unsigned short Window;
-		unsigned short Checksum;
-		unsigned short UrgentPointer;
+		USHORT SourcePort;
+		USHORT DestinationPort;
+		UINT   Sequence;
+		UINT   Acknowledge;
+		UCHAR  NonceSumFlag   :1;
+		UCHAR  ReservedPart1:3;
+		UCHAR  DataOffset:4;
+		UCHAR  FinishFlag  :1;
+		UCHAR  SynchroniseFlag  :1;
+		UCHAR  ResetFlag  :1;
+		UCHAR  PushFlag  :1;
+		UCHAR  AcknowledgmentFlag  :1;
+		UCHAR  UrgentFlag  :1;
+		UCHAR  EchoFlag  :1;
+		UCHAR  CongestionWindowReducedFlag  :1;
+		USHORT Window;
+		USHORT Checksum;
+		USHORT UrgentPointer;
 	} TCPHeader;
 
-	unsigned char* TCPData;
-	unsigned int TCPDataSize;
-	unsigned char* TCPOptions;
-	unsigned int TCPOptionsSize;
+	UCHAR* TCPData;
+	UINT TCPDataSize;
+	UCHAR* TCPOptions;
+	UINT TCPOptionsSize;
 
 	struct PUDP_HEADER
 	{
@@ -105,8 +105,8 @@ struct PACKET
 		u_short Checksum;
 	} UDPHeader;
 
-	unsigned char* UDPData;
-	unsigned int UDPDataSize;
+	UCHAR* UDPData;
+	UINT UDPDataSize;
 
 	struct PICMP_HEADER
 	{
@@ -129,8 +129,8 @@ struct PACKET
 		} un;
 	} ICMPHeader;
 
-	unsigned char* ICMPData;
-	unsigned int ICMPDataSize;
+	UCHAR* ICMPData;
+	UINT ICMPDataSize;
 
 	struct PIGMP_HEADER
 	{
@@ -160,8 +160,8 @@ class cPacket
 {
 	void CheckIfMalformed();
 
-	unsigned int sHeader;
-	unsigned int eType;
+	UINT sHeader;
+	UINT eType;
 
 	void ResetIs();
 
@@ -174,19 +174,19 @@ class cPacket
 	IGMP_HEADER* IGMP_Header;
 	SLL_HEADER* SLL_Header;
 
-	USHORT GlobalChecksum(USHORT *buffer, unsigned int length);
+	USHORT GlobalChecksum(USHORT *buffer, UINT length);
 
 public:
 	cPacket(void);
 	~cPacket(void);
 
 	BOOL setFile(string filename);
-	BOOL setBuffer(char* buffer, unsigned int size);
+	BOOL setBuffer(char* buffer, UINT size);
 
 	BOOL ProcessPacket();
 
 	DWORD BaseAddress;
-	unsigned int Size;
+	UINT Size;
 
 	PACKET* Packet;
 };
