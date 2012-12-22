@@ -19,7 +19,7 @@
  */
 
 #include "StdAfx.h"
-#include "cConnectionStream.h"
+#include "cConStream.h"
 #include <iostream>
 
 using namespace std;

@@ -24,8 +24,7 @@
 #include "hPackets.h"
 #include "cPacket.h"
 #include "cFile.h"
-//#include <vector>
-#include "cConnectionStream.h"
+#include "cConStream.h"
 
 using namespace std;
 

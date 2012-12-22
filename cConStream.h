@@ -34,10 +34,10 @@ public:
 
 	PACKET*	Packets;
 	INT		nPackets;
-	INT		nActivePackets;	 //For Packets that still in the list
+	INT		nActivePackets;
 
 	BOOL	AddPacket(PACKET* packet);
 	BOOL	AnalyzePackets();
-	BOOL	ClearActivePackets();	 //Remove all packets from the cList and remain the nPackets as the same and set nActivePackets to zero and remain ClientIp,ServerIp,...
+	BOOL	ClearActivePackets();
 
 };

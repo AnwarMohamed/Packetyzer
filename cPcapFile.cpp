@@ -21,7 +21,6 @@
 #include "StdAfx.h"
 #include "cPcapFile.h"
 #include "cFile.h"
-//#include "cConnectionStream.h"
 #include <iostream>
 #include <algorithm>
 #include "cPacket.h"
@@ -121,5 +120,6 @@ BOOL cPCAP::FollowStream(PACKET* packet)
 	}
 
 	Stream.AnalyzePackets();
+	Stream.ClearActivePackets();
 	return true;
 };
