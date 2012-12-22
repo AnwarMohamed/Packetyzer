@@ -43,11 +43,36 @@ BOOL cConStream::AnalyzePackets()
 		}
 		else
 		{
-
+			/* assign client as first packet*/
+			ServerPort = ntohs(Packets[0].TCPHeader.DestinationPort);
+			ServerIP = Packets[0].IPHeader.DestinationAddress;
+			ClientPort = ntohs(Packets[0].TCPHeader.SourcePort);
+			ClientIP = Packets[0].IPHeader.SourceAddress;
 		}
 	}
 	else if (Packets[0].isUDPPacket)
 	{
+		if (ntohs(Packets[0].UDPHeader.DestinationPort) < 1024)
+		{
+			ServerPort = ntohs(Packets[0].UDPHeader.DestinationPort);
+			ServerIP = Packets[0].IPHeader.DestinationAddress;
+			ClientPort = ntohs(Packets[0].UDPHeader.SourcePort);
+			ClientIP = Packets[0].IPHeader.SourceAddress;
+		}
+		else if (ntohs(Packets[0].UDPHeader.SourcePort) < 1024)
+		{
+			ClientPort = ntohs(Packets[0].UDPHeader.DestinationPort);
+			ClientIP = Packets[0].IPHeader.DestinationAddress;
+			ServerPort = ntohs(Packets[0].UDPHeader.SourcePort);
+			ServerIP = Packets[0].IPHeader.SourceAddress;			
+		}
+		else
+		{
+			ServerPort = ntohs(Packets[0].UDPHeader.DestinationPort);
+			ServerIP = Packets[0].IPHeader.DestinationAddress;
+			ClientPort = ntohs(Packets[0].UDPHeader.SourcePort);
+			ClientIP = Packets[0].IPHeader.SourceAddress;
+		}
 	}
 
 	return true;
