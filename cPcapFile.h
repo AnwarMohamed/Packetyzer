@@ -24,7 +24,8 @@
 #include "hPackets.h"
 #include "cPacket.h"
 #include "cFile.h"
-#include <vector>
+//#include <vector>
+#include "cConnectionStream.h"
 
 using namespace std;
 
@@ -53,7 +54,7 @@ public:
 	cPCAP(char* szFilename);
 	~cPCAP(void);
 	void DetectMalformedPackets();
-	BOOL FollowStream(UINT id);
-	UINT nStreamPackets;
-	vector<UINT> StreamPacketsIDs;
+	BOOL FollowStream(PACKET* packet);
+	INT nPacketStreams;
+	cConStream* PacketStreams;
 };

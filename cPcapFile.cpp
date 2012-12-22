@@ -18,12 +18,13 @@
  *
  */
 
-
 #include "StdAfx.h"
 #include "cPcapFile.h"
 #include "cFile.h"
+//#include "cConnectionStream.h"
 #include <iostream>
 #include <algorithm>
+#include "cPacket.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ cPCAP::cPCAP(char* szFilename) : cFile(szFilename)
 BOOL cPCAP::ProcessPCAP()
 {
 	nPackets = 0;
+	nPacketStreams = 0;
 	if (BaseAddress == 0 || FileLength == 0) return false;
 	PCAP_General_Header = (PCAP_GENERAL_HEADER*)BaseAddress;
 	UINT psize = 0;
@@ -77,51 +79,47 @@ cPCAP::~cPCAP(void)
 {
 };
 
-BOOL cPCAP::FollowStream(UINT id)
+BOOL cPCAP::FollowStream(PACKET* packet)
 {
-	StreamPacketsIDs.empty();
-	id = id-1;
-	if (id >= nPackets) return false;
-
+	cConStream Stream;
 	for (UINT i=0; i<nPackets; i++)
 	{
-		if ((Packets[id].isIPPacket && Packets[i].isIPPacket) &&
-			(Packets[id].IPHeader.DestinationAddress == Packets[i].IPHeader.DestinationAddress &&
-			Packets[id].IPHeader.SourceAddress == Packets[i].IPHeader.SourceAddress))
+		if ((packet->isIPPacket && Packets[i].isIPPacket) &&
+			(packet->IPHeader.DestinationAddress == Packets[i].IPHeader.DestinationAddress &&
+			packet->IPHeader.SourceAddress == Packets[i].IPHeader.SourceAddress))
 		{
-			if ((Packets[id].isTCPPacket && Packets[i].isTCPPacket) &&
-				(Packets[id].TCPHeader.DestinationPort == Packets[i].TCPHeader.DestinationPort &&
-				Packets[id].TCPHeader.SourcePort == Packets[i].TCPHeader.SourcePort))
+			if ((packet->isTCPPacket && Packets[i].isTCPPacket) &&
+				(packet->TCPHeader.DestinationPort == Packets[i].TCPHeader.DestinationPort &&
+				packet->TCPHeader.SourcePort == Packets[i].TCPHeader.SourcePort))
 			{
-				StreamPacketsIDs.push_back(i);
+				Stream.AddPacket(&Packets[i]);
 			}
-			else if ((Packets[id].isUDPPacket && Packets[i].isUDPPacket) &&
-				(Packets[id].UDPHeader.DestinationPort == Packets[i].UDPHeader.DestinationPort &&
-				Packets[id].UDPHeader.SourcePort == Packets[i].UDPHeader.SourcePort))
+			else if ((packet->isUDPPacket && Packets[i].isUDPPacket) &&
+				(packet->UDPHeader.DestinationPort == Packets[i].UDPHeader.DestinationPort &&
+				packet->UDPHeader.SourcePort == Packets[i].UDPHeader.SourcePort))
 			{
-				StreamPacketsIDs.push_back(i);
+				Stream.AddPacket(&Packets[i]);
 			}
 		}
-		else if ((Packets[id].isIPPacket && Packets[i].isIPPacket) &&
-			(Packets[id].IPHeader.DestinationAddress == Packets[i].IPHeader.SourceAddress &&
-			Packets[id].IPHeader.SourceAddress == Packets[i].IPHeader.DestinationAddress))
+		else if ((packet->isIPPacket && Packets[i].isIPPacket) &&
+			(packet->IPHeader.DestinationAddress == Packets[i].IPHeader.SourceAddress &&
+			packet->IPHeader.SourceAddress == Packets[i].IPHeader.DestinationAddress))
 		{
-			if ((Packets[id].isTCPPacket && Packets[i].isTCPPacket) &&
-				(Packets[id].TCPHeader.DestinationPort == Packets[i].TCPHeader.SourcePort &&
-				Packets[id].TCPHeader.SourcePort == Packets[i].TCPHeader.DestinationPort))
+			if ((packet->isTCPPacket && Packets[i].isTCPPacket) &&
+				(packet->TCPHeader.DestinationPort == Packets[i].TCPHeader.SourcePort &&
+				packet->TCPHeader.SourcePort == Packets[i].TCPHeader.DestinationPort))
 			{
-				StreamPacketsIDs.push_back(i);
+				Stream.AddPacket(&Packets[i]);
 			}
-			else if ((Packets[id].isUDPPacket && Packets[i].isUDPPacket) &&
-				(Packets[id].UDPHeader.DestinationPort == Packets[i].UDPHeader.SourcePort &&
-				Packets[id].UDPHeader.SourcePort == Packets[i].UDPHeader.DestinationPort))
+			else if ((packet->isUDPPacket && Packets[i].isUDPPacket) &&
+				(packet->UDPHeader.DestinationPort == Packets[i].UDPHeader.SourcePort &&
+				packet->UDPHeader.SourcePort == Packets[i].UDPHeader.DestinationPort))
 			{
-				StreamPacketsIDs.push_back(i);
+				Stream.AddPacket(&Packets[i]);
 			}
 		}
-
 	}
 
-	sort(StreamPacketsIDs.begin(), StreamPacketsIDs.end());
+	Stream.AnalyzePackets();
 	return true;
 };

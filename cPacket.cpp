@@ -29,7 +29,6 @@
 #pragma pack()
 using namespace std;
 
-USHORT in_cksum_tcp(int src, int dst, USHORT *addr, int len);
 
 cPacket::cPacket(void)
 {

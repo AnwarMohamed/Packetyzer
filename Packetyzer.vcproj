@@ -171,6 +171,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\cConnectionStream.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\cFile.cpp"
 				>
 			</File>
@@ -179,7 +183,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cPCAP.cpp"
+				RelativePath=".\cPcapFile.cpp"
 				>
 			</File>
 			<File
@@ -213,6 +217,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\cConnectionStream.h"
+				>
+			</File>
+			<File
 				RelativePath=".\cFile.h"
 				>
 			</File>
@@ -221,7 +229,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cPCAP.h"
+				RelativePath=".\cPcapFile.h"
 				>
 			</File>
 			<File

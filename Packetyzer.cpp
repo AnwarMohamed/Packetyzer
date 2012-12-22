@@ -41,13 +41,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << "Buffer loaded at: " << (DWORD*)Packetyzer.BaseAddress << endl;
 	cout << "Buffer size: " << Packetyzer.FileLength << endl;
 
-	if (Packetyzer.FollowStream(33))
+	Packetyzer.FollowStream(&Packetyzer.Packets[3]);
+	/*if (Packetyzer.FollowStream(302))
 	{
 		for (UINT i=0; i< Packetyzer.StreamPacketsIDs.size(); i++)
 		{
-			cout << Packetyzer.Packets[Packetyzer.StreamPacketsIDs[i]].TCPDataSize << endl;
+			UCHAR* ip = (UCHAR *)&Packetyzer.Packets[Packetyzer.StreamPacketsIDs[i]].IPHeader.DestinationAddress;
+			cout << Packetyzer.StreamPacketsIDs[i] << "\t";
+			printf("%d.%d.%d.%d\n",ip[0],ip[1],ip[2],ip[3]);
 		}
-	}
+	}*/
 	/*if (Packetyzer.FileLoaded)
 		for (UINT i=0; i < Packetyzer.nPackets; i++)
 		{
