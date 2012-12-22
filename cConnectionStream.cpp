@@ -7,7 +7,7 @@ using namespace std;
 cConStream::cConStream()
 {
 	nPackets = 0;
-	Packets = new PACKET;
+	Packets = (PACKET*)malloc(nPackets * sizeof(PACKET));
 };
 
 cConStream::~cConStream()
