@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (C) 2012  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
 #include "StdAfx.h"
 #include "cConnectionStream.h"
 #include <iostream>
@@ -6,8 +26,9 @@ using namespace std;
 
 cConStream::cConStream()
 {
+	nActivePackets = 0;
 	nPackets = 0;
-	Packets = (PACKET*)malloc(nPackets * sizeof(PACKET));
+	Packets = (PACKET*)malloc(nActivePackets * sizeof(PACKET));
 };
 
 cConStream::~cConStream()
@@ -16,10 +37,11 @@ cConStream::~cConStream()
 
 BOOL cConStream::AddPacket(PACKET* packet)
 {
-	nPackets++;
-	Packets = (PACKET*)realloc((void*)Packets, nPackets * sizeof(PACKET));
-	memcpy((void*)&Packets[(nPackets-1)], (void*)packet, sizeof(PACKET));
+	nActivePackets++;
+	Packets = (PACKET*)realloc((void*)Packets, nActivePackets * sizeof(PACKET));
+	memcpy((void*)&Packets[(nActivePackets-1)], (void*)packet, sizeof(PACKET));
 
+	nPackets++;
 	return true;
 };
 
@@ -75,5 +97,12 @@ BOOL cConStream::AnalyzePackets()
 		}
 	}
 
+	return true;
+};
+
+BOOL cConStream::ClearActivePackets()
+{
+	free(Packets);
+	nActivePackets = 0;
 	return true;
 };
