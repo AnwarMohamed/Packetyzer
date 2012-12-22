@@ -102,9 +102,6 @@ BOOL cConStream::AnalyzePackets()
 
 BOOL cConStream::ClearActivePackets()
 {
-	for (INT i=0; i<nActivePackets; i++)
-		delete &Packets[i];
-
 	free(Packets);
 	Packets = (PACKET*)malloc(nActivePackets * sizeof(PACKET));
 	nActivePackets = 0;
