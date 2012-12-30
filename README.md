@@ -2,6 +2,17 @@
 -------------
 C++ Library to analyze network packets with variety of types.
 
+Features:
+	Analyze, display and filter packet trace files.
+	Supports PCAP packet capture format.
+	Printing of packets.
+
+Supported Types and Protocols:
+	Ethertypes:
+		ARP, IP (v4)
+	IP-Protocols:
+		IP (v4), TCP, UDP, ICMP (v4), IGMP
+
 
 Copyright (C) 2012  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
 
