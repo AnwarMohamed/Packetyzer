@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2012  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *  Copyright (C) 2013  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,35 +28,53 @@ using namespace std;
 class cPacket
 {
 	void CheckIfMalformed();
-
 	UINT sHeader;
 	UINT eType;
-
 	void ResetIs();
-
-	ETHER_HEADER* Ether_Header;
-	IP_HEADER* IP_Header;
-	TCP_HEADER* TCP_Header;
-	ARP_HEADER* ARP_Header;
-	UDP_HEADER*	UDP_Header;
-	ICMP_HEADER* ICMP_Header;
-	IGMP_HEADER* IGMP_Header;
-	SLL_HEADER* SLL_Header;
-
 	USHORT GlobalChecksum(USHORT *buffer, UINT length);
+	BOOL ProcessPacket();
 
 public:
-	cPacket(void);
-	~cPacket(void);
+	cPacket(string filename);
+	cPacket(UCHAR* buffer, UINT size);
+	~cPacket();
 
-	BOOL setFile(string filename);
-	BOOL setBuffer(char* buffer, UINT size);
-
-	BOOL ProcessPacket();
+	BOOL FixIPChecksum();
+	BOOL FixTCPChecksum();
+	BOOL FixUDPChecksum();
 
 	DWORD BaseAddress;
 	UINT Size;
 
-	PACKET* Packet;
+	PETHER_HEADER*	EthernetHeader;
+	PIP_HEADER*		IPHeader;
+	PTCP_HEADER*	TCPHeader;
+	PARP_HEADER*	ARPHeader;
+	PUDP_HEADER*	UDPHeader;
+	PICMP_HEADER*	ICMPHeader;
+	PIGMP_HEADER*	IGMPHeader;
+
+	UINT PacketSize;
+	BOOL isParsed;
+	WORD PacketError;
+
+	BOOL isTCPPacket;
+	BOOL isUDPPacket;
+	BOOL isICMPPacket;
+	BOOL isIGMPPacket;
+	BOOL isARPPacket;
+	BOOL isIPPacket;
+	BOOL isMalformed;
+
+	UCHAR* TCPData;
+	UINT TCPDataSize;
+	UCHAR* TCPOptions;
+	UINT TCPOptionsSize;
+
+	UCHAR* UDPData;
+	UINT UDPDataSize;
+
+	UCHAR* ICMPData;
+	UINT ICMPDataSize;
 };
 

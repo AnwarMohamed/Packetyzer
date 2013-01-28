@@ -41,16 +41,6 @@ typedef unsigned __int8 u_int8_t;
 #define	ETHER_IS_VALID_LEN(foo)	\
 	((foo) >= ETHER_MIN_LEN && (foo) <= ETHER_MAX_LEN)
 
-struct	ETHER_HEADER {
-	u_char	ether_dhost[ETHER_ADDR_LEN];
-	u_char	ether_shost[ETHER_ADDR_LEN];
-	u_short	ether_type;
-};
-
-struct	ETHER_ADDR {
-	u_char octet[ETHER_ADDR_LEN];
-};
-
 #define	ETHERTYPE_PUP		0x0200	/* PUP protocol */
 #define	ETHERTYPE_IP		0x0800	/* IP protocol */
 #define	ETHERTYPE_ARP		0x0806	/* Addr. resolution protocol */
@@ -65,74 +55,14 @@ struct	ETHER_ADDR {
 #define	ETHERMIN	(ETHER_MIN_LEN-ETHER_HDR_LEN-ETHER_CRC_LEN)
 
 
-
-/*Internet Protocol*/
-
-struct IP_HEADER
-{
-	UCHAR  ip_header_len:4;  // 4-bit header length (in 32-bit words)
-	UCHAR  ip_version   :4;  // 4-bit IPv4 version
-	UCHAR  ip_tos;           // IP type of service
-	USHORT ip_total_length;  // Total length
-	USHORT ip_id;            // Unique identifier
-	UCHAR  ip_frag_offset   :5; // Fragment offset field
-	UCHAR  ip_more_fragment :1;
-	UCHAR  ip_dont_fragment :1;
-	UCHAR  ip_reserved_zero :1;
-	UCHAR  ip_frag_offset1;    //fragment offset
-	UCHAR  ip_ttl;           // Time to live
-	UCHAR  ip_protocol;      // Protocol(TCP,UDP etc)
-	USHORT ip_checksum;      // IP checksum
-	UINT   ip_srcaddr;       // Source address
-	UINT   ip_destaddr;      // Source address
-};
-
-
-/* TCP */
-
 #define TCP_PACKET	6
 #define UDP_PACKET	17
 #define ICMP_PACKET	1
 #define IGMP_PACKET	2
 
-struct TCP_HEADER
-{
-	USHORT source_port;  // source port
-	USHORT dest_port;    // destination port
-	UINT   sequence;     // sequence number - 32 bits
-	UINT   acknowledge;  // acknowledgement number - 32 bits
-	UCHAR  ns   :1;          //Nonce Sum Flag Added in RFC 3540.
-	UCHAR  reserved_part1:3; //according to rfc
-	UCHAR  data_offset:4;    //number of dwords in the TCP header.
-	UCHAR  fin  :1;      //Finish Flag
-	UCHAR  syn  :1;      //Synchronise Flag
-	UCHAR  rst  :1;      //Reset Flag
-	UCHAR  psh  :1;      //Push Flag
-	UCHAR  ack  :1;      //Acknowledgement Flag
-	UCHAR  urg  :1;      //Urgent Flag
-	UCHAR  ecn  :1;      //ECN-Echo Flag
-	UCHAR  cwr  :1;      //Congestion Window Reduced Flag
-	USHORT window;          // window
-	USHORT checksum;        // checksum
-	USHORT urgent_pointer;  // urgent pointer
-};
-
-
-
-/* ARP */
-
-struct	ARP_HEADER
-{
-	u_short	ar_hrd;		/* format of hardware address */
-
 #define ARPHRD_ETHER 	1	/* ethernet hardware format */
 #define ARPHRD_IEEE802	6	/* token-ring hardware format */
 #define ARPHRD_FRELAY 	15	/* frame relay hardware format */
-
-	u_short	ar_pro;		/* format of protocol address */
-	u_char	ar_hln;		/* length of hardware address */
-	u_char	ar_pln;		/* length of protocol address */
-	u_short	ar_op;		/* one of: */
 
 #define	ARPOP_REQUEST	1	/* request to resolve address */
 #define	ARPOP_REPLY	2	/* response to previous request */
@@ -140,49 +70,6 @@ struct	ARP_HEADER
 #define	ARPOP_REVREPLY	4	/* response giving protocol address */
 #define ARPOP_INVREQUEST 8 	/* request to identify peer */
 #define ARPOP_INVREPLY	9	/* response identifying peer */
-
-#ifdef COMMENT_ONLY
-	u_char	ar_sha[];	/* sender hardware address */
-	u_char	ar_spa[];	/* sender protocol address */
-	u_char	ar_tha[];	/* target hardware address */
-	u_char	ar_tpa[];	/* target protocol address */
-#endif
-};
-
-
-/*UDP*/
-
-struct UDP_HEADER
-{
-	u_short sport;          // Source port
-	u_short dport;          // Destination port
-	u_short len;            // Datagram length
-	u_short crc;            // Checksum
-};
-
-
-/* ICMP */
-
-struct ICMP_HEADER
-{
-	u_int8_t type;				/* message type */
-	u_int8_t code;				/* type sub-code */
-	u_int16_t checksum;
-	union
-	{
-		struct
-		{
-			u_int16_t	id;
-			u_int16_t	sequence;
-		} echo;					/* echo datagram */
-		u_int32_t	gateway;	/* gateway address */
-		struct
-		{
-		  u_int16_t	__unused;
-		  u_int16_t	mtu;
-		} frag;					/* path mtu discovery */
-	} un;
-};
 
 #define ICMP_ECHOREPLY		0	/* Echo Reply			*/
 #define ICMP_DEST_UNREACH	3	/* Destination Unreachable	*/
@@ -229,18 +116,6 @@ struct ICMP_HEADER
 #define ICMP_EXC_TTL		0	/* TTL count exceeded		*/
 #define ICMP_EXC_FRAGTIME	1	/* Fragment Reass time exceeded	*/
 
-
-
-/* IGMP */
-
-struct IGMP_HEADER
-{
-	u_char	igmp_type;			/* version & type of IGMP message  */
-	u_char	igmp_code;			/* subtype for routing msgs        */
-	u_short igmp_cksum;			/* IP-style checksum               */
-	struct	in_addr	igmp_group;	/* group address being reported    */
-};								/*  (zero for queries)             */
-
 #define IGMP_MINLEN		     8
 
 #define IGMP_MEMBERSHIP_QUERY   	0x11	/* membership query         */
@@ -259,10 +134,8 @@ struct IGMP_HEADER
 											/*  query (in seconds) according */
 											/*  to RFC1112                   */
 
-
 #define IGMP_TIMER_SCALE     10				/* denotes that the igmp code field */
 											/* specifies time in 10th of seconds*/
-
 #define IGMP_HOST_MEMBERSHIP_QUERY	IGMP_MEMBERSHIP_QUERY
 #define IGMP_HOST_MEMBERSHIP_REPORT	IGMP_V1_MEMBERSHIP_REPORT
 #define IGMP_HOST_NEW_MEMBERSHIP_REPORT	IGMP_V2_MEMBERSHIP_REPORT
@@ -306,6 +179,7 @@ struct SLL_HEADER
 };
 
 #pragma pack(push, r1, 1)
+
 struct PSEUDO_HEADER
 {
     unsigned long saddr;
@@ -317,140 +191,112 @@ struct PSEUDO_HEADER
 #pragma pack(pop, r1)
 
 
-
-
-struct PACKET
-{
-	UINT Size;
-
-	BOOL isTCPPacket;
-	BOOL isUDPPacket;
-	BOOL isICMPPacket;
-	BOOL isIGMPPacket;
-	BOOL isARPPacket;
-	BOOL isIPPacket;
-
-	BOOL isMalformed;
-	WORD PacketError;
-
 #define PACKET_NOERROR		0x0000
 #define PACKET_IP_CHECKSUM	0x0001
 #define PACKET_TCP_CHECKSUM	0x0002
 #define PACKET_UDP_CHECKSUM	0x0003
 
-	struct PETHER_HEADER
-	{
-		u_char	DestinationHost[ETHER_ADDR_LEN];
-		u_char	SourceHost[ETHER_ADDR_LEN];
-		u_short ProtocolType;
-	}EthernetHeader;
+struct PETHER_HEADER
+{
+	u_char	DestinationHost[ETHER_ADDR_LEN];
+	u_char	SourceHost[ETHER_ADDR_LEN];
+	u_short ProtocolType;
+};
 
-	struct PIP_HEADER
-	{
-		UCHAR  HeaderLength:4;
-		UCHAR  Version   :4;
-		UCHAR  TypeOfService;
-		USHORT TotalLength;
-		USHORT Identification;
-		UCHAR  FragmentOffsetField   :5;
-		UCHAR  MoreFragment :1;
-		UCHAR  DonotFragment :1;
-		UCHAR  ReservedZero :1;
-		UCHAR  FragmentOffset;
-		UCHAR  TimeToLive;
-		UCHAR  Protocol;
-		USHORT Checksum;
-		UINT   SourceAddress;
-		UINT   DestinationAddress;
-	} IPHeader;
+struct PIP_HEADER
+{
+	UCHAR  HeaderLength:4;
+	UCHAR  Version   :4;
+	UCHAR  TypeOfService;
+	USHORT TotalLength;
+	USHORT Identification;
+	UCHAR  FragmentOffsetField   :5;
+	UCHAR  MoreFragment :1;
+	UCHAR  DonotFragment :1;
+	UCHAR  ReservedZero :1;
+	UCHAR  FragmentOffset;
+	UCHAR  TimeToLive;
+	UCHAR  Protocol;
+	USHORT Checksum;
+	UINT   SourceAddress;
+	UINT   DestinationAddress;
+};
 
-	struct PTCP_HEADER
-	{
-		USHORT SourcePort;
-		USHORT DestinationPort;
-		UINT   Sequence;
-		UINT   Acknowledge;
-		UCHAR  NonceSumFlag   :1;
-		UCHAR  ReservedPart1:3;
-		UCHAR  DataOffset:4;
-		UCHAR  FinishFlag  :1;
-		UCHAR  SynchroniseFlag  :1;
-		UCHAR  ResetFlag  :1;
-		UCHAR  PushFlag  :1;
-		UCHAR  AcknowledgmentFlag  :1;
-		UCHAR  UrgentFlag  :1;
-		UCHAR  EchoFlag  :1;
-		UCHAR  CongestionWindowReducedFlag  :1;
-		USHORT Window;
-		USHORT Checksum;
-		USHORT UrgentPointer;
-	} TCPHeader;
-
-	UCHAR* TCPData;
-	UINT TCPDataSize;
-	UCHAR* TCPOptions;
-	UINT TCPOptionsSize;
-
-	struct PUDP_HEADER
-	{
-		u_short SourcePort;
-		u_short DestinationPort;
-		u_short DatagramLength;
-		u_short Checksum;
-	} UDPHeader;
-
-	UCHAR* UDPData;
-	UINT UDPDataSize;
-
-	struct PICMP_HEADER
-	{
-		u_int8_t Type;
-		u_int8_t SubCode;
-		u_int16_t Checksum;
-		union
-		{
-			struct
-			{
-				u_int16_t	Identification;
-				u_int16_t	Sequence;
-			} Echo;
-			u_int32_t	Gateway;
-			struct
-			{
-			  u_int16_t	__unused;
-			  u_int16_t	Mtu;
-			} Frag;
-		} un;
-	} ICMPHeader;
-
-	UCHAR* ICMPData;
-	UINT ICMPDataSize;
-
-	struct PIGMP_HEADER
-	{
-		u_char	Type;
-		u_char	Code;
-		u_short Checksum;
-		struct	in_addr	Group;
-	} IGMPHeader;
-
-	struct PARP_HEADER
-	{
-		u_short	HardwareType;
-		u_short	ProtocolType;
-		u_char	HardwareAddressLength;
-		u_char	ProtocolAddressLength;
-		u_short	OperationCode;
-	#ifdef COMMENT_ONLY
-		u_char	SourceHardwareAddress[];
-		u_char	SourceProtocolAddress[];
-		u_char	TargetHardwareAddress[];
-		u_char	TargetProtocolAddress[];
-	#endif
-	} ARPHeader;
+struct PTCP_HEADER
+{
+	USHORT SourcePort;
+	USHORT DestinationPort;
+	UINT   Sequence;
+	UINT   Acknowledge;
+	UCHAR  NonceSumFlag   :1;
+	UCHAR  ReservedPart1:3;
+	UCHAR  DataOffset:4;
+	UCHAR  FinishFlag  :1;
+	UCHAR  SynchroniseFlag  :1;
+	UCHAR  ResetFlag  :1;
+	UCHAR  PushFlag  :1;
+	UCHAR  AcknowledgmentFlag  :1;
+	UCHAR  UrgentFlag  :1;
+	UCHAR  EchoFlag  :1;
+	UCHAR  CongestionWindowReducedFlag  :1;
+	USHORT Window;
+	USHORT Checksum;
+	USHORT UrgentPointer;
 };
 
 
+struct PUDP_HEADER
+{
+	u_short SourcePort;
+	u_short DestinationPort;
+	u_short DatagramLength;
+	u_short Checksum;
+};
+
+struct PICMP_HEADER
+{
+	u_int8_t Type;
+	u_int8_t SubCode;
+	u_int16_t Checksum;
+	union
+	{
+		struct
+		{
+			u_int16_t	Identification;
+			u_int16_t	Sequence;
+		} Echo;
+		u_int32_t	Gateway;
+		struct
+		{
+		  u_int16_t	__unused;
+		  u_int16_t	Mtu;
+		} Frag;
+	} un;
+};
+
+
+struct PIGMP_HEADER
+{
+	u_char	Type;
+	u_char	Code;
+	u_short Checksum;
+	struct	in_addr	Group;
+};
+
+struct PARP_HEADER
+{
+	u_short	HardwareType;
+	u_short	ProtocolType;
+	u_char	HardwareAddressLength;
+	u_char	ProtocolAddressLength;
+	u_short	OperationCode;
+#ifdef COMMENT_ONLY
+	u_char	SourceHardwareAddress[];
+	u_char	SourceProtocolAddress[];
+	u_char	TargetHardwareAddress[];
+	u_char	TargetProtocolAddress[];
+#endif
+};
 
 #endif
 

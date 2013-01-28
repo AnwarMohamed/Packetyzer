@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (C) 2012  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *  Copyright (C) 2013  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,21 +39,22 @@ struct FOLLOW_STREAM
 	USHORT	dest_port;
 };
 
-class cPCAP : public cFile
+class cPcapFile : public cFile
 {
 	PCAP_GENERAL_HEADER* PCAP_General_Header;
 	PCAP_PACKET_HEADER* PCAP_Packet_Header;
 
 	BOOL ProcessPCAP();
 	cPacket* Packet;
+	void GetStreams();
 public:
 	UINT nPackets;
-	PACKET* Packets;
+	cPacket** Packets;
 	BOOL FileLoaded;
-	cPCAP(char* szFilename);
-	~cPCAP(void);
+	cPcapFile(char* szFilename);
+	~cPcapFile(void);
 	void DetectMalformedPackets();
-	BOOL FollowStream(PACKET* packet);
-	INT nPacketStreams;
-	cConStream* PacketStreams;
+	cConStream FollowStream(cPacket* packet);
+	UINT nConnectionStreams;
+	cConStream** ConnectionStreams;
 };
