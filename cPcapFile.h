@@ -54,7 +54,7 @@ public:
 	cPcapFile(char* szFilename);
 	~cPcapFile(void);
 	void DetectMalformedPackets();
-	cConStream FollowStream(cPacket* packet);
-	UINT nConnectionStreams;
-	cConStream** ConnectionStreams;
+	//cConStream FollowStream(cPacket* packet);
+	UINT nConStreams;
+	cConStream** ConStreams;
 };

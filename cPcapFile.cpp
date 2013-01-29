@@ -22,9 +22,7 @@
 #include "cPcapFile.h"
 #include "cFile.h"
 #include <iostream>
-#include <algorithm>
 #include "cPacket.h"
-#include <vector>
 
 using namespace std;
 
@@ -65,7 +63,7 @@ BOOL cPcapFile::ProcessPCAP()
 		UINT PSize = PCAP_Packet_Header->incl_len;
 		
 		//Packet = new cPacket;
-		Packet = new cPacket((u_char*)PBaseAddress,PSize);
+		Packet = new cPacket((UCHAR*)PBaseAddress,PSize);
 		//Packet->ProcessPacket();
 
 		memcpy((void**)&Packets[i],(void**)&Packet,sizeof(cPacket*));
@@ -79,7 +77,7 @@ cPcapFile::~cPcapFile(void)
 {
 };
 
-cConStream cPcapFile::FollowStream(cPacket* packet)
+/*cConStream cPcapFile::FollowStream(cPacket* packet)
 {
 	cConStream Stream;
 	for (UINT i=0; i<nPackets; i++)
@@ -123,12 +121,76 @@ cConStream cPcapFile::FollowStream(cPacket* packet)
 	Stream.AnalyzePackets();
 	//Stream.ClearActivePackets();
 	return Stream;
-};
+};*/
 
 void cPcapFile::GetStreams()
 {
-	/* allocate */
-	nConnectionStreams = 0;
-	ConnectionStreams = (cConStream**)malloc(sizeof(cConStream*) * nConnectionStreams);
+	nConStreams = 0;
+	ConStreams = (cConStream**)malloc( sizeof(cConStream*) * nConStreams);
 
+	for (UINT i=0; i<nPackets; i++)
+	{
+		if (nConStreams > 0)
+		{
+			for (UINT j=0; j<nConStreams; j++)
+			{
+				if (ConStreams[j]->isIPPacket && Packets[i]->isIPPacket)
+				{
+					if ((ConStreams[j]->isTCPPacket && Packets[i]->isTCPPacket)
+						&& ( (ConStreams[j]->ClientIP == Packets[i]->IPHeader->DestinationAddress
+						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->TCPHeader->DestinationPort)
+						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->SourceAddress
+						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->TCPHeader->SourcePort) 
+						|| (ConStreams[j]->ClientIP == Packets[i]->IPHeader->SourceAddress
+						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->TCPHeader->SourcePort)
+						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->DestinationAddress
+						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->TCPHeader->DestinationPort)))))
+					{
+						ConStreams[j]->AddPacket(Packets[i]);
+						break;
+					}
+					else if ((ConStreams[j]->isUDPPacket && Packets[i]->isUDPPacket)
+						&& ( (ConStreams[j]->ClientIP == Packets[i]->IPHeader->DestinationAddress
+						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->UDPHeader->DestinationPort)
+						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->SourceAddress
+						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->UDPHeader->SourcePort)) 
+						|| (ConStreams[j]->ClientIP == Packets[i]->IPHeader->SourceAddress
+						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->UDPHeader->SourcePort)
+						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->DestinationAddress
+						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->UDPHeader->DestinationPort)) ))
+					{
+						ConStreams[j]->AddPacket(Packets[i]);
+						break;
+					}
+					else if (j == (nConStreams - 1))
+					{
+						cConStream* tmp1 = new cConStream();
+						tmp1->AddPacket(Packets[i]);
+						tmp1->AnalyzePackets();
+
+						nConStreams++;
+						ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
+						memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp1, sizeof(cConStream*));
+						//delete tmp1;
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			if (Packets[i]->isIPPacket && (Packets[i]->isTCPPacket || Packets[i]->isUDPPacket))
+			{
+				//allocate new stream
+				cConStream* tmp2 = new cConStream();
+				tmp2->AddPacket(Packets[i]);
+				tmp2->AnalyzePackets();
+
+				nConStreams++;
+				ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
+				memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp2, sizeof(cConStream*));
+				//delete tmp2;
+			}
+		}
+	}
 };

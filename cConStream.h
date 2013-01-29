@@ -27,8 +27,8 @@ public:
 	cConStream();
 	~cConStream();
 
-	DWORD	ClientIP;
-	DWORD	ServerIP; 
+	UINT	ClientIP;
+	UINT	ServerIP; 
 	USHORT	ServerPort;
 	USHORT	ClientPort;
 
@@ -39,5 +39,9 @@ public:
 	BOOL	AddPacket(cPacket* packet);
 	BOOL	AnalyzePackets();
 	BOOL	ClearActivePackets(UINT keeped);
+
+	BOOL	isTCPPacket;
+	BOOL	isUDPPacket;
+	BOOL	isIPPacket;
 
 };

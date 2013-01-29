@@ -26,6 +26,9 @@ using namespace std;
 
 cConStream::cConStream()
 {
+	isTCPPacket = false;
+	isUDPPacket = false;
+	isIPPacket = false;
 	nActivePackets = 0;
 	nPackets = 0;
 	Packets = (cPacket**)malloc(nActivePackets * sizeof(cPacket*));
@@ -123,57 +126,67 @@ BOOL cConStream::AddPacket(cPacket* packet)
 
 BOOL cConStream::AnalyzePackets()
 {
-	if (Packets[0]->isTCPPacket)
+	if (nPackets > 0)
 	{
-		if (ntohs(Packets[0]->TCPHeader->DestinationPort) < 1024)
+		if (Packets[0]->isTCPPacket)
 		{
-			ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
-			ServerIP = Packets[0]->IPHeader->DestinationAddress;
-			ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
-			ClientIP = Packets[0]->IPHeader->SourceAddress;
+			isTCPPacket = true;
+			isIPPacket = true;
+			if (ntohs(Packets[0]->TCPHeader->DestinationPort) < 1024)
+			{
+				ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
+				ServerIP = Packets[0]->IPHeader->DestinationAddress;
+				ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
+				ClientIP = Packets[0]->IPHeader->SourceAddress;
+			}
+			else if (ntohs(Packets[0]->TCPHeader->SourcePort) < 1024)
+			{
+				ClientPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
+				ClientIP = Packets[0]->IPHeader->DestinationAddress;
+				ServerPort = ntohs(Packets[0]->TCPHeader->SourcePort);
+				ServerIP = Packets[0]->IPHeader->SourceAddress;			
+			}
+			else
+			{
+				/* assign client as first packet*/
+				ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
+				ServerIP = Packets[0]->IPHeader->DestinationAddress;
+				ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
+				ClientIP = Packets[0]->IPHeader->SourceAddress;
+			}
 		}
-		else if (ntohs(Packets[0]->TCPHeader->SourcePort) < 1024)
+		else if (Packets[0]->isUDPPacket)
 		{
-			ClientPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
-			ClientIP = Packets[0]->IPHeader->DestinationAddress;
-			ServerPort = ntohs(Packets[0]->TCPHeader->SourcePort);
-			ServerIP = Packets[0]->IPHeader->SourceAddress;			
+			isUDPPacket = true;
+			isIPPacket = true;
+			if (ntohs(Packets[0]->UDPHeader->DestinationPort) < 1024)
+			{
+				ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
+				ServerIP = Packets[0]->IPHeader->DestinationAddress;
+				ClientPort = ntohs(Packets[0]->UDPHeader->SourcePort);
+				ClientIP = Packets[0]->IPHeader->SourceAddress;
+			}
+			else if (ntohs(Packets[0]->UDPHeader->SourcePort) < 1024)
+			{
+				ClientPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
+				ClientIP = Packets[0]->IPHeader->DestinationAddress;
+				ServerPort = ntohs(Packets[0]->UDPHeader->SourcePort);
+				ServerIP = Packets[0]->IPHeader->SourceAddress;			
+			}
+			else
+			{
+				ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
+				ServerIP = Packets[0]->IPHeader->DestinationAddress;
+				ClientPort = ntohs(Packets[0]->UDPHeader->SourcePort);
+				ClientIP = Packets[0]->IPHeader->SourceAddress;
+			}
 		}
-		else
-		{
-			/* assign client as first packet*/
-			ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
-			ServerIP = Packets[0]->IPHeader->DestinationAddress;
-			ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
-			ClientIP = Packets[0]->IPHeader->SourceAddress;
-		}
+		return true;
 	}
-	else if (Packets[0]->isUDPPacket)
+	else
 	{
-		if (ntohs(Packets[0]->UDPHeader->DestinationPort) < 1024)
-		{
-			ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
-			ServerIP = Packets[0]->IPHeader->DestinationAddress;
-			ClientPort = ntohs(Packets[0]->UDPHeader->SourcePort);
-			ClientIP = Packets[0]->IPHeader->SourceAddress;
-		}
-		else if (ntohs(Packets[0]->UDPHeader->SourcePort) < 1024)
-		{
-			ClientPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
-			ClientIP = Packets[0]->IPHeader->DestinationAddress;
-			ServerPort = ntohs(Packets[0]->UDPHeader->SourcePort);
-			ServerIP = Packets[0]->IPHeader->SourceAddress;			
-		}
-		else
-		{
-			ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
-			ServerIP = Packets[0]->IPHeader->DestinationAddress;
-			ClientPort = ntohs(Packets[0]->UDPHeader->SourcePort);
-			ClientIP = Packets[0]->IPHeader->SourceAddress;
-		}
+		return false;
 	}
-
-	return true;
 };
 
 BOOL cConStream::ClearActivePackets(UINT keeped)
