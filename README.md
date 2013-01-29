@@ -14,7 +14,7 @@ Supported Types and Protocols:
 		IP (v4), TCP, UDP, ICMP (v4), IGMP
 
 
-Copyright (C) 2012  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+Copyright (C) 2013  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
