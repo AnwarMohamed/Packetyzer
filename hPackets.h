@@ -190,12 +190,6 @@ struct PSEUDO_HEADER
 };
 #pragma pack(pop, r1)
 
-
-#define PACKET_NOERROR		0x0000
-#define PACKET_IP_CHECKSUM	0x0001
-#define PACKET_TCP_CHECKSUM	0x0002
-#define PACKET_UDP_CHECKSUM	0x0003
-
 struct PETHER_HEADER
 {
 	u_char	DestinationHost[ETHER_ADDR_LEN];

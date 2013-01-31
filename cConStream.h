@@ -23,6 +23,7 @@
 
 class cConStream
 {
+	BOOL	AnalyzePackets();
 public:
 	cConStream();
 	~cConStream();
@@ -37,7 +38,6 @@ public:
 	UINT		nActivePackets;
 
 	BOOL	AddPacket(cPacket* packet);
-	BOOL	AnalyzePackets();
 	BOOL	ClearActivePackets(UINT keeped);
 
 	BOOL	isTCPPacket;

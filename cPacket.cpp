@@ -25,16 +25,12 @@
 #include <iostream>
 
 #pragma comment(lib, "ws2_32.lib")
-#pragma pack(1)
-#pragma pack()
 using namespace std;
-
 
 cPacket::cPacket(string filename)
 {
 	BaseAddress = 0;
 	Size = 0;
-	//Packet = (PACKET*)malloc(sizeof(PACKET));
 
 	cFile* File = new cFile((char*)filename.c_str());
 	if (File->FileLength == 0) return;
@@ -49,7 +45,6 @@ cPacket::cPacket(UCHAR* buffer, UINT size)
 {
 	BaseAddress = 0;
 	Size = 0;
-	//Packet = (PACKET*)malloc(sizeof(PACKET));
 
 	BaseAddress = (DWORD)buffer;
 	Size = size;
@@ -68,23 +63,16 @@ BOOL cPacket::ProcessPacket()
 	sHeader = sizeof(PETHER_HEADER);
 	eType = ntohs(EthernetHeader->ProtocolType);
 
-	//memcpy((void*)&Packet->EthernetHeader,(void*)Header,sizeof(ETHER_HEADER));
-
-
 	/* packet ether type */
 	if (eType == ETHERTYPE_IP)
 	{
 		isIPPacket = true;
 		IPHeader = (PIP_HEADER*)(BaseAddress + sHeader);
 
-		//memcpy((void*)&Packet->IPHeader,(void*)IP_Header,sizeof(IP_HEADER));
-
 		if ((USHORT)(IPHeader->Protocol) == TCP_PACKET)
 		{
 			isTCPPacket = true;
 			TCPHeader = (PTCP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
-
-//			memcpy((void*)&Packet->TCPHeader,(void*)TCP_Header,sizeof(TCP_HEADER));
 			
 			TCPDataSize =  Size - sHeader - (IPHeader->HeaderLength*4) - (TCPHeader->DataOffset*4);
 			TCPOptionsSize = (TCPHeader->DataOffset*4) - sizeof(PTCP_HEADER);
@@ -212,6 +200,11 @@ void cPacket::CheckIfMalformed()
 				isMalformed = true;
 				PacketError = PACKET_UDP_CHECKSUM;
 			}
+		} else if (isIPPacket && IPHeader->TimeToLive <= 10)
+
+		{
+			isMalformed = true;
+			PacketError = PACKET_IP_TTL;
 		}
 	}
 };

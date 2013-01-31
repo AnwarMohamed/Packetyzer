@@ -62,10 +62,7 @@ BOOL cPcapFile::ProcessPCAP()
 		fsize = fsize + PCAP_Packet_Header->incl_len;
 		UINT PSize = PCAP_Packet_Header->incl_len;
 		
-		//Packet = new cPacket;
 		Packet = new cPacket((UCHAR*)PBaseAddress,PSize);
-		//Packet->ProcessPacket();
-
 		memcpy((void**)&Packets[i],(void**)&Packet,sizeof(cPacket*));
 	}
 
@@ -76,52 +73,6 @@ BOOL cPcapFile::ProcessPCAP()
 cPcapFile::~cPcapFile(void)
 {
 };
-
-/*cConStream cPcapFile::FollowStream(cPacket* packet)
-{
-	cConStream Stream;
-	for (UINT i=0; i<nPackets; i++)
-	{
-		if ((packet->isIPPacket && Packets[i]->isIPPacket) &&
-			(packet->IPHeader->DestinationAddress == Packets[i]->IPHeader->DestinationAddress &&
-			packet->IPHeader->SourceAddress == Packets[i]->IPHeader->SourceAddress))
-		{
-			if ((packet->isTCPPacket && Packets[i]->isTCPPacket) &&
-				(packet->TCPHeader->DestinationPort == Packets[i]->TCPHeader->DestinationPort &&
-				packet->TCPHeader->SourcePort == Packets[i]->TCPHeader->SourcePort))
-			{
-				Stream.AddPacket(Packets[i]);
-			}
-			else if ((packet->isUDPPacket && Packets[i]->isUDPPacket) &&
-				(packet->UDPHeader->DestinationPort == Packets[i]->UDPHeader->DestinationPort &&
-				packet->UDPHeader->SourcePort == Packets[i]->UDPHeader->SourcePort))
-			{
-				Stream.AddPacket(Packets[i]);
-			}
-		}
-		else if ((packet->isIPPacket && Packets[i]->isIPPacket) &&
-			(packet->IPHeader->DestinationAddress == Packets[i]->IPHeader->SourceAddress &&
-			packet->IPHeader->SourceAddress == Packets[i]->IPHeader->DestinationAddress))
-		{
-			if ((packet->isTCPPacket && Packets[i]->isTCPPacket) &&
-				(packet->TCPHeader->DestinationPort == Packets[i]->TCPHeader->SourcePort &&
-				packet->TCPHeader->SourcePort == Packets[i]->TCPHeader->DestinationPort))
-			{
-				Stream.AddPacket(Packets[i]);
-			}
-			else if ((packet->isUDPPacket && Packets[i]->isUDPPacket) &&
-				(packet->UDPHeader->DestinationPort == Packets[i]->UDPHeader->SourcePort &&
-				packet->UDPHeader->SourcePort == Packets[i]->UDPHeader->DestinationPort))
-			{
-				Stream.AddPacket(Packets[i]);
-			}
-		}
-	}
-
-	Stream.AnalyzePackets();
-	//Stream.ClearActivePackets();
-	return Stream;
-};*/
 
 void cPcapFile::GetStreams()
 {
@@ -136,42 +87,18 @@ void cPcapFile::GetStreams()
 			{
 				if (ConStreams[j]->isIPPacket && Packets[i]->isIPPacket)
 				{
-					if ((ConStreams[j]->isTCPPacket && Packets[i]->isTCPPacket)
-						&& ( (ConStreams[j]->ClientIP == Packets[i]->IPHeader->DestinationAddress
-						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->TCPHeader->DestinationPort)
-						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->SourceAddress
-						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->TCPHeader->SourcePort) 
-						|| (ConStreams[j]->ClientIP == Packets[i]->IPHeader->SourceAddress
-						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->TCPHeader->SourcePort)
-						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->DestinationAddress
-						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->TCPHeader->DestinationPort)))))
+					if (ConStreams[j]->AddPacket(Packets[i]))
 					{
-						ConStreams[j]->AddPacket(Packets[i]);
-						break;
-					}
-					else if ((ConStreams[j]->isUDPPacket && Packets[i]->isUDPPacket)
-						&& ( (ConStreams[j]->ClientIP == Packets[i]->IPHeader->DestinationAddress
-						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->UDPHeader->DestinationPort)
-						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->SourceAddress
-						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->UDPHeader->SourcePort)) 
-						|| (ConStreams[j]->ClientIP == Packets[i]->IPHeader->SourceAddress
-						&& ConStreams[j]->ClientPort == ntohs(Packets[i]->UDPHeader->SourcePort)
-						&& ConStreams[j]->ServerIP == Packets[i]->IPHeader->DestinationAddress
-						&& ConStreams[j]->ServerPort == ntohs(Packets[i]->UDPHeader->DestinationPort)) ))
-					{
-						ConStreams[j]->AddPacket(Packets[i]);
 						break;
 					}
 					else if (j == (nConStreams - 1))
 					{
 						cConStream* tmp1 = new cConStream();
 						tmp1->AddPacket(Packets[i]);
-						tmp1->AnalyzePackets();
 
 						nConStreams++;
 						ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
 						memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp1, sizeof(cConStream*));
-						//delete tmp1;
 						break;
 					}
 				}
@@ -184,12 +111,10 @@ void cPcapFile::GetStreams()
 				//allocate new stream
 				cConStream* tmp2 = new cConStream();
 				tmp2->AddPacket(Packets[i]);
-				tmp2->AnalyzePackets();
 
 				nConStreams++;
 				ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
 				memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp2, sizeof(cConStream*));
-				//delete tmp2;
 			}
 		}
 	}

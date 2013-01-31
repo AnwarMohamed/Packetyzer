@@ -47,7 +47,8 @@ BOOL cConStream::AddPacket(cPacket* packet)
 		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
 
 		nPackets++;
-		return true;
+
+		return AnalyzePackets();
 	}
 	else if (nPackets > 0)
 	{	
@@ -64,7 +65,7 @@ BOOL cConStream::AddPacket(cPacket* packet)
 				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
 
 				nPackets++;
-				return true;
+				return AnalyzePackets();
 			}
 			else if ((packet->isUDPPacket && Packets[0]->isUDPPacket) &&
 				(packet->UDPHeader->DestinationPort == Packets[0]->UDPHeader->DestinationPort &&
@@ -75,7 +76,7 @@ BOOL cConStream::AddPacket(cPacket* packet)
 				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
 
 				nPackets++;
-				return true;
+				return AnalyzePackets();
 			}
 			else
 			{
@@ -95,7 +96,7 @@ BOOL cConStream::AddPacket(cPacket* packet)
 				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
 
 				nPackets++;
-				return true;
+				return AnalyzePackets();
 			}
 			else if ((packet->isUDPPacket && Packets[0]->isUDPPacket) &&
 				(packet->UDPHeader->DestinationPort == Packets[0]->UDPHeader->SourcePort &&
@@ -106,7 +107,7 @@ BOOL cConStream::AddPacket(cPacket* packet)
 				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
 
 				nPackets++;
-				return true;
+				return AnalyzePackets();
 			}
 			else
 			{
