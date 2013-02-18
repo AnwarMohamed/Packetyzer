@@ -21,6 +21,7 @@
 #include "stdafx.h"
 #include "cPcapFile.h"
 #include "cConStream.h"
+#include "cPacketGen.h"
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -37,7 +38,27 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	cPcapFile pckts("D:\\sample3.pcap");
+	cPacketGen PG(GENERATE_TCP);
+	PG.SetMACAddress("00:1d:60:b3:01:84","00:26:62:2f:47:87");
+	PG.SetIPAddress("10.0.0.9","69.59.197.29");
+	PG.SetPorts(34926, 80);
+	for (UINT i=0; i< PG.GeneratedPacketSize; i++) 
+		printf("%02x ", PG.GeneratedPacket[i]);
+
+	/*cPacket gen_packet;
+	gen_packet.GeneratePacket("192.168.1.140","174.143.213.184",GENERATE_TCP,57678,80,NULL,"00:1d:60:b3:01:84","00:26:62:2f:47:87");
+
+	cout << gen_packet.GeneratedPacketSize << endl;
+	for (UINT i=0; i< gen_packet.GeneratedPacketSize; i++) printf("%02x ", gen_packet.GeneratedPacket[i]);
+
+	cPacket pckt(gen_packet.GeneratedPacket, gen_packet.GeneratedPacketSize);*/
+	//if (pckt.isMalformed) cout << "malformed " << pckt.PacketError << endl;
+	//else cout << "good packet" << endl;
+	
+	//for (UINT i=0; i < gen_packet.GeneratedPacketSize; i++)
+	//	printf("%x " , gen_packet.GeneratedPacket[i]);
+
+	//cPcapFile pckts("D:\\sample3.pcap");
 	//cout << pckts.nConStreams << endl;
 
 	
@@ -45,23 +66,23 @@ int _tmain(int argc, _TCHAR* argv[])
 	//cout << pckts.FileLength << endl;
 	//cout << pckts.nPackets << endl;
 
-	cout << "nPackets: " << pckts.nPackets << endl;
+	/*cout << "nPackets: " << pckts.nPackets << endl;
 	cout << "nStreams: " << pckts.nConStreams << endl;
 	int z = 0;
 	int y = 0;
 	for (UINT i=0; i < pckts.nConStreams; i++)
-	{
+	{*/
 		/*if (pckts.ConStreams[i]->isTCPPacket)
 		{
 			UCHAR* ip = (UCHAR*)&pckts.ConStreams[i]->ClientIP;
 			UCHAR* ip2 = (UCHAR*)&pckts.ConStreams[i]->ServerIP;
 			printf("%u.%u.%u.%u\t%d\t%u.%u.%u.%u\t%d\n\n", ip[0], ip[1], ip[2], ip[3], pckts.ConStreams[i]->ClientPort, ip2[0], ip2[1], ip2[2], ip2[3], pckts.ConStreams[i]->ServerPort);
 		}*/
-		if (pckts.ConStreams[i]->isTCPPacket) z++;
+		/*if (pckts.ConStreams[i]->isTCPPacket) z++;
 		if (pckts.ConStreams[i]->isUDPPacket) y++;
-	}
-	cout << "TCP: " << z << endl;
-	cout << "UDP: " << y << endl;
+	}*/
+	//cout << "TCP: " << z << endl;
+	//cout << "UDP: " << y << endl;
 	/*for (UINT i =0; i < pckts.nPackets; i++)
 	{
 		if (pckts.Packets[i]->TCPDataSize > 0)

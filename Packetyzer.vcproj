@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cPacketGen.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\cPcapFile.cpp"
 				>
 			</File>
@@ -226,6 +230,10 @@
 			</File>
 			<File
 				RelativePath=".\cPacket.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cPacketGen.h"
 				>
 			</File>
 			<File

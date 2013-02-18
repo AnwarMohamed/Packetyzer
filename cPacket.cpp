@@ -23,6 +23,8 @@
 #include "cFile.h"
 #include "hPackets.h"
 #include <iostream>
+#include <intrin.h>
+#include <algorithm>
 
 #pragma comment(lib, "ws2_32.lib")
 using namespace std;
