@@ -25,11 +25,12 @@
 
 using namespace std;
 
-#define PACKET_NOERROR		0x0
-#define PACKET_IP_CHECKSUM	0x1
-#define PACKET_TCP_CHECKSUM	0x2
-#define PACKET_UDP_CHECKSUM	0x3
-#define PACKET_IP_TTL		0x4
+#define PACKET_NOERROR			0x0
+#define PACKET_IP_CHECKSUM		0x1
+#define PACKET_TCP_CHECKSUM		0x2
+#define PACKET_UDP_CHECKSUM		0x3
+#define PACKET_ICMP_CHECKSUM	0x4
+#define PACKET_IP_TTL			0x4
 
 class cPacket
 {
@@ -48,6 +49,7 @@ public:
 	BOOL FixIPChecksum();
 	BOOL FixTCPChecksum();
 	BOOL FixUDPChecksum();
+	BOOL FixICMPChecksum();
 
 	DWORD BaseAddress;
 	UINT Size;

@@ -38,10 +38,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	cPacketGen PG(GENERATE_TCP);
+	cPacketGen PG(GENERATE_ARP);
+
 	PG.SetMACAddress("00:1d:60:b3:01:84","00:26:62:2f:47:87");
-	PG.SetIPAddress("10.0.0.9","69.59.197.29");
-	PG.SetPorts(34926, 80);
+	PG.SetIPAddress("192.168.1.104","174.143.213.184");
+	PG.SetPorts(57678, 80);
+
+	UCHAR options[11] = { 0x01,0x01,0x08,0x0a,0x00,0xd4,0x6d,0xde,0x00,0xa3,0x31,/*0xae*/ };
+	UCHAR data[10] = "Test Case";
+
+	if (PG.CustomizeTCP((UCHAR*)options, sizeof(options),data, sizeof(data), TCP_SYN))
+		cout << "TCP Packet is ready"  << endl;
+	if (PG.CustomizeUDP(data, sizeof(data)))
+		cout << "UDP Packet is ready"  << endl;
+	if (PG.CustomizeICMP(3,0,data, sizeof(data)))
+		cout << "ICMP Packet is ready"  << endl;
+
+
 	for (UINT i=0; i< PG.GeneratedPacketSize; i++) 
 		printf("%02x ", PG.GeneratedPacket[i]);
 

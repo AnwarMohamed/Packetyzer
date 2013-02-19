@@ -204,8 +204,37 @@ void cPacket::CheckIfMalformed()
 				isMalformed = true;
 				PacketError = PACKET_UDP_CHECKSUM;
 			}
-		} else if (isIPPacket && IPHeader->TimeToLive <= 10)
+		}
+		else if (isICMPPacket)
+		{
+			PICMP_HEADER icmpheader;
+			memcpy((void*)&icmpheader,(void*)ICMPHeader,sizeof(PICMP_HEADER));
+			icmpheader.Checksum = 0;
 
+			PSEUDO_HEADER psheader;
+			memcpy(&psheader.daddr, &IPHeader->DestinationAddress, sizeof(UINT));
+			memcpy(&psheader.saddr, &IPHeader->SourceAddress, sizeof(UINT));
+			psheader.protocol = IPHeader->Protocol;
+			psheader.length = htons((USHORT)(sizeof(PUDP_HEADER) + ICMPDataSize));
+			psheader.zero = 0;
+
+			UCHAR *icmppacket;
+			UINT packet_size = sizeof(PICMP_HEADER) + ICMPDataSize + sizeof(PSEUDO_HEADER);
+			packet_size = packet_size + ((packet_size%2)*2);
+			icmppacket = (UCHAR*)malloc(packet_size);
+			memset(icmppacket,0, packet_size);
+			memcpy((void*)&icmppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
+			memcpy((void*)&icmppacket[sizeof(PSEUDO_HEADER)], (void*)&icmpheader,sizeof(PICMP_HEADER));
+			memcpy((void*)&icmppacket[sizeof(PSEUDO_HEADER) + sizeof(PUDP_HEADER)],(void*)ICMPData,ICMPDataSize);
+
+			if (GlobalChecksum((USHORT*)icmppacket,packet_size) != ICMPHeader->Checksum)
+			{
+				isMalformed = true;
+				PacketError = PACKET_ICMP_CHECKSUM;
+			}			
+		} 
+		
+		if (isIPPacket && IPHeader->TimeToLive <= 10)
 		{
 			isMalformed = true;
 			PacketError = PACKET_IP_TTL;
@@ -246,6 +275,45 @@ void cPacket::ResetIs()
 	PacketError = PACKET_NOERROR;
 	isMalformed = false;
 	isParsed = false;
+};
+
+BOOL cPacket::FixICMPChecksum()
+{
+	if (isICMPPacket)
+	{
+		PICMP_HEADER icmpheader;
+		memcpy((void*)&icmpheader,(void*)ICMPHeader,sizeof(PICMP_HEADER));
+		icmpheader.Checksum = 0;
+
+		PSEUDO_HEADER psheader;
+		memcpy(&psheader.daddr, &IPHeader->DestinationAddress, sizeof(UINT));
+		memcpy(&psheader.saddr, &IPHeader->SourceAddress, sizeof(UINT));
+		psheader.protocol = IPHeader->Protocol;
+		psheader.length = htons((USHORT)(sizeof(PUDP_HEADER) + ICMPDataSize));
+		psheader.zero = 0;
+
+		UCHAR *icmppacket;
+		UINT packet_size = sizeof(PICMP_HEADER) + ICMPDataSize + sizeof(PSEUDO_HEADER);
+		packet_size = packet_size + ((packet_size%2)*2);
+		icmppacket = (UCHAR*)malloc(packet_size);
+		memset(icmppacket,0, packet_size);
+		memcpy((void*)&icmppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
+		memcpy((void*)&icmppacket[sizeof(PSEUDO_HEADER)], (void*)&icmpheader,sizeof(PICMP_HEADER));
+		memcpy((void*)&icmppacket[sizeof(PSEUDO_HEADER) + sizeof(PUDP_HEADER)],(void*)ICMPData,ICMPDataSize);
+
+		USHORT crc = GlobalChecksum((USHORT*)icmppacket,packet_size);
+		if(crc != ICMPHeader->Checksum)
+		{
+			memcpy(&ICMPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+			CheckIfMalformed();
+			return true;
+		} 
+		else 
+		{ 
+			return false; 
+		}			
+	}
+	else return false;
 };
 
 BOOL cPacket::FixIPChecksum()

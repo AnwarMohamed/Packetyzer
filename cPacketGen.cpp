@@ -6,20 +6,7 @@
 cPacketGen::cPacketGen(UINT type)
 {
 	GeneratedPacketSize = 0;
-	if (type == GENERATE_ARP)
-	{
-		PacketType = GENERATE_ARP;
-		UCHAR buffer[] = {
-			0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-			0x08,0x06,0x00,0x01,0x08,0x00,0x06,0x04,0x00,0x01,0x00,0x24,
-			0x2b,0x32,0xc3,0x55,0x0a,0x00,0x00,0x09,0x00,0x00,0x00,0x00,
-			0x00,0x00,0x0a,0x00,0x00,0x0a };
-
-		GeneratedPacket = (UCHAR*)malloc(sizeof(buffer));
-		memcpy(GeneratedPacket, &buffer, sizeof(buffer));
-		GeneratedPacketSize = sizeof(buffer);
-	}
-	else if (type == GENERATE_TCP)
+	if (type == GENERATE_TCP)
 	{
 		PacketType = GENERATE_TCP;
 		UCHAR buffer[] = { 
@@ -35,12 +22,66 @@ cPacketGen::cPacketGen(UINT type)
 			0x00,0x00,									/*tcpheader*/
 			0x00,0x00,
 			0x8e,0x50,0x19,0x01,0x00,0x00,
-			0x00,0x00,0x50,0x02,0x16,0xd0,
+			0x00,0x00,0x50,0x00,0x16,0xd0,
 			0x00,0x00,/*0x16,0x80,*/					/*checksum*/
 			0x00,0x00,									
 			//0x02,0x04,0x05,0xb4,0x04,0x02,0x08,0x0a,	/*options*/
 			//0x00,0x21,0xd2,0x5a,0x00,0x00,0x00,0x00,
 			/*0x01,0x03,0x03,0x0*/};
+
+		GeneratedPacket = (UCHAR*)malloc(sizeof(buffer));
+		memcpy(GeneratedPacket, &buffer, sizeof(buffer));
+		GeneratedPacketSize = sizeof(buffer);
+	}	
+	else if (type == GENERATE_UDP)
+	{
+		PacketType = GENERATE_UDP;
+		UCHAR buffer[] = { 
+			0x00,0x00,0x00,0x00,0x00,0x00,				/*etherheader*/
+			0x00,0x00,0x00,0x00,0x00,0x00, 
+			0x08,0x00,  
+			0x45,0x00,									/*ipheader*/
+			0x00,0x1c,									/*total_length*/
+			0xcb,0x5b,0x40,0x00,0x40,0x11,
+			0x00,0x00,/*0x28,0xe4,*/					/*checksum*/
+			0x00,0x00,0x00,0x00,
+			0x00,0x00,0x00,0x00,
+			0x00,0x00,									/*udpheader*/
+			0x00,0x00,
+			0x00,0x08,
+			0x00,0x00 };
+
+		GeneratedPacket = (UCHAR*)malloc(sizeof(buffer));
+		memcpy(GeneratedPacket, &buffer, sizeof(buffer));
+		GeneratedPacketSize = sizeof(buffer);
+	}
+	else if (type == GENERATE_ICMP)
+	{
+		PacketType = GENERATE_ICMP;
+		UCHAR buffer[] = { 
+			0x00,0x00,0x00,0x00,0x00,0x00,				/*etherheader*/
+			0x00,0x00,0x00,0x00,0x00,0x00, 
+			0x08,0x00,  
+			0x45,0x00,									/*ipheader*/
+			0x00,0x18,									/*total_length*/
+			0xcb,0x5b,0x40,0x00,0x40,0x01,
+			0x00,0x00,/*0x28,0xe4,*/					/*checksum*/
+			0x00,0x00,0x00,0x00,
+			0x00,0x00,0x00,0x00,
+			0x00,0x00,									/*icmpheader*/
+			0x00,0x00 };
+
+		GeneratedPacket = (UCHAR*)malloc(sizeof(buffer));
+		memcpy(GeneratedPacket, &buffer, sizeof(buffer));
+		GeneratedPacketSize = sizeof(buffer);
+	}
+	else if (type == GENERATE_ARP)
+	{
+		PacketType = GENERATE_ARP;
+		UCHAR buffer[] = { 
+			0x00,0x24,0x2b,0x32,0xc3,0x55,0x00,0x1c,
+			0xc0,0xe6,0xa2,0xab,0x08,0x06,0x00,0x01,
+			0x08,0x00,0x06,0x04,0x00,0x01 };
 
 		GeneratedPacket = (UCHAR*)malloc(sizeof(buffer));
 		memcpy(GeneratedPacket, &buffer, sizeof(buffer));
@@ -65,6 +106,7 @@ BOOL cPacketGen::SetMACAddress(string src_mac, string dest_mac)
 
 	memcpy(&Packet->EthernetHeader->DestinationHost, &dest_mac_hex, 6);
 	memcpy(&Packet->EthernetHeader->SourceHost, &src_mac_hex, 6);
+
 	return true;
 };
 
@@ -102,12 +144,13 @@ BOOL cPacketGen::SetPorts(USHORT src_port, USHORT dest_port)
 	else return false;
 };
 
-BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* tcp_data, UINT tcp_data_size)
+BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* tcp_data, UINT tcp_data_size, USHORT tcp_flags)
 {
+	UINT options_size;
 	if (Packet->isTCPPacket)
 	{
+		options_size = tcp_options_size;
 		if (tcp_options_size%4 !=0) tcp_options_size += 4 - (tcp_options_size%4);
-		if (tcp_data_size%4 !=0) tcp_data_size += 4 - (tcp_data_size%4);
 
 		if (tcp_options_size ==0)
 		{
@@ -124,7 +167,8 @@ BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* 
 
 			GeneratedPacketSize = (sizeof(PETHER_HEADER) + (Packet->IPHeader->HeaderLength*4) + (Packet->TCPHeader->DataOffset*4));
 			GeneratedPacket = (UCHAR*)realloc(GeneratedPacket, GeneratedPacketSize);
-			memcpy(&GeneratedPacket[(GeneratedPacketSize - tcp_options_size)], tcp_options, tcp_options_size);
+			memcpy(&GeneratedPacket[GeneratedPacketSize - tcp_options_size], tcp_options, tcp_options_size);
+			memset(&GeneratedPacket[GeneratedPacketSize - (4 - (options_size%4))], 0, 4 - (options_size%4));
 
 			delete Packet;
 			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
@@ -144,13 +188,94 @@ BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* 
 			GeneratedPacketSize += tcp_data_size;
 			GeneratedPacket = (UCHAR*)realloc(GeneratedPacket, GeneratedPacketSize);
 			memcpy(&GeneratedPacket[GeneratedPacketSize - tcp_data_size], tcp_data ,tcp_data_size);
+
+			delete Packet;
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+		}
+		else return false;
+
+		if (tcp_flags & TCP_ACK) Packet->TCPHeader->AcknowledgmentFlag = 1;
+		if (tcp_flags & TCP_SYN) Packet->TCPHeader->SynchroniseFlag = 1;
+		if (tcp_flags & TCP_FIN) Packet->TCPHeader->FinishFlag = 1;
+		if (tcp_flags & TCP_RST) Packet->TCPHeader->ResetFlag = 1;
+		if (tcp_flags & TCP_PSH) Packet->TCPHeader->PushFlag = 1;
+		if (tcp_flags & TCP_URG) Packet->TCPHeader->UrgentFlag = 1;
+
+		Packet->FixIPChecksum();
+		Packet->FixTCPChecksum();
+
+		if (Packet->isMalformed) return false;
+
+		return true;
+	}
+	else return false;
+};
+
+BOOL cPacketGen::CustomizeUDP(UCHAR* udp_data, UINT udp_data_size)
+{
+	USHORT data_length;
+	if (Packet->isUDPPacket)
+	{
+		if (udp_data_size ==0)
+		{
+			delete Packet;
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+		}
+		else if (udp_data_size > 0)
+		{
+			total_length = htons((USHORT) (ntohs(Packet->IPHeader->TotalLength) + udp_data_size));
+			memcpy(&Packet->IPHeader->TotalLength, &total_length, sizeof(USHORT));
+
+			data_length = htons((USHORT) (sizeof(PUDP_HEADER) + udp_data_size));
+			memcpy(&Packet->UDPHeader->DatagramLength, &data_length, sizeof(USHORT));
+
+			GeneratedPacketSize += udp_data_size;
+			GeneratedPacket = (UCHAR*)realloc(GeneratedPacket, GeneratedPacketSize);
+			memcpy(&GeneratedPacket[GeneratedPacketSize - udp_data_size], udp_data ,udp_data_size);
+
 			delete Packet;
 			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
 		}
 		else return false;
 
 		Packet->FixIPChecksum();
-		Packet->FixTCPChecksum();
+		Packet->FixUDPChecksum();
+
+		if (Packet->isMalformed) return false;
+
+		return true;
+	}
+	else return false;
+};
+
+BOOL cPacketGen::CustomizeICMP(UCHAR icmp_type, UCHAR icmp_code, UCHAR* icmp_data, UINT icmp_data_size)
+{
+	if (Packet->isICMPPacket)
+	{
+		Packet->ICMPHeader->Type = icmp_type;
+		Packet->ICMPHeader->SubCode = icmp_code;
+
+		if (icmp_data_size ==0)
+		{
+			delete Packet;
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+		}
+		else if (icmp_data_size > 0)
+		{
+			total_length = htons((USHORT) (ntohs(Packet->IPHeader->TotalLength) + icmp_data_size));
+			memcpy(&Packet->IPHeader->TotalLength, &total_length, sizeof(USHORT));
+
+			GeneratedPacketSize += icmp_data_size;
+			GeneratedPacket = (UCHAR*)realloc(GeneratedPacket, GeneratedPacketSize);
+			memcpy(&GeneratedPacket[GeneratedPacketSize - icmp_data_size], icmp_data ,icmp_data_size);
+
+			delete Packet;
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+		}
+		else return false;
+
+		Packet->FixIPChecksum();
+		Packet->FixICMPChecksum();
 
 		if (Packet->isMalformed) return false;
 

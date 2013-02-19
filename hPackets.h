@@ -64,12 +64,12 @@ typedef unsigned __int8 u_int8_t;
 #define ARPHRD_IEEE802	6	/* token-ring hardware format */
 #define ARPHRD_FRELAY 	15	/* frame relay hardware format */
 
-#define	ARPOP_REQUEST	1	/* request to resolve address */
-#define	ARPOP_REPLY	2	/* response to previous request */
-#define	ARPOP_REVREQUEST 3	/* request protocol address given hardware */
-#define	ARPOP_REVREPLY	4	/* response giving protocol address */
-#define ARPOP_INVREQUEST 8 	/* request to identify peer */
-#define ARPOP_INVREPLY	9	/* response identifying peer */
+#define	ARPOP_REQUEST		1	/* request to resolve address */
+#define	ARPOP_REPLY			2	/* response to previous request */
+#define	ARPOP_REVREQUEST	3	/* request protocol address given hardware */
+#define	ARPOP_REVREPLY		4	/* response giving protocol address */
+#define ARPOP_INVREQUEST	8 	/* request to identify peer */
+#define ARPOP_INVREPLY		9	/* response identifying peer */
 
 #define ICMP_ECHOREPLY		0	/* Echo Reply			*/
 #define ICMP_DEST_UNREACH	3	/* Destination Unreachable	*/
@@ -252,7 +252,7 @@ struct PICMP_HEADER
 	u_int8_t Type;
 	u_int8_t SubCode;
 	u_int16_t Checksum;
-	union
+	/*union
 	{
 		struct
 		{
@@ -265,7 +265,7 @@ struct PICMP_HEADER
 		  u_int16_t	__unused;
 		  u_int16_t	Mtu;
 		} Frag;
-	} un;
+	} un;*/
 };
 
 

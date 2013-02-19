@@ -8,6 +8,13 @@
 #define GENERATE_ARP		3
 #define GENERATE_ICMP		4
 
+#define TCP_ACK				1
+#define TCP_SYN				2
+#define TCP_FIN				4
+#define TCP_RST				8
+#define TCP_PSH				16
+#define TCP_URG				32
+
 class cPacketGen
 {
 	/* global */
@@ -42,5 +49,7 @@ public:
 	BOOL SetIPAddress(string src_ip, string dest_ip);
 	BOOL SetPorts(USHORT src_port, USHORT dest_port);
 
-	BOOL CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* tcp_data, UINT tcp_data_size);
+	BOOL CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* tcp_data, UINT tcp_data_size, USHORT tcp_flags);
+	BOOL CustomizeUDP(UCHAR* udp_data, UINT udp_data_size);
+	BOOL CustomizeICMP(UCHAR icmp_type, UCHAR icmp_code, UCHAR* icmp_data, UINT icmp_data_size);
 };
