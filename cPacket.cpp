@@ -135,11 +135,13 @@ BOOL cPacket::ProcessPacket()
 
 void cPacket::CheckIfMalformed()
 {
+	isMalformed = false;
+	PacketError = PACKET_NOERROR;
 	if (isIPPacket)
 	{
 		PIP_HEADER ipheader;
 		memcpy(&ipheader,(void*)IPHeader,sizeof(PIP_HEADER));
-		ipheader.Checksum =0;
+		ipheader.Checksum =0x0000;
 
 		if(GlobalChecksum((USHORT*)&ipheader,sizeof(PIP_HEADER)) != IPHeader->Checksum)
 		{
@@ -256,6 +258,7 @@ BOOL cPacket::FixIPChecksum()
 	if(crc != IPHeader->Checksum)
 	{
 		memcpy(&IPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+		CheckIfMalformed();
 		return true;
 	} 
 	else 
@@ -291,6 +294,7 @@ BOOL cPacket::FixTCPChecksum()
 	if (crc != TCPHeader->Checksum)
 	{
 		memcpy(&TCPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+		CheckIfMalformed();
 		return true;
 	} 
 	else 
@@ -325,6 +329,7 @@ BOOL cPacket::FixUDPChecksum()
 	if (crc != UDPHeader->Checksum)
 	{
 		memcpy(&UDPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+		CheckIfMalformed();
 		return true;
 	} 
 	else 
