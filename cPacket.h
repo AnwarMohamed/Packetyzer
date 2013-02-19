@@ -29,8 +29,8 @@ using namespace std;
 #define PACKET_IP_CHECKSUM		0x1
 #define PACKET_TCP_CHECKSUM		0x2
 #define PACKET_UDP_CHECKSUM		0x3
-#define PACKET_ICMP_CHECKSUM	0x4
-#define PACKET_IP_TTL			0x4
+#define PACKET_ICMP_CHECKSUM		0x4
+#define PACKET_IP_TTL			0x5
 
 class cPacket
 {
