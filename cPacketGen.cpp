@@ -302,21 +302,3 @@ UINT cPacketGen::IPToLong(const CHAR ip[]) {
     addr |= d;
     return addr;
 };
-
-USHORT cPacketGen::GlobalChecksum(USHORT *buffer, UINT length)
-{
-	register int sum = 0;
-	USHORT answer = 0;
-	register USHORT *w = buffer;
-	register int nleft = length;
-
-	while(nleft > 1){
-	sum += *w++;
-	nleft -= 2;
-	}
-
-	sum = (sum >> 16) + (sum & 0xFFFF);
-	sum += (sum >> 16);
-	answer = ~sum;
-	return(answer);
-}

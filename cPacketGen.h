@@ -24,16 +24,6 @@ class cPacketGen
 	UINT src_ip_hex, dest_ip_hex;
 	UCHAR data_offset;
 	USHORT total_length;
-
-	BOOL GeneratePacket(string src_ip, string dest_ip, 
-							 UINT protocol, USHORT src_port, 
-							 USHORT dest_port, UCHAR tcp_flags[], 
-							 string src_mac, string dest_mac);
-	
-
-
-	USHORT GlobalChecksum(USHORT *buffer, UINT length);
-
 	UCHAR PacketType;
 
 public:
