@@ -275,6 +275,11 @@ void cPacket::ResetIs()
 	PacketError = PACKET_NOERROR;
 	isMalformed = false;
 	isParsed = false;
+
+	TCPDataSize = 0;
+	TCPOptionsSize = 0;
+	ICMPDataSize = 0;
+	UDPDataSize = 0;
 };
 
 BOOL cPacket::FixICMPChecksum()

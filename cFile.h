@@ -1,5 +1,9 @@
 #pragma once
-#include <windows.h>
+
+#ifndef WINDOWS_HEADER
+#define WINDOWS_HEADER
+#include <Windows.h>
+#endif
 
 class cFile
 {

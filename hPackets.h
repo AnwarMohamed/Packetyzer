@@ -21,7 +21,10 @@
 #ifndef HPACKETS_H
 #define HPACKETS_H
 
-#include <windows.h>
+#ifndef WINDOWS_HEADER
+#define WINDOWS_HEADER
+#include <Windows.h>
+#endif
 
 typedef __int64 int64_t;
 typedef unsigned __int32 u_int32_t;

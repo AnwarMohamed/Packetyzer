@@ -20,7 +20,7 @@
 
 #pragma once
 #include <string>
-#include <windows.h>
+
 #include "hPackets.h"
 #include "cPacket.h"
 #include "cFile.h"

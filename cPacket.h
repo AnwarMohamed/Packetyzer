@@ -20,7 +20,6 @@
 
 #pragma once
 #include <string>
-#include <windows.h>
 #include "hPackets.h"
 
 using namespace std;

@@ -19,12 +19,20 @@
  */
 
 #include "stdafx.h"
+
+//#include <Windows.h>
+
+#include "cPcapCapture.h"
+#include "cPacket.h"
 #include "cPcapFile.h"
 #include "cConStream.h"
 #include "cPacketGen.h"
-#include <string>
-#include <iostream>
-#include <iomanip>
+
+
+//#include <string>
+//#include <iostream>
+//#include <iomanip>
+
 
 using namespace std;
 
@@ -38,14 +46,34 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	cPacketGen PG(GENERATE_ARP);
+	cPcapCapture capture;
+	for (UINT i=0; i< capture.nAdapters; i++)
+	{
+		cout << capture.Adapters[i].Name << endl;
+		cout << capture.Adapters[i].ID << endl << endl;
+	}
+
+	UINT Packets = 5;
+	if (!capture.StartCapture(3,Packets))
+	{
+		cout << "Failed to capture" << endl;
+		return FALSE;
+	}
+
+	cout << "Captured Packets: " << capture.nCapturedPackets << endl;
+
+	for (UINT j=0; j<capture.nCapturedPackets; j++)
+		if (capture.CapturedPackets[j].TCPDataSize > 0) 
+			cout << capture.CapturedPackets[j].TCPData << endl;
+
+	/*cPacketGen PG(GENERATE_ARP);
 
 	PG.SetMACAddress("00:1d:60:b3:01:84","00:26:62:2f:47:87");
 	PG.SetIPAddress("192.168.1.104","174.143.213.184");
-	PG.SetPorts(57678, 80);
+	PG.SetPorts(57678, 80);*/
 
-	UCHAR options[11] = { 0x01,0x01,0x08,0x0a,0x00,0xd4,0x6d,0xde,0x00,0xa3,0x31,/*0xae*/ };
-	UCHAR data[10] = "Test Case";
+	//UCHAR options[11] = { 0x01,0x01,0x08,0x0a,0x00,0xd4,0x6d,0xde,0x00,0xa3,0x31,/*0xae*/ };
+	/*UCHAR data[10] = "Test Case";
 
 	if (PG.CustomizeTCP((UCHAR*)options, sizeof(options),data, sizeof(data), TCP_SYN))
 		cout << "TCP Packet is ready"  << endl;
@@ -56,7 +84,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 	for (UINT i=0; i< PG.GeneratedPacketSize; i++) 
-		printf("%02x ", PG.GeneratedPacket[i]);
+		printf("%02x ", PG.GeneratedPacket[i]);*/
 
 	/*cPacket gen_packet;
 	gen_packet.GeneratePacket("192.168.1.140","174.143.213.184",GENERATE_TCP,57678,80,NULL,"00:1d:60:b3:01:84","00:26:62:2f:47:87");
@@ -129,3 +157,5 @@ int _tmain(int argc, _TCHAR* argv[])
 	system("PAUSE");
 	return 0;
 }
+
+
