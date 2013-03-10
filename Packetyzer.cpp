@@ -22,7 +22,7 @@
 
 //#include <Windows.h>
 
-#include "cPcapCapture.h"
+#include "cWinpcapCapture.h"
 #include "cPacket.h"
 #include "cPcapFile.h"
 #include "cConStream.h"
