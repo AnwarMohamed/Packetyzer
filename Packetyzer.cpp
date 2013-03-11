@@ -47,7 +47,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	cWinpcapSend send;
+	/*WinpcapSend send;
 
 	if (send.isReady)
 	{
@@ -58,7 +58,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << endl << "Packet was sent" << endl;
 		else
 			cout << "Packet wasnot sent" << endl;
-	}
+	}*/
 
 	/*cWinpcapCapture capture;
 	for (UINT i=0; i< capture.nAdapters; i++)
@@ -113,31 +113,31 @@ int _tmain(int argc, _TCHAR* argv[])
 	//for (UINT i=0; i < gen_packet.GeneratedPacketSize; i++)
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 
-	//cPcapFile pckts("D:\\sample3.pcap");
-	//cout << pckts.nConStreams << endl;
+	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
+	//cout << pckts.Traffic.nConStreams << endl;
 
 	
 	//cout << (PDWORD)pckts.BaseAddress << endl;
 	//cout << pckts.FileLength << endl;
 	//cout << pckts.nPackets << endl;
 
-	/*cout << "nPackets: " << pckts.nPackets << endl;
-	cout << "nStreams: " << pckts.nConStreams << endl;
+	cout << "nPackets: " << pckts.nPackets << endl;
+	cout << "nStreams: " << pckts.Traffic.nConStreams << endl;
 	int z = 0;
 	int y = 0;
-	for (UINT i=0; i < pckts.nConStreams; i++)
-	{*/
-		/*if (pckts.ConStreams[i]->isTCPPacket)
+	for (UINT i=0; i < pckts.Traffic.nConStreams; i++)
+	{
+		if (pckts.Traffic.ConStreams[i]->isTCPPacket)
 		{
-			UCHAR* ip = (UCHAR*)&pckts.ConStreams[i]->ClientIP;
-			UCHAR* ip2 = (UCHAR*)&pckts.ConStreams[i]->ServerIP;
-			printf("%u.%u.%u.%u\t%d\t%u.%u.%u.%u\t%d\n\n", ip[0], ip[1], ip[2], ip[3], pckts.ConStreams[i]->ClientPort, ip2[0], ip2[1], ip2[2], ip2[3], pckts.ConStreams[i]->ServerPort);
-		}*/
-		/*if (pckts.ConStreams[i]->isTCPPacket) z++;
-		if (pckts.ConStreams[i]->isUDPPacket) y++;
-	}*/
-	//cout << "TCP: " << z << endl;
-	//cout << "UDP: " << y << endl;
+			UCHAR* ip = (UCHAR*)&pckts.Traffic.ConStreams[i]->ClientIP;
+			UCHAR* ip2 = (UCHAR*)&pckts.Traffic.ConStreams[i]->ServerIP;
+			printf("%u.%u.%u.%u\t%d\t%u.%u.%u.%u\t%d\n\n", ip[0], ip[1], ip[2], ip[3], pckts.Traffic.ConStreams[i]->ClientPort, ip2[0], ip2[1], ip2[2], ip2[3], pckts.Traffic.ConStreams[i]->ServerPort);
+		}
+		if (pckts.Traffic.ConStreams[i]->isTCPPacket) z++;
+		if (pckts.Traffic.ConStreams[i]->isUDPPacket) y++;
+	}
+	cout << "TCP: " << z << endl;
+	cout << "UDP: " << y << endl;
 	/*for (UINT i =0; i < pckts.nPackets; i++)
 	{
 		if (pckts.Packets[i]->TCPDataSize > 0)

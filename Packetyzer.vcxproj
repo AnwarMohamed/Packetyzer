@@ -95,6 +95,7 @@
     <ClCompile Include="cFile.cpp" />
     <ClCompile Include="cPacket.cpp" />
     <ClCompile Include="cPacketGen.cpp" />
+    <ClCompile Include="cTraffic.cpp" />
     <ClCompile Include="cWinpcapCapture.cpp" />
     <ClCompile Include="cPcapFile.cpp" />
     <ClCompile Include="cWinpcapSend.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="cFile.h" />
     <ClInclude Include="cPacket.h" />
     <ClInclude Include="cPacketGen.h" />
+    <ClInclude Include="cTraffic.h" />
     <ClInclude Include="cWinpcapCapture.h" />
     <ClInclude Include="cPcapFile.h" />
     <ClInclude Include="cWinpcapSend.h" />

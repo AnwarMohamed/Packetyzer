@@ -70,52 +70,14 @@ BOOL cPcapFile::ProcessPCAP()
 	return true;
 };
 
-cPcapFile::~cPcapFile(void)
+cPcapFile::~cPcapFile()
 {
 };
 
 void cPcapFile::GetStreams()
 {
-	nConStreams = 0;
-	ConStreams = (cConStream**)malloc( sizeof(cConStream*) * nConStreams);
-
 	for (UINT i=0; i<nPackets; i++)
 	{
-		if (nConStreams > 0)
-		{
-			for (UINT j=0; j<nConStreams; j++)
-			{
-				if (ConStreams[j]->isIPPacket && Packets[i]->isIPPacket)
-				{
-					if (ConStreams[j]->AddPacket(Packets[i]))
-					{
-						break;
-					}
-					else if (j == (nConStreams - 1))
-					{
-						cConStream* tmp1 = new cConStream();
-						tmp1->AddPacket(Packets[i]);
-
-						nConStreams++;
-						ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-						memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp1, sizeof(cConStream*));
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			if (Packets[i]->isIPPacket && (Packets[i]->isTCPPacket || Packets[i]->isUDPPacket))
-			{
-				//allocate new stream
-				cConStream* tmp2 = new cConStream();
-				tmp2->AddPacket(Packets[i]);
-
-				nConStreams++;
-				ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-				memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp2, sizeof(cConStream*));
-			}
-		}
+		Traffic.AddPacket(Packets[i], NULL);
 	}
 };

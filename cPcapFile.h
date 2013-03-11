@@ -25,6 +25,7 @@
 #include "cPacket.h"
 #include "cFile.h"
 #include "cConStream.h"
+#include "cTraffic.h"
 
 using namespace std;
 
@@ -44,16 +45,22 @@ class cPcapFile : public cFile
 	PCAP_GENERAL_HEADER* PCAP_General_Header;
 	PCAP_PACKET_HEADER* PCAP_Packet_Header;
 
-	BOOL ProcessPCAP();
 	cPacket* Packet;
+
+	BOOL ProcessPCAP();
 	void GetStreams();
+
 public:
+
 	UINT nPackets;
 	cPacket** Packets;
+
 	BOOL FileLoaded;
-	cPcapFile(char* szFilename);
-	~cPcapFile(void);
+
 	void DetectMalformedPackets();
-	UINT nConStreams;
-	cConStream** ConStreams;
+
+	cTraffic Traffic;
+	
+	cPcapFile(char* szFilename);
+	~cPcapFile();
 };

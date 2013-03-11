@@ -42,6 +42,9 @@
     <ClCompile Include="cWinpcapSend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cTraffic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cConStream.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cWinpcapSend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTraffic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
