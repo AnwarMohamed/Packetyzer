@@ -83,5 +83,7 @@ public:
 
 	UCHAR* ICMPData;
 	UINT ICMPDataSize;
+
+	UCHAR* GetPacketBuffer();
 };
 

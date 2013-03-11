@@ -1,6 +1,7 @@
 #pragma once
 #include <pcap.h>
 #include "cPacket.h"
+#include "hPackets.h"
 
 struct NETWORK_ADAPTERS_SEND
 {
@@ -15,16 +16,15 @@ class cWinpcapSend
 	pcap_t *fp;
 	CHAR errbuf[PCAP_ERRBUF_SIZE];
 
+	BOOL InitializeAdapters();
+
 public:
 	BOOL isReady;
 
 	NETWORK_ADAPTERS_SEND *Adapters;
 	UINT nAdapters;
 
-	BOOL SendPacket(UINT AdapterIndex, UCHAR* PacketBuffer, UINT PacketSize);
-	BOOL SendPacket(UINT AdapterIndex, cPacket* cPacketBuffer);
-
-	BOOL InitializeAdapters();
+	BOOL SendPacket(UINT AdapterIndex, cPacket* Packet);
 
 	cWinpcapSend();
 	~cWinpcapSend();

@@ -21,6 +21,8 @@ class cWinpcapCapture
 	const u_char * PacketData;
 	CHAR errbuf[PCAP_ERRBUF_SIZE];
 
+	BOOL InitializeAdapters();
+
 public:
 	BOOL isReady;
 	BOOL StartCapture(UINT AdapterIndex, UINT MaxNumOfPackets);
@@ -31,7 +33,7 @@ public:
 	cPacket* CapturedPackets;
 	UINT nCapturedPackets;
 	
-	BOOL InitializeAdapters();
+	
 
 	cWinpcapCapture();
 	~cWinpcapCapture();

@@ -55,7 +55,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		cPacket tmp((UCHAR*)buffer, sizeof(buffer));
 		if (send.SendPacket(3, &tmp)) 
-			cout << "Packet was sent" << endl;
+			cout << endl << "Packet was sent" << endl;
 		else
 			cout << "Packet wasnot sent" << endl;
 	}

@@ -410,3 +410,41 @@ BOOL cPacket::FixUDPChecksum()
 		return false; 
 	}
 };
+
+UCHAR* cPacket::GetPacketBuffer()
+{
+	UCHAR* Packet;	Packet = (UCHAR*)malloc(PacketSize);
+	memcpy(Packet, EthernetHeader, sizeof(PETHER_HEADER));
+
+	if(isIPPacket)
+	{
+		memcpy(Packet + sizeof(PETHER_HEADER) , IPHeader, sizeof(PIP_HEADER));
+		
+		if (isTCPPacket)
+		{
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) , TCPHeader, sizeof(PTCP_HEADER));
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) + sizeof(PTCP_HEADER) , TCPOptions, TCPOptionsSize);
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) + sizeof(PTCP_HEADER) + TCPOptionsSize , TCPData, TCPDataSize);
+		}
+		else if (isUDPPacket)
+		{
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) , UDPHeader, sizeof(PUDP_HEADER));
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) + sizeof(PUDP_HEADER) , UDPData, UDPDataSize);
+		}
+		else if(isICMPPacket)
+		{
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) , ICMPHeader, sizeof(PICMP_HEADER));
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) + sizeof(PICMP_HEADER) , ICMPData, ICMPDataSize);
+		}
+		else if (isIGMPPacket)
+		{
+			memcpy(Packet + sizeof(PETHER_HEADER) + sizeof(PIP_HEADER) , IGMPHeader, sizeof(PIGMP_HEADER));
+		}
+	}
+	else if(isARPPacket)
+	{
+		memcpy(Packet + sizeof(PETHER_HEADER) , ARPHeader, sizeof(PARP_HEADER));
+	}
+
+	return Packet;
+};

@@ -6,26 +6,13 @@ cWinpcapSend::cWinpcapSend()
 	isReady = InitializeAdapters();
 };
 
-BOOL cWinpcapSend::SendPacket(UINT AdapterIndex, UCHAR* PacketBuffer, UINT PacketSize)
+BOOL cWinpcapSend::SendPacket(UINT AdapterIndex, cPacket* Packet)
 {
 	UINT i=0;
 	if (AdapterIndex< 1 || AdapterIndex > nAdapters) return FALSE;
 	for (d=alldevs, i=0; i< AdapterIndex-1 ;d=d->next, i++);        
 	if ((fp=pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL) return FALSE;
-	if (pcap_sendpacket(fp, PacketBuffer, PacketSize) != 0) return FALSE;
-	return TRUE;
-}
-
-BOOL cWinpcapSend::SendPacket(UINT AdapterIndex, cPacket* cPacketBuffer)
-{
-	UINT i=0;
-	if (AdapterIndex< 1 || AdapterIndex > nAdapters) return FALSE;
-	for (d=alldevs, i=0; i< AdapterIndex-1 ;d=d->next, i++);        
-	if ((fp=pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL) return FALSE;
-	if (pcap_sendpacket(fp, (UCHAR*)cPacketBuffer->BaseAddress, cPacketBuffer->PacketSize) != 0) return FALSE;
-
-	for (UINT j=0; j<cPacketBuffer->PacketSize; j++) printf("%02X ", (UCHAR)(&cPacketBuffer->BaseAddress)[j]);
-
+	if (pcap_sendpacket(fp, Packet->GetPacketBuffer(), Packet->PacketSize) != 0) return FALSE;
 	return TRUE;
 }
 
