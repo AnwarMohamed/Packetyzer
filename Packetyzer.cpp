@@ -23,6 +23,7 @@
 //#include <Windows.h>
 
 #include "cWinpcapCapture.h"
+#include "cWinpcapSend.h"
 #include "cPacket.h"
 #include "cPcapFile.h"
 #include "cConStream.h"
@@ -46,7 +47,20 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	cPcapCapture capture;
+	cWinpcapSend send;
+
+	if (send.isReady)
+	{
+		cout << "cWinpcapSend initialised" << endl;
+
+		cPacket tmp((UCHAR*)buffer, sizeof(buffer));
+		if (send.SendPacket(3, &tmp)) 
+			cout << "Packet was sent" << endl;
+		else
+			cout << "Packet wasnot sent" << endl;
+	}
+
+	/*cWinpcapCapture capture;
 	for (UINT i=0; i< capture.nAdapters; i++)
 	{
 		cout << capture.Adapters[i].Name << endl;
@@ -64,7 +78,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	for (UINT j=0; j<capture.nCapturedPackets; j++)
 		if (capture.CapturedPackets[j].TCPDataSize > 0) 
-			cout << capture.CapturedPackets[j].TCPData << endl;
+			cout << capture.CapturedPackets[j].TCPData << endl;*/
 
 	/*cPacketGen PG(GENERATE_ARP);
 

@@ -6,22 +6,16 @@
 
 using namespace std;
 
-cPcapCapture::cPcapCapture()
+BOOL cWinpcapCapture::InitializeAdapters()
 {
-	isReady = false;
-
-	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
-	{
-		fprintf(stderr,"Error in pcap_findalldevs_ex: %s\n", errbuf);
-		return;
-	}
+	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1) return FALSE;
         
 	nAdapters = 0;
-	Adapters = (NETWORK_ADAPTERS*)malloc(nAdapters * sizeof(NETWORK_ADAPTERS));
+	Adapters = (NETWORK_ADAPTERS_CAPTURE*)malloc(nAdapters * sizeof(NETWORK_ADAPTERS_CAPTURE));
 
 	for(d=alldevs; d; d=d->next)
 	{
-		Adapters = (NETWORK_ADAPTERS*)realloc(Adapters, (nAdapters + 1) * sizeof(NETWORK_ADAPTERS));
+		Adapters = (NETWORK_ADAPTERS_CAPTURE*)realloc(Adapters, (nAdapters + 1) * sizeof(NETWORK_ADAPTERS_CAPTURE));
 		strcpy_s((CHAR*)Adapters[nAdapters].ID,strlen(d->name) + 1, d->name);
 
 		if (d->description)
@@ -31,31 +25,38 @@ cPcapCapture::cPcapCapture()
 
 		nAdapters++;
 	}
+
+	return TRUE;
 };
 
-BOOL cPcapCapture::StartCapture(UINT adapter, UINT size)
+cWinpcapCapture::cWinpcapCapture()
+{
+	isReady = InitializeAdapters();
+};
+
+BOOL cWinpcapCapture::StartCapture(UINT AdapterIndex, UINT MaxNumOfPackets)
 {
 
 	INT retValue;	UINT i, n = 0;	nCapturedPackets = 0;
-	CapturedPackets = (cPacket*)malloc(size * sizeof(cPacket));
+	CapturedPackets = (cPacket*)malloc(MaxNumOfPackets * sizeof(cPacket));
 
-	if (adapter< 1 || adapter > nAdapters) return FALSE;
-    for (d=alldevs, i=0; i< adapter-1 ;d=d->next, i++);        
-    if ((fp=pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL) return FALSE;
+	if (AdapterIndex< 1 || AdapterIndex > nAdapters) return FALSE;
+	for (d=alldevs, i=0; i< AdapterIndex-1 ;d=d->next, i++);        
+	if ((fp=pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL) return FALSE;
 
-    while( (retValue = pcap_next_ex( fp, &PacketHeader, &PacketData )) >= 0 && n < size)
-    {
-		if( retValue == 0 ) continue;	n++;
+	while((retValue = pcap_next_ex( fp, &PacketHeader, &PacketData )) >= 0 && n < MaxNumOfPackets)
+	{
+		if(retValue == 0 ) continue;	n++;
 		cPacket tmp((UCHAR*)PacketData, PacketHeader->len);
 		memcpy(&CapturedPackets[n-1], &tmp, sizeof (cPacket));
 		nCapturedPackets++;
-    }
+	}
     
     if( retValue == -1 ) return FALSE;
 	return TRUE;
 };
 
-cPcapCapture::~cPcapCapture()
+cWinpcapCapture::~cWinpcapCapture()
 {
 	pcap_freealldevs(alldevs);
 };

@@ -2,16 +2,16 @@
 #include <pcap.h>
 #include "cPacket.h"
 
-struct NETWORK_ADAPTERS
+struct NETWORK_ADAPTERS_CAPTURE
 {
 	CHAR Name[200];
 	CHAR ID[200];
 };
 
-class cPcapCapture
+class cWinpcapCapture
 {
-	BOOL CheckAdapter(UINT id);
-	BOOL InitializeAdaptersList();
+	//BOOL CheckAdapter(UINT id);
+	//BOOL InitializeAdaptersList();
 
 	#define LINE_LEN 16
 	pcap_if_t *alldevs, *d;
@@ -23,14 +23,16 @@ class cPcapCapture
 
 public:
 	BOOL isReady;
-	BOOL StartCapture(UINT adapter, UINT size);
+	BOOL StartCapture(UINT AdapterIndex, UINT MaxNumOfPackets);
 
-	NETWORK_ADAPTERS *Adapters;
+	NETWORK_ADAPTERS_CAPTURE *Adapters;
 	UINT nAdapters;
 
 	cPacket* CapturedPackets;
 	UINT nCapturedPackets;
+	
+	BOOL InitializeAdapters();
 
-	cPcapCapture();
-	~cPcapCapture();
+	cWinpcapCapture();
+	~cWinpcapCapture();
 };
