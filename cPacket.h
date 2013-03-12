@@ -53,13 +53,13 @@ public:
 	DWORD BaseAddress;
 	UINT Size;
 
-	PETHER_HEADER*	EthernetHeader;
-	PIP_HEADER*		IPHeader;
-	PTCP_HEADER*	TCPHeader;
-	PARP_HEADER*	ARPHeader;
-	PUDP_HEADER*	UDPHeader;
-	PICMP_HEADER*	ICMPHeader;
-	PIGMP_HEADER*	IGMPHeader;
+	ETHER_HEADER*	EthernetHeader;
+	IP_HEADER*		IPHeader;
+	TCP_HEADER*	TCPHeader;
+	ARP_HEADER*	ARPHeader;
+	UDP_HEADER*	UDPHeader;
+	ICMP_HEADER*	ICMPHeader;
+	IGMP_HEADER*	IGMPHeader;
 
 	UINT PacketSize;
 	BOOL isParsed;

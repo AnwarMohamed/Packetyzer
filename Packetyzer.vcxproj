@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cConStream.cpp" />
+    <ClCompile Include="cDNSStream.cpp" />
     <ClCompile Include="cFile.cpp" />
     <ClCompile Include="cPacket.cpp" />
     <ClCompile Include="cPacketGen.cpp" />
@@ -107,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cConStream.h" />
+    <ClInclude Include="cDNSStream.h" />
     <ClInclude Include="cFile.h" />
     <ClInclude Include="cPacket.h" />
     <ClInclude Include="cPacketGen.h" />

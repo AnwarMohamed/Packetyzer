@@ -34,11 +34,11 @@ cWinpcapCapture::cWinpcapCapture()
 	isReady = InitializeAdapters();
 };
 
-BOOL cWinpcapCapture::StartCapture(UINT AdapterIndex, UINT MaxNumOfPackets)
+BOOL cWinpcapCapture::CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets)
 {
 
 	INT retValue;	UINT i, n = 0;	nCapturedPackets = 0;
-	CapturedPackets = (cPacket*)malloc(MaxNumOfPackets * sizeof(cPacket));
+	//CapturedPackets = (cPacket*)malloc(MaxNumOfPackets * sizeof(cPacket));
 
 	if (AdapterIndex< 1 || AdapterIndex > nAdapters) return FALSE;
 	for (d=alldevs, i=0; i< AdapterIndex-1 ;d=d->next, i++);        
@@ -48,11 +48,14 @@ BOOL cWinpcapCapture::StartCapture(UINT AdapterIndex, UINT MaxNumOfPackets)
 	{
 		if(retValue == 0 ) continue;	n++;
 		cPacket tmp((UCHAR*)PacketData, PacketHeader->len);
-		memcpy(&CapturedPackets[n-1], &tmp, sizeof (cPacket));
+		Traffic.AddPacket(&tmp, NULL);
+		//memcpy(&CapturedPackets[n-1], &tmp, sizeof (cPacket));
 		nCapturedPackets++;
 	}
     
     if( retValue == -1 ) return FALSE;
+
+	//AnalyzeTraffic();
 	return TRUE;
 };
 

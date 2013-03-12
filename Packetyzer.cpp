@@ -47,7 +47,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
 	};
 
-	/*WinpcapSend send;
+	/*cWinpcapSend send;
 
 	if (send.isReady)
 	{
@@ -60,15 +60,15 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "Packet wasnot sent" << endl;
 	}*/
 
-	/*cWinpcapCapture capture;
-	for (UINT i=0; i< capture.nAdapters; i++)
+	cWinpcapCapture capture;
+	/*for (UINT i=0; i< capture.nAdapters; i++)
 	{
 		cout << capture.Adapters[i].Name << endl;
 		cout << capture.Adapters[i].ID << endl << endl;
-	}
+	}*/
 
 	UINT Packets = 5;
-	if (!capture.StartCapture(3,Packets))
+	if (!capture.CapturePackets(5,Packets))
 	{
 		cout << "Failed to capture" << endl;
 		return FALSE;
@@ -76,7 +76,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	cout << "Captured Packets: " << capture.nCapturedPackets << endl;
 
-	for (UINT j=0; j<capture.nCapturedPackets; j++)
+	cout << capture.Traffic.nConStreams << endl;
+	/*for (UINT j=0; j<capture.nCapturedPackets; j++)
 		if (capture.CapturedPackets[j].TCPDataSize > 0) 
 			cout << capture.CapturedPackets[j].TCPData << endl;*/
 
@@ -113,7 +114,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//for (UINT i=0; i < gen_packet.GeneratedPacketSize; i++)
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 
-	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
+	//cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
 	//cout << pckts.Traffic.nConStreams << endl;
 
 	
@@ -121,7 +122,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//cout << pckts.FileLength << endl;
 	//cout << pckts.nPackets << endl;
 
-	cout << "nPackets: " << pckts.nPackets << endl;
+	/*cout << "nPackets: " << pckts.nPackets << endl;
 	cout << "nStreams: " << pckts.Traffic.nConStreams << endl;
 	int z = 0;
 	int y = 0;
@@ -137,7 +138,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		if (pckts.Traffic.ConStreams[i]->isUDPPacket) y++;
 	}
 	cout << "TCP: " << z << endl;
-	cout << "UDP: " << y << endl;
+	cout << "UDP: " << y << endl;*/
 	/*for (UINT i =0; i < pckts.nPackets; i++)
 	{
 		if (pckts.Packets[i]->TCPDataSize > 0)

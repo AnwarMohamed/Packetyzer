@@ -193,14 +193,14 @@ struct PSEUDO_HEADER
 };
 #pragma pack(pop, r1)
 
-struct PETHER_HEADER
+struct ETHER_HEADER
 {
 	u_char	DestinationHost[ETHER_ADDR_LEN];
 	u_char	SourceHost[ETHER_ADDR_LEN];
 	u_short ProtocolType;
 };
 
-struct PIP_HEADER
+struct IP_HEADER
 {
 	UCHAR  HeaderLength:4;
 	UCHAR  Version   :4;
@@ -219,7 +219,7 @@ struct PIP_HEADER
 	UINT   DestinationAddress;
 };
 
-struct PTCP_HEADER
+struct TCP_HEADER
 {
 	USHORT SourcePort;
 	USHORT DestinationPort;
@@ -242,7 +242,7 @@ struct PTCP_HEADER
 };
 
 
-struct PUDP_HEADER
+struct UDP_HEADER
 {
 	u_short SourcePort;
 	u_short DestinationPort;
@@ -250,7 +250,7 @@ struct PUDP_HEADER
 	u_short Checksum;
 };
 
-struct PICMP_HEADER
+struct ICMP_HEADER
 {
 	u_int8_t Type;
 	u_int8_t SubCode;
@@ -272,7 +272,7 @@ struct PICMP_HEADER
 };
 
 
-struct PIGMP_HEADER
+struct IGMP_HEADER
 {
 	u_char	Type;
 	u_char	Code;
@@ -280,7 +280,7 @@ struct PIGMP_HEADER
 	struct	in_addr	Group;
 };
 
-struct PARP_HEADER
+struct ARP_HEADER
 {
 	u_short	HardwareType;
 	u_short	ProtocolType;
@@ -295,6 +295,75 @@ struct PARP_HEADER
 #endif
 };
 
+
+
+// DNS_Structs
+
+/* Offsets of fields in the DNS header. */
+#define DNS_ID      0
+#define DNS_FLAGS   2
+#define DNS_QUEST   4
+#define DNS_ANS     6
+#define DNS_AUTH    8
+#define DNS_ADD     10
+ 
+/* Length of DNS header. */
+#define DNS_HDRLEN  12
+ 
+//Type field of Query and Answer
+#define T_A			1	/* host address */
+#define T_NS		2	/* authoritative server */
+#define T_CNAME		5	/* canonical name */
+#define T_SOA		6	/* start of authority zone */
+#define T_PTR		12	/* domain name pointer */
+#define T_MX		15	/* mail routing information */
+ 
+struct DNS_HEADER
+{
+	USHORT ID;						// identification number
+	UCHAR RecursionDesired :1;		// recursion desired
+	UCHAR TruncatedMessage :1;		// truncated message
+	UCHAR AuthoritiveAnswer :1;		// authoritive answer
+	UCHAR Opcode :4;				// purpose of message
+	UCHAR QRFlag :1;				// query/response flag
+      
+	UCHAR RCode :4;					// response code
+	UCHAR CheckingDisabled :1;		// checking disabled
+	UCHAR AuthenticatedData :1;		// authenticated data
+	UCHAR Z :1;						// its z! reserved
+	UCHAR RecursionAvailable :1;	// recursion available
+      
+	USHORT QCount;					// number of question entries
+	USHORT ANSCount;				// number of answer entries
+	USHORT AUTHCount;				// number of authority entries
+	USHORT ADDCount;				// number of resource entries
+};
+      
+struct QUESTION
+{
+    USHORT QType;
+    USHORT QClass;
+};
+      
+struct R_DATA
+{
+    USHORT Type;
+    USHORT _Class;
+    UINT TTL;
+    USHORT DataLength;
+};
+      
+struct RES_RECORD
+{
+    UCHAR *Name;
+    struct R_DATA *Resource;
+    UCHAR *RData;
+};
+      
+typedef struct
+{
+    UCHAR *Name;
+    struct QUESTION *Ques;
+} QUERY;
+
 #endif
-
-

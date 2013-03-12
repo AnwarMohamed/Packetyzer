@@ -1,6 +1,6 @@
 #pragma once
 #include <pcap.h>
-#include "cPacket.h"
+#include "cTraffic.h"
 
 struct NETWORK_ADAPTERS_CAPTURE
 {
@@ -12,6 +12,7 @@ class cWinpcapCapture
 {
 	//BOOL CheckAdapter(UINT id);
 	//BOOL InitializeAdaptersList();
+	VOID AnalyzeTraffic();
 
 	#define LINE_LEN 16
 	pcap_if_t *alldevs, *d;
@@ -22,18 +23,17 @@ class cWinpcapCapture
 	CHAR errbuf[PCAP_ERRBUF_SIZE];
 
 	BOOL InitializeAdapters();
-
 public:
 	BOOL isReady;
-	BOOL StartCapture(UINT AdapterIndex, UINT MaxNumOfPackets);
+	BOOL CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets);
 
 	NETWORK_ADAPTERS_CAPTURE *Adapters;
 	UINT nAdapters;
 
-	cPacket* CapturedPackets;
+	//cPacket* CapturedPackets;
 	UINT nCapturedPackets;
 	
-	
+	cTraffic Traffic;
 
 	cWinpcapCapture();
 	~cWinpcapCapture();

@@ -162,10 +162,10 @@ BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* 
 			total_length = ntohs((USHORT) (htons(Packet->IPHeader->TotalLength) + (tcp_options_size)));
 			memcpy(&Packet->IPHeader->TotalLength, &total_length, sizeof(USHORT));
 
-			data_offset = (tcp_options_size + sizeof(PTCP_HEADER)) / 4;
+			data_offset = (tcp_options_size + sizeof(TCP_HEADER)) / 4;
 			Packet->TCPHeader->DataOffset = data_offset;
 
-			GeneratedPacketSize = (sizeof(PETHER_HEADER) + (Packet->IPHeader->HeaderLength*4) + (Packet->TCPHeader->DataOffset*4));
+			GeneratedPacketSize = (sizeof(ETHER_HEADER) + (Packet->IPHeader->HeaderLength*4) + (Packet->TCPHeader->DataOffset*4));
 			GeneratedPacket = (UCHAR*)realloc(GeneratedPacket, GeneratedPacketSize);
 			memcpy(&GeneratedPacket[GeneratedPacketSize - tcp_options_size], tcp_options, tcp_options_size);
 			memset(&GeneratedPacket[GeneratedPacketSize - (4 - (options_size%4))], 0, 4 - (options_size%4));
@@ -226,7 +226,7 @@ BOOL cPacketGen::CustomizeUDP(UCHAR* udp_data, UINT udp_data_size)
 			total_length = htons((USHORT) (ntohs(Packet->IPHeader->TotalLength) + udp_data_size));
 			memcpy(&Packet->IPHeader->TotalLength, &total_length, sizeof(USHORT));
 
-			data_length = htons((USHORT) (sizeof(PUDP_HEADER) + udp_data_size));
+			data_length = htons((USHORT) (sizeof(UDP_HEADER) + udp_data_size));
 			memcpy(&Packet->UDPHeader->DatagramLength, &data_length, sizeof(USHORT));
 
 			GeneratedPacketSize += udp_data_size;
