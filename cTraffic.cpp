@@ -5,6 +5,7 @@ cTraffic::cTraffic()
 {
 	nConStreams = 0;
 	ConStreams = (cConStream**)malloc( sizeof(cConStream*) * nConStreams);
+
 }
 
 BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
@@ -21,12 +22,12 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 				}
 				else if (j == (nConStreams - 1))
 				{
-					cConStream* tmp1 = new cConStream();
-					tmp1->AddPacket(Packet);
+					cConStream* tmp = new cConStream();
+					tmp->AddPacket(Packet);
 
 					nConStreams++;
 					ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-					memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp1, sizeof(cConStream*));
+					memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
 					break;
 				}
 			}
@@ -34,15 +35,36 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 	}
 	else
 	{
-		if (Packet->isIPPacket && (Packet->isTCPPacket || Packet->isUDPPacket))
+		if (Packet->isIPPacket && (Packet->isTCPPacket))
 		{
-			//allocate new stream
-			cConStream* tmp2 = new cConStream();
-			tmp2->AddPacket(Packet);
+			cConStream* tmp = new cConStream();
+			tmp->AddPacket(Packet);
 
 			nConStreams++;
 			ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-			memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp2, sizeof(cConStream*));
+			memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
+		}
+		else if (Packet->isIPPacket && (Packet->isUDPPacket))
+		{
+			//check if dns
+			if (cDNSStream::Identify(Packet))
+			{
+				cDNSStream* tmp = new cDNSStream();
+				tmp->AddPacket(Packet);
+
+				nConStreams++;
+				ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
+				memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
+			}
+			else
+			{
+				cConStream* tmp = new cConStream();
+				tmp->AddPacket(Packet);
+
+				nConStreams++;
+				ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
+				memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
+			}
 		}
 	}
 

@@ -13,6 +13,11 @@ BOOL cDNSStream::Identify(cPacket* Packet)
 	return TRUE;
 }
 
+VOID cDNSStream::AnalyzeProtocol()
+{
+	//DNS_HEADER* DNSHeader = (DNS_HEADER*)Packets[0]
+}
+
 cDNSStream::~cDNSStream()
 {
 }

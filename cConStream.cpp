@@ -40,6 +40,8 @@ cConStream::~cConStream()
 
 BOOL cConStream::AddPacket(cPacket* packet)
 {
+	AnalyzeProtocol();
+
 	if (nPackets == 0)
 	{
 		nActivePackets++;
@@ -212,3 +214,7 @@ BOOL cConStream::ClearActivePackets(UINT keeped)
 		return false;
 	}
 };
+
+VOID cConStream::AnalyzeProtocol()
+{
+}

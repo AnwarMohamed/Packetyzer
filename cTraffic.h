@@ -1,5 +1,6 @@
 #pragma once
 #include "cConStream.h"
+#include "cDNSStream.h"
 
 class cTraffic
 {

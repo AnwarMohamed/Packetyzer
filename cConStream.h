@@ -24,6 +24,10 @@
 class cConStream
 {
 	BOOL	AnalyzePackets();
+
+protected:
+	virtual VOID AnalyzeProtocol();
+	
 public:
 	cConStream();
 	~cConStream();
@@ -43,5 +47,4 @@ public:
 	BOOL	isTCPPacket;
 	BOOL	isUDPPacket;
 	BOOL	isIPPacket;
-
 };

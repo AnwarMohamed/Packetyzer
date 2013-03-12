@@ -3,9 +3,10 @@
 
 class cDNSStream : public cConStream
 {
+protected:
+	virtual VOID AnalyzeProtocol();
 public:
-
-	BOOL Identify(cPacket* Packet);
+	static BOOL Identify(cPacket* Packet);
 
 	cDNSStream();
 	~cDNSStream();
