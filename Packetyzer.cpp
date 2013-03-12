@@ -60,14 +60,14 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "Packet wasnot sent" << endl;
 	}*/
 
-	cWinpcapCapture capture;
+	//cWinpcapCapture capture;
 	/*for (UINT i=0; i< capture.nAdapters; i++)
 	{
 		cout << capture.Adapters[i].Name << endl;
 		cout << capture.Adapters[i].ID << endl << endl;
 	}*/
 
-	UINT Packets = 5;
+	/*UINT Packets = 5;
 	if (!capture.CapturePackets(5,Packets))
 	{
 		cout << "Failed to capture" << endl;
@@ -76,7 +76,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	cout << "Captured Packets: " << capture.nCapturedPackets << endl;
 
-	cout << capture.Traffic.nConStreams << endl;
+	cout << capture.Traffic.nConStreams << endl;*/
 	/*for (UINT j=0; j<capture.nCapturedPackets; j++)
 		if (capture.CapturedPackets[j].TCPDataSize > 0) 
 			cout << capture.CapturedPackets[j].TCPData << endl;*/
@@ -114,8 +114,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//for (UINT i=0; i < gen_packet.GeneratedPacketSize; i++)
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 
-	//cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
-	//cout << pckts.Traffic.nConStreams << endl;
+	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
+	cout << pckts.Traffic.nConStreams << endl;
 
 	
 	//cout << (PDWORD)pckts.BaseAddress << endl;

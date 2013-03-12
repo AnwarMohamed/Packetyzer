@@ -40,8 +40,6 @@ cConStream::~cConStream()
 
 BOOL cConStream::AddPacket(cPacket* packet)
 {
-	AnalyzeProtocol();
-
 	if (nPackets == 0)
 	{
 		nActivePackets++;
@@ -184,6 +182,8 @@ BOOL cConStream::AnalyzePackets()
 				ClientIP = Packets[0]->IPHeader->SourceAddress;
 			}
 		}
+
+		AnalyzeProtocol();
 		return true;
 	}
 	else

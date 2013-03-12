@@ -8,6 +8,11 @@ protected:
 public:
 	static BOOL Identify(cPacket* Packet);
 
+	UCHAR* RequestedDomain;
+
+	UINT* ResolvedIPs;
+	UINT nResolvedIPs;
+
 	cDNSStream();
 	~cDNSStream();
 };
