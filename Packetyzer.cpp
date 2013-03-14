@@ -115,7 +115,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 
 	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
-	cout << pckts.Traffic.nConStreams << endl;
+	//cout << pckts.Traffic.nConStreams << endl;
 
 	
 	//cout << (PDWORD)pckts.BaseAddress << endl;

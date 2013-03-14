@@ -355,9 +355,9 @@ struct R_DATA
       
 struct RES_RECORD
 {
-	USHORT NameOffset;	/*UCHAR *Name;*/
+	UCHAR *Name;
     struct R_DATA *Resource;
-    //UCHAR *RData;
+    UCHAR *RData;
 };
       
 typedef struct

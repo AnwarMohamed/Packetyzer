@@ -22,13 +22,17 @@ VOID cDNSStream::AnalyzeProtocol()
 {
 	DNS_HEADER* DNSHeader = (DNS_HEADER*)Packets[nPackets-1]->UDPData;
 	QUERY* DNSQuery = new QUERY;
+	
+	DNSQuery->Name = (UCHAR*)((const char*)DNSHeader + sizeof(DNS_HEADER));
+	UINT NameSize = strlen((const char*)DNSHeader + sizeof(DNS_HEADER)) + 1;
 
-	UINT size = strlen((const char*)DNSHeader + sizeof(DNS_HEADER)) + 1;
+	DNSQuery->Ques = (QUESTION*)(DNSQuery->Name + NameSize);
+
 	if (RequestedDomain == NULL)
 	{
 		UINT current = 0,offset = 0;
-		DNSQuery->Name = (UCHAR*)malloc(size * sizeof(UCHAR));
-		strcpy_s((char*)DNSQuery->Name, size, ((const char*)DNSHeader + sizeof(DNS_HEADER)));
+		DNSQuery->Name = (UCHAR*)malloc(NameSize * sizeof(UCHAR));
+		strcpy_s((char*)DNSQuery->Name, NameSize, ((const char*)DNSHeader + sizeof(DNS_HEADER)));
 
 		while (true)
 		{
@@ -36,40 +40,41 @@ VOID cDNSStream::AnalyzeProtocol()
 			DNSQuery->Name[offset] = '.';
 			offset += current + 1;
 
-			if (offset >= (size-1))
+			if (offset >= (NameSize - 1))
 			{
-				memcpy(DNSQuery->Name, (UCHAR*)DNSQuery->Name +1, size-1);
-				DNSQuery->Name = (UCHAR*)realloc(DNSQuery->Name, (size-1) * sizeof(UCHAR));
+				memcpy(DNSQuery->Name, (UCHAR*)DNSQuery->Name +1, NameSize - 1);
+				DNSQuery->Name = (UCHAR*)realloc(DNSQuery->Name, (NameSize - 1) * sizeof(UCHAR));
 				RequestedDomain = DNSQuery->Name;
-				cout << RequestedDomain << endl;
+				//printf("%s\n", RequestedDomain);
 				break;
 			}
 		}
-	}
+	} //else cout << RequestedDomain << endl;
 
 	if (DNSHeader->QRFlag == 1 && ResolvedIPs == NULL)
 	{
-		UCHAR* Base = (UCHAR*)(Packets[nPackets-1]->UDPData + sizeof(DNS_HEADER) + size + sizeof(QUESTION));
+		UCHAR* ResponseBase = (UCHAR*)(DNSQuery->Ques)  + sizeof(QUESTION);
+	
+		//for (UINT i=0; i< Packets[nPackets-1]->UDPDataSize; i++) printf("%02x ", (UCHAR*)(ResponseBase)[i]);
+		//cout << endl;
 
-		//for (UINT i=0; i< Packets[nPackets-1]->UDPDataSize; i++) printf("%02x ", (UCHAR*)(Base + sizeof(USHORT) )[i]);
+		RES_RECORD* QueryResponse = new RES_RECORD;
 		
-		UINT current = 0,offset = 0;
-		cout << ntohs(DNSHeader->ANSCount) << endl;
+		UINT current = 0, step = 0;	R_DATA* DNSResponse = NULL;
 		for (UINT i=0; i< ntohs(DNSHeader->ANSCount); i++)
 		{
-			R_DATA* DNSResponse = (R_DATA*)(Base + sizeof(USHORT) + offset - (sizeof(USHORT) * i));
+			QueryResponse->Resource = (R_DATA*)((UCHAR*)ResponseBase + sizeof(USHORT) + step);
 
-			if (ntohs(DNSResponse->Type) == T_A)
+			step +=  sizeof(R_DATA) + ntohs(QueryResponse->Resource->DataLength);
+
+			if (ntohs(QueryResponse->Resource->Type) == T_A)
 			{
 				nResolvedIPs++;
 				ResolvedIPs = (UINT*)realloc(ResolvedIPs, nResolvedIPs* sizeof(UINT));
-				memcpy(&ResolvedIPs[nResolvedIPs - 1], (void*)(&DNSResponse->DataLength + 1), sizeof(UINT));
-				//cout << (PINT)ResolvedIPs[nResolvedIPs - 1] << endl;
-				offset += sizeof(USHORT) + sizeof(R_DATA) + ntohs(DNSResponse->DataLength);
-			}
-			else
-			{
-				offset += sizeof(USHORT) + sizeof(R_DATA) + ntohs(DNSResponse->DataLength);
+				memcpy(&ResolvedIPs[nResolvedIPs - 1], (void*)(&QueryResponse->Resource->DataLength + 1), sizeof(UINT));
+
+				//UCHAR* ip = (UCHAR*)&ResolvedIPs[nResolvedIPs - 1];
+				//printf("%u.%u.%u.%u\n", ip[0], ip[1], ip[2], ip[3]);	
 			}
 		}
 	}
