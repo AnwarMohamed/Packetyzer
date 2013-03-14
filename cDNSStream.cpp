@@ -9,6 +9,8 @@ cDNSStream::cDNSStream()
 	RequestedDomain = NULL;
 	ResolvedIPs = NULL;
 	nResolvedIPs = 0;
+	DomainIsFound = FALSE;
+	Requester = NULL;
 }
 
 BOOL cDNSStream::Identify(cPacket* Packet)
@@ -27,6 +29,9 @@ VOID cDNSStream::AnalyzeProtocol()
 	UINT NameSize = strlen((const char*)DNSHeader + sizeof(DNS_HEADER)) + 1;
 
 	DNSQuery->Ques = (QUESTION*)(DNSQuery->Name + NameSize);
+
+	if (Requester == NULL && DNSHeader->QRFlag == 0)
+		Requester = Packets[nPackets-1]->IPHeader->SourceAddress;
 
 	if (RequestedDomain == NULL)
 	{
@@ -72,6 +77,7 @@ VOID cDNSStream::AnalyzeProtocol()
 				nResolvedIPs++;
 				ResolvedIPs = (UINT*)realloc(ResolvedIPs, nResolvedIPs* sizeof(UINT));
 				memcpy(&ResolvedIPs[nResolvedIPs - 1], (void*)(&QueryResponse->Resource->DataLength + 1), sizeof(UINT));
+				DomainIsFound = TRUE;
 
 				//UCHAR* ip = (UCHAR*)&ResolvedIPs[nResolvedIPs - 1];
 				//printf("%u.%u.%u.%u\n", ip[0], ip[1], ip[2], ip[3]);	

@@ -13,6 +13,9 @@ public:
 	UINT* ResolvedIPs;
 	UINT nResolvedIPs;
 
+	UINT Requester;
+	BOOL DomainIsFound;
+
 	cDNSStream();
 	~cDNSStream();
 };
