@@ -48,6 +48,9 @@
     <ClCompile Include="cDNSStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cHTTPStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cConStream.h">
@@ -84,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cDNSStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cHTTPStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

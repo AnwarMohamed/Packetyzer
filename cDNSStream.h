@@ -5,6 +5,11 @@ class cDNSStream : public cConStream
 {
 protected:
 	virtual VOID AnalyzeProtocol();
+
+	DNS_HEADER* DNSHeader;
+	QUERY* DNSQuery;
+	RES_RECORD* QueryResponse;
+	UCHAR* ResponseBase;
 public:
 	static BOOL Identify(cPacket* Packet);
 

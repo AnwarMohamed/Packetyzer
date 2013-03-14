@@ -94,6 +94,7 @@
     <ClCompile Include="cConStream.cpp" />
     <ClCompile Include="cDNSStream.cpp" />
     <ClCompile Include="cFile.cpp" />
+    <ClCompile Include="cHTTPStream.cpp" />
     <ClCompile Include="cPacket.cpp" />
     <ClCompile Include="cPacketGen.cpp" />
     <ClCompile Include="cTraffic.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="cConStream.h" />
     <ClInclude Include="cDNSStream.h" />
     <ClInclude Include="cFile.h" />
+    <ClInclude Include="cHTTPStream.h" />
     <ClInclude Include="cPacket.h" />
     <ClInclude Include="cPacketGen.h" />
     <ClInclude Include="cTraffic.h" />

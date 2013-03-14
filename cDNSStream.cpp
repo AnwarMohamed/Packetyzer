@@ -6,6 +6,11 @@ using namespace std;
 
 cDNSStream::cDNSStream()
 {
+	DNSHeader = NULL;
+	DNSQuery = NULL;
+	QueryResponse = NULL;
+	ResponseBase = NULL;
+
 	RequestedDomain = NULL;
 	ResolvedIPs = NULL;
 	nResolvedIPs = 0;
@@ -22,13 +27,12 @@ BOOL cDNSStream::Identify(cPacket* Packet)
 
 VOID cDNSStream::AnalyzeProtocol()
 {
-	DNS_HEADER* DNSHeader = (DNS_HEADER*)Packets[nPackets-1]->UDPData;
-	QUERY* DNSQuery = new QUERY;
+	DNSHeader = (DNS_HEADER*)Packets[nPackets-1]->UDPData;
 	
-	DNSQuery->Name = (UCHAR*)((const char*)DNSHeader + sizeof(DNS_HEADER));
 	UINT NameSize = strlen((const char*)DNSHeader + sizeof(DNS_HEADER)) + 1;
 
-	DNSQuery->Ques = (QUESTION*)(DNSQuery->Name + NameSize);
+	DNSQuery = new QUERY;
+	DNSQuery->Ques = (QUESTION*)((UCHAR*)DNSHeader + sizeof(DNS_HEADER) + NameSize);
 
 	if (Requester == NULL && DNSHeader->QRFlag == 0)
 		Requester = Packets[nPackets-1]->IPHeader->SourceAddress;
@@ -36,7 +40,8 @@ VOID cDNSStream::AnalyzeProtocol()
 	if (RequestedDomain == NULL)
 	{
 		UINT current = 0,offset = 0;
-		DNSQuery->Name = (UCHAR*)malloc(NameSize * sizeof(UCHAR));
+		DNSQuery->Name = (UCHAR*)malloc(NameSize * sizeof(UCHAR)); 
+		memset(DNSQuery->Name, 0, NameSize * sizeof(UCHAR));
 		strcpy_s((char*)DNSQuery->Name, NameSize, ((const char*)DNSHeader + sizeof(DNS_HEADER)));
 
 		while (true)
@@ -58,12 +63,12 @@ VOID cDNSStream::AnalyzeProtocol()
 
 	if (DNSHeader->QRFlag == 1 && ResolvedIPs == NULL)
 	{
-		UCHAR* ResponseBase = (UCHAR*)(DNSQuery->Ques)  + sizeof(QUESTION);
+		ResponseBase = (UCHAR*)(DNSQuery->Ques)  + sizeof(QUESTION);
 	
 		//for (UINT i=0; i< Packets[nPackets-1]->UDPDataSize; i++) printf("%02x ", (UCHAR*)(ResponseBase)[i]);
 		//cout << endl;
 
-		RES_RECORD* QueryResponse = new RES_RECORD;
+		QueryResponse = new RES_RECORD;
 		
 		UINT current = 0, step = 0;	R_DATA* DNSResponse = NULL;
 		for (UINT i=0; i< ntohs(DNSHeader->ANSCount); i++)
@@ -88,4 +93,8 @@ VOID cDNSStream::AnalyzeProtocol()
 
 cDNSStream::~cDNSStream()
 {
+	free(DNSHeader);
+	delete DNSQuery;
+	delete QueryResponse;
+	free(ResponseBase);
 }
