@@ -4,7 +4,7 @@
 class cHTTPStream : public cConStream
 {
 protected:
-	virtual VOID AnalyzePackets();
+	virtual VOID AnalyzeProtocol();
 public:
 
 	static BOOL Identify(cPacket* Packet);

@@ -5,7 +5,7 @@ class cDNSStream : public cConStream
 {
 protected:
 	virtual VOID AnalyzeProtocol();
-
+private:
 	DNS_HEADER* DNSHeader;
 	QUERY* DNSQuery;
 	RES_RECORD* QueryResponse;

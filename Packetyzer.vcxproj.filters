@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cConStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,11 +48,20 @@
     <ClCompile Include="cHTTPStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cConStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cTCPStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cUDPStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cConStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +96,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cHTTPStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cConStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTCPStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cUDPStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

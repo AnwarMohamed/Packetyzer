@@ -19,32 +19,20 @@
  */
 
 #pragma once
-#include "cPacket.h"
+#include "cConnection.h"
 
-class cConStream
+class cConStream : public cConnection
 {
-	BOOL	AnalyzePackets();
-
-protected:
-	virtual VOID AnalyzeProtocol();
-	
 public:
 	cConStream();
 	~cConStream();
 
 	UINT	ClientIP;
 	UINT	ServerIP; 
-	USHORT	ServerPort;
-	USHORT	ClientPort;
 
-	cPacket**	Packets;
-	UINT		nPackets;
-	UINT		nActivePackets;
+	BOOL isTCPConnection;
+	BOOL isUDPConnection;
 
-	BOOL	AddPacket(cPacket* packet);
-	BOOL	ClearActivePackets(UINT keeped);
-
-	BOOL	isTCPPacket;
-	BOOL	isUDPPacket;
-	BOOL	isIPPacket;
+	BOOL AddPacket(cPacket* Packet);
+	static BOOL Identify(cPacket* Packet);
 };

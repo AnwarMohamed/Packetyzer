@@ -18,7 +18,7 @@
  *
  */
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "cConStream.h"
 #include <iostream>
 
@@ -26,195 +26,57 @@ using namespace std;
 
 cConStream::cConStream()
 {
-	isTCPPacket = false;
-	isUDPPacket = false;
-	isIPPacket = false;
-	nActivePackets = 0;
-	nPackets = 0;
-	Packets = (cPacket**)malloc(nActivePackets * sizeof(cPacket*));
+	ServerIP = NULL;
+	ClientIP = NULL;
 };
 
 cConStream::~cConStream()
 {
 };
 
-BOOL cConStream::AddPacket(cPacket* packet)
+BOOL cConStream::AddPacket(cPacket* Packet)
 {
-	if (nPackets == 0)
+ 	if (!Packet->isIPPacket && (!Packet->isTCPPacket && !Packet->isUDPPacket)) return FALSE;
+
+	if (nPackets > 0)
+	{
+		if ( ((ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress) ||
+			 (ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress)) )
+		{
+			nActivePackets++;
+			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+			nPackets++;
+
+			return TRUE;
+		}
+		else return FALSE;
+	}
+	else
 	{
 		nActivePackets++;
 		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
-
+		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 		nPackets++;
 
-		return AnalyzePackets();
-	}
-	else if (nPackets > 0)
-	{	
-		if ((packet->isIPPacket && Packets[0]->isIPPacket) &&
-			(packet->IPHeader->DestinationAddress == Packets[0]->IPHeader->DestinationAddress &&
-			packet->IPHeader->SourceAddress == Packets[0]->IPHeader->SourceAddress))
-		{
-			if ((packet->isTCPPacket && Packets[0]->isTCPPacket) &&
-				(packet->TCPHeader->DestinationPort == Packets[0]->TCPHeader->DestinationPort &&
-				packet->TCPHeader->SourcePort == Packets[0]->TCPHeader->SourcePort))
-			{
-				nActivePackets++;
-				Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
-
-				nPackets++;
-				return AnalyzePackets();
-			}
-			else if ((packet->isUDPPacket && Packets[0]->isUDPPacket) &&
-				(packet->UDPHeader->DestinationPort == Packets[0]->UDPHeader->DestinationPort &&
-				packet->UDPHeader->SourcePort == Packets[0]->UDPHeader->SourcePort))
-			{
-				nActivePackets++;
-				Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
-
-				nPackets++;
-				return AnalyzePackets();
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else if ((packet->isIPPacket && Packets[0]->isIPPacket) &&
-			(packet->IPHeader->DestinationAddress == Packets[0]->IPHeader->SourceAddress &&
-			packet->IPHeader->SourceAddress == Packets[0]->IPHeader->DestinationAddress))
-		{
-			if ((packet->isTCPPacket && Packets[0]->isTCPPacket) &&
-				(packet->TCPHeader->DestinationPort == Packets[0]->TCPHeader->SourcePort &&
-				packet->TCPHeader->SourcePort == Packets[0]->TCPHeader->DestinationPort))
-			{
-				nActivePackets++;
-				Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
-
-				nPackets++;
-				return AnalyzePackets();
-			}
-			else if ((packet->isUDPPacket && Packets[0]->isUDPPacket) &&
-				(packet->UDPHeader->DestinationPort == Packets[0]->UDPHeader->SourcePort &&
-				packet->UDPHeader->SourcePort == Packets[0]->UDPHeader->DestinationPort))
-			{
-				nActivePackets++;
-				Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-				memcpy((void**)&Packets[(nActivePackets-1)], (void**)&packet, sizeof(cPacket*));
-
-				nPackets++;
-				return AnalyzePackets();
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
-};
-
-BOOL cConStream::AnalyzePackets()
-{
-	if (nPackets > 0)
-	{
-		if (Packets[0]->isTCPPacket)
-		{
-			isTCPPacket = true;
-			isIPPacket = true;
-			if (ntohs(Packets[0]->TCPHeader->DestinationPort) < 1024)
-			{
-				ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
-				ServerIP = Packets[0]->IPHeader->DestinationAddress;
-				ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
-				ClientIP = Packets[0]->IPHeader->SourceAddress;
-			}
-			else if (ntohs(Packets[0]->TCPHeader->SourcePort) < 1024)
-			{
-				ClientPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
-				ClientIP = Packets[0]->IPHeader->DestinationAddress;
-				ServerPort = ntohs(Packets[0]->TCPHeader->SourcePort);
-				ServerIP = Packets[0]->IPHeader->SourceAddress;			
-			}
-			else
-			{
-				/* assign client as first packet*/
-				ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
-				ServerIP = Packets[0]->IPHeader->DestinationAddress;
-				ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
-				ClientIP = Packets[0]->IPHeader->SourceAddress;
-			}
-		}
-		else if (Packets[0]->isUDPPacket)
-		{
-			isUDPPacket = true;
-			isIPPacket = true;
-			if (ntohs(Packets[0]->UDPHeader->DestinationPort) < 1024)
-			{
-				ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
-				ServerIP = Packets[0]->IPHeader->DestinationAddress;
-				ClientPort = ntohs(Packets[0]->UDPHeader->SourcePort);
-				ClientIP = Packets[0]->IPHeader->SourceAddress;
-			}
-			else if (ntohs(Packets[0]->UDPHeader->SourcePort) < 1024)
-			{
-				ClientPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
-				ClientIP = Packets[0]->IPHeader->DestinationAddress;
-				ServerPort = ntohs(Packets[0]->UDPHeader->SourcePort);
-				ServerIP = Packets[0]->IPHeader->SourceAddress;			
-			}
-			else
-			{
-				ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
-				ServerIP = Packets[0]->IPHeader->DestinationAddress;
-				ClientPort = ntohs(Packets[0]->UDPHeader->SourcePort);
-				ClientIP = Packets[0]->IPHeader->SourceAddress;
-			}
-		}
-
-		AnalyzeProtocol();
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-};
-
-BOOL cConStream::ClearActivePackets(UINT keeped)
-{
-	if (keeped > 0 && keeped <= nActivePackets)
-	{
+		isIPConnection = Packet->isIPPacket;
+		isTCPConnection = Packet->isTCPPacket;
+		isUDPConnection = Packet->isUDPPacket;
 		
-		memcpy((void**)&Packets[0], (void**)&Packets[nActivePackets-keeped], keeped * sizeof(cPacket*));
-		Packets = (cPacket**)realloc((void**)Packets, keeped * sizeof(cPacket*));
-		nActivePackets = (nActivePackets + 1) - keeped;
-		return true;
-	}
-	else if (keeped = 0)
-	{
-		free(Packets);
-		Packets = (cPacket**)malloc(nActivePackets * sizeof(cPacket*));
-		nActivePackets = 0;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-};
+		memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
+		memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+		Protocol = Packets[0]->EthernetHeader->ProtocolType;
+		ServerIP = Packets[0]->IPHeader->DestinationAddress;
+		ClientIP = Packets[0]->IPHeader->SourceAddress;
 
-VOID cConStream::AnalyzeProtocol()
-{
+		return TRUE;
+	}
+}
+
+BOOL cConStream::Identify(cPacket* Packet) 
+{ 
+	if (!Packet->isIPPacket && (!Packet->isTCPPacket && !Packet->isUDPPacket)) 
+		return FALSE;
+	else
+		return TRUE;
 }

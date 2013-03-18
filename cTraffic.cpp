@@ -1,74 +1,93 @@
 #include "stdafx.h"
 #include "cTraffic.h"
+#include "cTCPStream.h"
+#include "cUDPStream.h"
+#include <iostream>
+
+using namespace std;
 
 cTraffic::cTraffic()
 {
-	nConStreams = 0;
-	ConStreams = (cConStream**)malloc( sizeof(cConStream*) * nConStreams);
-
+	nConnections = 0;
+	Connections = (cConnection**)malloc( sizeof(cConnection*) * nConnections);
 }
 
 BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 {
-	if (nConStreams > 0)
+	if (nConnections > 0)
 	{
-		for (UINT j=0; j<nConStreams; j++)
+		for (UINT j=0; j<nConnections; j++)
 		{
-			if (ConStreams[j]->isIPPacket && Packet->isIPPacket)
+			if (Connections[j]->AddPacket(Packet)) return TRUE;
+				
+			if (j == (nConnections - 1))
 			{
-				if (ConStreams[j]->AddPacket(Packet)) return TRUE;
-				else if (j == (nConStreams - 1))
+				if (cConStream::Identify(Packet))
 				{
-					if (cDNSStream::Identify(Packet))
+					if (cTCPStream::Identify(Packet))
 					{
-						cDNSStream* tmp = new cDNSStream();
-						tmp->AddPacket(Packet);
-
-						nConStreams++;
-						ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-						memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
+						cConStream* tmp = new cTCPStream();	 
+						tmp->AddPacket(Packet);		
+						nConnections++;
+						Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
+						memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
 						return TRUE;
 					}
 					else
 					{
-						cConStream* tmp = new cConStream();
-						tmp->AddPacket(Packet);
-
-						nConStreams++;
-						ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-						memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
+						cConStream* tmp = new cUDPStream();	
+						tmp->AddPacket(Packet);	
+						nConnections++;
+						Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
+						memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
 						return TRUE;
 					}
+				}
+				else
+				{
+					cConnection* tmp = new cConnection();	
+					tmp->AddPacket(Packet);		
+					nConnections++;
+					Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
+					memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
+					return TRUE;
 				}
 			}
 		}
 	}
 	else
 	{
-		if (Packet->isIPPacket && ( (Packet->isTCPPacket) || (Packet->isUDPPacket)))
+		if (cConStream::Identify(Packet))
 		{
-			if (cDNSStream::Identify(Packet))
+			if (cTCPStream::Identify(Packet))
 			{
-				cDNSStream* tmp = new cDNSStream();
-				tmp->AddPacket(Packet);
-
-				nConStreams++;
-				ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-				memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
+				cConStream* tmp = new cTCPStream();	 
+				tmp->AddPacket(Packet);		
+				nConnections++;
+				Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
+				memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
+				return TRUE;
 			}
 			else
 			{
-				cConStream* tmp = new cConStream();
-				tmp->AddPacket(Packet);
-
-				nConStreams++;
-				ConStreams = (cConStream**)realloc((void*)ConStreams, nConStreams * sizeof(cConStream*));
-				memcpy((void**)&ConStreams[nConStreams-1],(void**)&tmp, sizeof(cConStream*));
+				cConStream* tmp = new cUDPStream();	
+				tmp->AddPacket(Packet);	
+				nConnections++;
+				Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
+				memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
+				return TRUE;
 			}
 		}
+		else
+		{
+			cConnection* tmp = new cConnection();	
+			tmp->AddPacket(Packet);	
+			nConnections++;
+			Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
+			memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
+			return TRUE;
+		}
 	}
-
-	return TRUE;
 }
 
 cTraffic::~cTraffic()

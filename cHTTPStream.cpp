@@ -12,7 +12,7 @@ BOOL cHTTPStream::Identify(cPacket* Packet)
 	return TRUE;
 }
 
-VOID cHTTPStream::AnalyzePackets()
+VOID cHTTPStream::AnalyzeProtocol()
 {
 }
 
