@@ -25,7 +25,52 @@ BOOL cDNSStream::Identify(cPacket* Packet)
 	return TRUE;
 }
 
-VOID cDNSStream::AnalyzeProtocol()
+BOOL cDNSStream::AddPacket(cPacket* Packet)
+{
+	if (!Identify(Packet)) return FALSE;
+
+	if (nPackets > 0)
+	{
+		if ( (	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress &&
+				ServerPort == ntohs(Packet->UDPHeader->DestinationPort) && ClientPort == ntohs(Packet->UDPHeader->SourcePort)) ||
+			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
+				ClientPort == ntohs(Packet->UDPHeader->DestinationPort) && ServerPort == ntohs(Packet->UDPHeader->SourcePort)) )
+		{
+			nActivePackets++;
+			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+			nPackets++;
+
+			AnalyzeProtocol();
+			return TRUE;
+		}
+		else return FALSE;
+	}
+	else
+	{
+		nActivePackets++;
+		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
+		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+		nPackets++;
+
+		isIPConnection = Packet->isIPPacket;
+		isTCPConnection = Packet->isTCPPacket;
+		isUDPConnection = Packet->isUDPPacket;
+
+		memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
+		memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+		Protocol = Packets[0]->EthernetHeader->ProtocolType;
+		ServerIP = Packets[0]->IPHeader->DestinationAddress;
+		ClientIP = Packets[0]->IPHeader->SourceAddress;
+		ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);
+		ClientPort = ntohs(Packets[0]->UDPHeader->SourcePort);
+
+		AnalyzeProtocol();
+		return TRUE;
+	}
+}
+
+void cDNSStream::AnalyzeProtocol()
 {
 	DNSHeader = (DNS_HEADER*)Packets[nPackets-1]->UDPData;
 	

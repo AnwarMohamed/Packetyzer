@@ -1,15 +1,15 @@
 #pragma once
-#include "cConStream.h"
+#include "cUDPStream.h"
 
-class cDNSStream : public cConStream
+class cDNSStream : public cUDPStream
 {
-protected:
-	virtual VOID AnalyzeProtocol();
 private:
 	DNS_HEADER* DNSHeader;
 	QUERY* DNSQuery;
 	RES_RECORD* QueryResponse;
 	UCHAR* ResponseBase;
+
+	void AnalyzeProtocol();
 public:
 	static BOOL Identify(cPacket* Packet);
 
@@ -23,5 +23,7 @@ public:
 
 	cDNSStream();
 	~cDNSStream();
+
+	BOOL AddPacket(cPacket* Packet);
 };
 
