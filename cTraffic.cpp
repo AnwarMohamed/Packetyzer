@@ -36,74 +36,40 @@ cTraffic::cTraffic()
 
 BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 {
-	cConStream* TmpConStream;
+	cConStream* TmpConStream = NULL;
+	cConnection* TmpConnection = NULL;
+
+	cTCPStream* TmpTCP = NULL;
+	cUDPStream* TmpUDP = NULL;
+
+	cDNSStream* TmpDNS = NULL;
 
 	if (nConnections > 0)
 	{
 		for (UINT j=0; j<nConnections; j++)
 		{
-			if (Connections[j]->AddPacket(Packet))
-			{
-				//if (cDNSStream::Identify(Connections[j]->Packets[0])) nDNSPackets++;
-				return TRUE;
-			}
+			if (Connections[j]->AddPacket(Packet)) return TRUE;
 				
 			if (j == (nConnections - 1))
 			{
+
 				if (cConStream::Identify(Packet))
 				{
-	
 					/* TCP Application Layers */
 					if (cTCPStream::Identify(Packet))
-					{
 						TmpConStream = new cTCPStream();	 
-						TmpConStream->AddPacket(Packet);		
-						nConnections++;
-						Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-						memcpy((void**)&Connections[nConnections-1],(void**)&TmpConStream, sizeof(cConnection*));
-						return TRUE;
-					}
-
 
 					/* UDP Application Layers */
-					else if (cDNSStream::Identify(Packet))
-					{
-						cUDPStream* tmp = new cDNSStream();	 
-						tmp->AddPacket(Packet);		
-						nConnections++;
-						Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-						memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
-						return TRUE;
-					}
 					else if (cUDPStream::Identify(Packet))
 					{
-						TmpConStream = new cUDPStream();	
-						TmpConStream->AddPacket(Packet);	
-						nConnections++;
-						Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-						memcpy((void**)&Connections[nConnections-1],(void**)&TmpConStream, sizeof(cConnection*));
-						return TRUE;
+						if (cDNSStream::Identify(Packet))
+							TmpDNS = new cDNSStream();	 
+						else TmpConStream = new cUDPStream();
 					}
 				}
-
 				else if (cICMPStream::Identify(Packet))
-				{
-					cConnection* tmp = new cICMPStream();	 
-					tmp->AddPacket(Packet);		
-					nConnections++;
-					Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-					memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
-					return TRUE;
-				}
-				else
-				{
-					cConnection* tmp = new cConnection();	
-					tmp->AddPacket(Packet);		
-					nConnections++;
-					Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-					memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
-					return TRUE;
-				}
+					TmpConnection = new cICMPStream();	 
+				else TmpConnection = new cConnection();	
 			}
 		}
 	}
@@ -113,56 +79,36 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 		{
 			/* TCP Application Layers */
 			if (cTCPStream::Identify(Packet))
-			{
 				TmpConStream = new cTCPStream();	 
-				TmpConStream->AddPacket(Packet);		
-				nConnections++;
-				Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-				memcpy((void**)&Connections[nConnections-1],(void**)&TmpConStream, sizeof(cConnection*));
-				return TRUE;
-			}
-
 
 			/* UDP Application Layers */
-			else if (cDNSStream::Identify(Packet))
+			else if (cUDPStream::Identify(Packet))
 			{
-				cUDPStream* tmp = new cDNSStream();	 
-				tmp->AddPacket(Packet);		
-				nConnections++;
-				Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-				memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
-				return TRUE;
-			}
-			else 
-			{
-				TmpConStream = new cUDPStream();	
-				TmpConStream->AddPacket(Packet);	
-				nConnections++;
-				Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-				memcpy((void**)&Connections[nConnections-1],(void**)&TmpConStream, sizeof(cConnection*));
-				return TRUE;
-			}
-		}
 
+				if (cDNSStream::Identify(Packet))
+					TmpDNS = new cDNSStream();	 
+				else TmpConStream = new cUDPStream();
+
+			}
+		}
+		
 		else if (cICMPStream::Identify(Packet))
-		{
-			cConnection* tmp = new cICMPStream();	 
-			tmp->AddPacket(Packet);		
-			nConnections++;
-			Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-			memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
-			return TRUE;
-		}
-		else
-		{
-			cConnection* tmp = new cConnection();	
-			tmp->AddPacket(Packet);	
-			nConnections++;
-			Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-			memcpy((void**)&Connections[nConnections-1],(void**)&tmp, sizeof(cConnection*));
-			return TRUE;
-		}
+			TmpConnection = new cICMPStream();	 
+		else TmpConnection = new cConnection();	
+
 	}
+
+	if (TmpConnection != NULL) TmpConStream = (cConStream*)TmpConnection;
+	if (TmpUDP != NULL) TmpConStream = (cConStream*)TmpUDP;
+	if (TmpTCP != NULL) TmpConStream = (cConStream*)TmpTCP;
+
+	if (TmpDNS != NULL) TmpConStream = (cConStream*)TmpDNS;
+
+	TmpConStream->AddPacket(Packet);	
+	nConnections++;
+	Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
+	memcpy((void**)&Connections[nConnections-1],(void**)&TmpConStream, sizeof(cConnection*));
+	return TRUE;
 }
 
 cTraffic::~cTraffic()
