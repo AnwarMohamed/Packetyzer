@@ -33,7 +33,5 @@ public:
 
 	cTraffic();
 	~cTraffic();
-
-	UINT nDNSPackets;
 };
 

@@ -79,4 +79,4 @@ BOOL cConStream::Identify(cPacket* Packet)
 		return FALSE;
 	else
 		return TRUE;
-}
+} 

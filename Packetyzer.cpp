@@ -115,7 +115,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 	//cPcapFile pckts("C:\\Users\\Anwar Mohamed\\Downloads\\dns.cap");
 	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
-	cout << pckts.Traffic.nDNSPackets << endl;
+	cout << pckts.Traffic.nConnections << endl;
 
 	
 	//cout << (PDWORD)pckts.BaseAddress << endl;

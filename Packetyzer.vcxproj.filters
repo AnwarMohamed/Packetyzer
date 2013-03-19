@@ -60,6 +60,12 @@
     <ClCompile Include="cUDPStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cARPStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cICMPStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cFile.h">
@@ -108,6 +114,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cUDPStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cARPStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cICMPStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

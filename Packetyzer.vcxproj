@@ -91,11 +91,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cARPStream.cpp" />
     <ClCompile Include="cConnection.cpp" />
     <ClCompile Include="cConStream.cpp" />
     <ClCompile Include="cDNSStream.cpp" />
     <ClCompile Include="cFile.cpp" />
     <ClCompile Include="cHTTPStream.cpp" />
+    <ClCompile Include="cICMPStream.cpp" />
     <ClCompile Include="cPacket.cpp" />
     <ClCompile Include="cPacketGen.cpp" />
     <ClCompile Include="cTCPStream.cpp" />
@@ -111,11 +113,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cARPStream.h" />
     <ClInclude Include="cConnection.h" />
     <ClInclude Include="cConStream.h" />
     <ClInclude Include="cDNSStream.h" />
     <ClInclude Include="cFile.h" />
     <ClInclude Include="cHTTPStream.h" />
+    <ClInclude Include="cICMPStream.h" />
     <ClInclude Include="cPacket.h" />
     <ClInclude Include="cPacketGen.h" />
     <ClInclude Include="cTCPStream.h" />
