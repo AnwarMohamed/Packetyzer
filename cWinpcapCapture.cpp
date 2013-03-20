@@ -47,7 +47,7 @@ BOOL cWinpcapCapture::CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets)
 	while((retValue = pcap_next_ex( fp, &PacketHeader, &PacketData )) >= 0 && n < MaxNumOfPackets)
 	{
 		if(retValue == 0 ) continue;	n++;
-		cPacket tmp((UCHAR*)PacketData, PacketHeader->len);
+		cPacket tmp((UCHAR*)PacketData, PacketHeader->len, time(0));
 		Traffic.AddPacket(&tmp, NULL);
 		//memcpy(&CapturedPackets[n-1], &tmp, sizeof (cPacket));
 		nCapturedPackets++;

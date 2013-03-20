@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "cPacketGen.h"
 #include "hPackets.h"
-
+#include <ctime>
 
 cPacketGen::cPacketGen(UINT type)
 {
@@ -89,7 +89,7 @@ cPacketGen::cPacketGen(UINT type)
 	}
 
 	if (GeneratedPacketSize > 0)
-		Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+		Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 };
 
 BOOL cPacketGen::SetMACAddress(string src_mac, string dest_mac)
@@ -155,7 +155,7 @@ BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* 
 		if (tcp_options_size ==0)
 		{
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else if (tcp_options_size > 0)
 		{
@@ -171,14 +171,14 @@ BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* 
 			memset(&GeneratedPacket[GeneratedPacketSize - (4 - (options_size%4))], 0, 4 - (options_size%4));
 
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else return false;
 
 		if (tcp_data_size ==0)
 		{
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else if (tcp_data_size > 0)
 		{
@@ -190,7 +190,7 @@ BOOL cPacketGen::CustomizeTCP(UCHAR* tcp_options, UINT tcp_options_size, UCHAR* 
 			memcpy(&GeneratedPacket[GeneratedPacketSize - tcp_data_size], tcp_data ,tcp_data_size);
 
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else return false;
 
@@ -219,7 +219,7 @@ BOOL cPacketGen::CustomizeUDP(UCHAR* udp_data, UINT udp_data_size)
 		if (udp_data_size ==0)
 		{
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else if (udp_data_size > 0)
 		{
@@ -234,7 +234,7 @@ BOOL cPacketGen::CustomizeUDP(UCHAR* udp_data, UINT udp_data_size)
 			memcpy(&GeneratedPacket[GeneratedPacketSize - udp_data_size], udp_data ,udp_data_size);
 
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else return false;
 
@@ -258,7 +258,7 @@ BOOL cPacketGen::CustomizeICMP(UCHAR icmp_type, UCHAR icmp_code, UCHAR* icmp_dat
 		if (icmp_data_size ==0)
 		{
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else if (icmp_data_size > 0)
 		{
@@ -270,7 +270,7 @@ BOOL cPacketGen::CustomizeICMP(UCHAR icmp_type, UCHAR icmp_code, UCHAR* icmp_dat
 			memcpy(&GeneratedPacket[GeneratedPacketSize - icmp_data_size], icmp_data ,icmp_data_size);
 
 			delete Packet;
-			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize);
+			Packet = new cPacket(GeneratedPacket, GeneratedPacketSize, time(0));
 		}
 		else return false;
 

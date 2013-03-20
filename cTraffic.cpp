@@ -37,13 +37,7 @@ cTraffic::cTraffic()
 
 BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 {
-	cConStream* TmpConStream = NULL;
 	cConnection* TmpConnection = NULL;
-
-	cTCPStream* TmpTCP = NULL;
-	cUDPStream* TmpUDP = NULL;
-
-	cDNSStream* TmpDNS = NULL;
 
 	if (nConnections > 0)
 	{
@@ -58,21 +52,23 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 				{
 					/* TCP Application Layers */
 					if (cTCPStream::Identify(Packet))
-						TmpConStream = new cTCPStream();	 
+						TmpConnection = new cTCPStream();	 
 
 					/* UDP Application Layers */
 					else if (cUDPStream::Identify(Packet))
 					{
 						if (cDNSStream::Identify(Packet))
-							TmpDNS = new cDNSStream();	 
-						else TmpConStream = new cUDPStream();
+							TmpConnection = new cDNSStream();	 
+						else 
+							TmpConnection = new cUDPStream();
 					}
 				}
 				else if (cICMPStream::Identify(Packet))
 					TmpConnection = new cICMPStream();	
 				else if (cARPStream::Identify(Packet))
 					TmpConnection = new cARPStream();
-				else TmpConnection = new cConnection();	
+				else 
+					TmpConnection = new cConnection();	
 			}
 		}
 	}
@@ -82,15 +78,16 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 		{
 			/* TCP Application Layers */
 			if (cTCPStream::Identify(Packet))
-				TmpConStream = new cTCPStream();	 
+				TmpConnection = new cTCPStream();	 
 
 			/* UDP Application Layers */
 			else if (cUDPStream::Identify(Packet))
 			{
 
 				if (cDNSStream::Identify(Packet))
-					TmpDNS = new cDNSStream();	 
-				else TmpConStream = new cUDPStream();
+					TmpConnection = new cDNSStream();	 
+				else 
+					TmpConnection = new cUDPStream();
 
 			}
 		}
@@ -99,20 +96,15 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 			TmpConnection = new cICMPStream();
 		else if (cARPStream::Identify(Packet))
 			TmpConnection = new cARPStream();
-		else TmpConnection = new cConnection();	
+		else 
+			TmpConnection = new cConnection();	
 
 	}
 
-	if (TmpConnection != NULL) TmpConStream = (cConStream*)TmpConnection;
-	if (TmpUDP != NULL) TmpConStream = (cConStream*)TmpUDP;
-	if (TmpTCP != NULL) TmpConStream = (cConStream*)TmpTCP;
-
-	if (TmpDNS != NULL) TmpConStream = (cConStream*)TmpDNS;
-
-	TmpConStream->AddPacket(Packet);	
+	TmpConnection->AddPacket(Packet);	
 	nConnections++;
 	Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-	memcpy((void**)&Connections[nConnections-1],(void**)&TmpConStream, sizeof(cConnection*));
+	memcpy((void**)&Connections[nConnections-1],(void**)&TmpConnection, sizeof(cConnection*));
 	return TRUE;
 }
 

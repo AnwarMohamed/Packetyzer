@@ -25,11 +25,12 @@
 #include <iostream>
 #include <intrin.h>
 #include <algorithm>
+#include <ctime>
 
 #pragma comment(lib, "ws2_32.lib")
 using namespace std;
 
-cPacket::cPacket(string filename)
+cPacket::cPacket(string filename, time_t timestamp)
 {
 	BaseAddress = 0;
 	Size = 0;
@@ -39,17 +40,25 @@ cPacket::cPacket(string filename)
 	
 	BaseAddress = File->BaseAddress;
 	Size = File->FileLength;
+
+	Timestamp = timestamp;
+
 	isParsed = ProcessPacket();
 	return;
 };
 
-cPacket::cPacket(UCHAR* buffer, UINT size)
+cPacket::cPacket(UCHAR* buffer, UINT size, const time_t timestamp)
 {
+	if (timestamp != NULL) cout << ctime(&timestamp) << endl;
+
 	BaseAddress = 0;
 	Size = 0;
 
 	BaseAddress = (DWORD)buffer;
 	Size = size;
+
+	Timestamp = timestamp;
+
 	isParsed = ProcessPacket();
 	return;
 };

@@ -41,14 +41,16 @@ class cPacket
 	BOOL ProcessPacket();
 
 public:
-	cPacket(string filename);
-	cPacket(UCHAR* buffer, UINT size);
+	cPacket(string filename, time_t timestamp = NULL);
+	cPacket(UCHAR* buffer, UINT size, time_t timestamp = NULL);
 	~cPacket();
 
 	BOOL FixIPChecksum();
 	BOOL FixTCPChecksum();
 	BOOL FixUDPChecksum();
 	BOOL FixICMPChecksum();
+
+	time_t Timestamp;
 
 	DWORD BaseAddress;
 	UINT Size;
