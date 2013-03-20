@@ -282,17 +282,17 @@ struct IGMP_HEADER
 
 struct ARP_HEADER
 {
-	u_short	HardwareType;
-	u_short	ProtocolType;
-	u_char	HardwareAddressLength;
-	u_char	ProtocolAddressLength;
-	u_short	OperationCode;
-#ifdef COMMENT_ONLY
-	u_char	SourceHardwareAddress[];
-	u_char	SourceProtocolAddress[];
-	u_char	TargetHardwareAddress[];
-	u_char	TargetProtocolAddress[];
-#endif
+	USHORT	HardwareType;
+	USHORT	ProtocolType;
+	UCHAR	HardwareAddressLength;
+	UCHAR	ProtocolAddressLength;
+	USHORT	OperationCode;
+
+	UCHAR	SourceHardwareAddress[ETHER_ADDR_LEN];
+	UINT	SourceProtocolAddress;
+	UCHAR	TargetHardwareAddress[ETHER_ADDR_LEN];
+	UINT	TargetProtocolAddress;
+
 };
 
 

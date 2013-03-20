@@ -24,6 +24,7 @@
 #include "cUDPStream.h"
 #include "cDNSStream.h"
 #include "cICMPStream.h"
+#include "cARPStream.h"
 #include <iostream>
 
 using namespace std;
@@ -68,7 +69,9 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 					}
 				}
 				else if (cICMPStream::Identify(Packet))
-					TmpConnection = new cICMPStream();	 
+					TmpConnection = new cICMPStream();	
+				else if (cARPStream::Identify(Packet))
+					TmpConnection = new cARPStream();
 				else TmpConnection = new cConnection();	
 			}
 		}
@@ -93,7 +96,9 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 		}
 		
 		else if (cICMPStream::Identify(Packet))
-			TmpConnection = new cICMPStream();	 
+			TmpConnection = new cICMPStream();
+		else if (cARPStream::Identify(Packet))
+			TmpConnection = new cARPStream();
 		else TmpConnection = new cConnection();	
 
 	}
