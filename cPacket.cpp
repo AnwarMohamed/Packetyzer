@@ -49,7 +49,7 @@ cPacket::cPacket(string filename, time_t timestamp)
 
 cPacket::cPacket(UCHAR* buffer, UINT size, const time_t timestamp)
 {
-	if (timestamp != NULL) cout << ctime(&timestamp) << endl;
+	//if (timestamp != NULL) cout << ctime(&timestamp) << endl;
 
 	BaseAddress = 0;
 	Size = 0;

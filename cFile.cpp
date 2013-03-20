@@ -18,7 +18,6 @@
  *
  */
 
-
 #include "stdafx.h"
 #include "cFile.h"
 

@@ -60,7 +60,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "Packet wasnot sent" << endl;
 	}*/
 
-	cWinpcapCapture capture;
+	/*cWinpcapCapture capture;
 	for (UINT i=0; i< capture.nAdapters; i++)
 	{
 		cout << capture.Adapters[i].Name << endl;
@@ -76,7 +76,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	cout << "Captured Packets: " << capture.nCapturedPackets << endl;
 
-	cout << capture.Traffic.nConnections << endl;
+	cout << capture.Traffic.nConnections << endl;*/
 	/*for (UINT j=0; j<capture.nCapturedPackets; j++)
 		if (capture.CapturedPackets[j].TCPDataSize > 0) 
 			cout << capture.CapturedPackets[j].TCPData << endl;*/
