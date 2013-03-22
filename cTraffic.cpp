@@ -25,6 +25,7 @@
 #include "cDNSStream.h"
 #include "cICMPStream.h"
 #include "cARPStream.h"
+#include "cHTTPStream.h"
 #include <iostream>
 
 using namespace std;
@@ -32,11 +33,13 @@ using namespace std;
 cTraffic::cTraffic()
 {
 	nConnections = 0;
+	nHTTP = 0;
 	Connections = (cConnection**)malloc( sizeof(cConnection*) * nConnections);
 }
 
 BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 {
+	if (cHTTPStream::Identify(Packet)) nHTTP++;
 	cConnection* TmpConnection = NULL;
 
 	if (nConnections > 0)
@@ -52,7 +55,12 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 				{
 					/* TCP Application Layers */
 					if (cTCPStream::Identify(Packet))
-						TmpConnection = new cTCPStream();	 
+					{
+						if (cHTTPStream::Identify(Packet))
+							TmpConnection = new cHTTPStream();
+						else
+							TmpConnection = new cTCPStream();	 
+					}
 
 					/* UDP Application Layers */
 					else if (cUDPStream::Identify(Packet))
@@ -78,7 +86,12 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 		{
 			/* TCP Application Layers */
 			if (cTCPStream::Identify(Packet))
-				TmpConnection = new cTCPStream();	 
+			{
+				if (cHTTPStream::Identify(Packet))
+					TmpConnection = new cHTTPStream();
+				else
+					TmpConnection = new cTCPStream();	 
+			}
 
 			/* UDP Application Layers */
 			else if (cUDPStream::Identify(Packet))

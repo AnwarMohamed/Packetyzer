@@ -54,7 +54,7 @@ cWinpcapCapture::cWinpcapCapture()
 	isReady = InitializeAdapters();
 };
 
-BOOL cWinpcapCapture::CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets)
+BOOL cWinpcapCapture::CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets, const CHAR* Filter)
 {
 
 	INT retValue;	UINT i, n = 0;	nCapturedPackets = 0;
@@ -64,12 +64,21 @@ BOOL cWinpcapCapture::CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets)
 	for (d=alldevs, i=0; i< AdapterIndex-1 ;d=d->next, i++);        
 	if ((fp=pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL) return FALSE;
 
+	UINT netmask;
+	if (d->addresses != NULL)
+		netmask = ((struct sockaddr_in*)(d->addresses->netmask))->sin_addr.S_un.S_addr;
+	else
+		netmask = 0xffffff;
+
+	struct bpf_program fcode;
+	if ( pcap_compile(fp, &fcode, Filter, 1, netmask) < 0) return FALSE;
+	if ( pcap_setfilter(fp, &fcode) < 0) return FALSE;
+
 	while((retValue = pcap_next_ex( fp, &PacketHeader, &PacketData )) >= 0 && n < MaxNumOfPackets)
 	{
 		if(retValue == 0 ) continue;	n++;
-		cPacket tmp((UCHAR*)PacketData, PacketHeader->len, time(0));
-		Traffic.AddPacket(&tmp, NULL);
-		//memcpy(&CapturedPackets[n-1], &tmp, sizeof (cPacket));
+		cPacket TempPacket((UCHAR*)PacketData, PacketHeader->len, time(0));
+		Traffic.AddPacket(&TempPacket, NULL);
 		nCapturedPackets++;
 	}
     

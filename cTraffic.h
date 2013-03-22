@@ -33,5 +33,7 @@ public:
 
 	cTraffic();
 	~cTraffic();
+
+	UINT nHTTP;
 };
 

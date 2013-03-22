@@ -45,7 +45,7 @@ class cWinpcapCapture
 	BOOL InitializeAdapters();
 public:
 	BOOL isReady;
-	BOOL CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets);
+	BOOL CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets, const CHAR* Filter = NULL);
 
 	NETWORK_ADAPTERS_CAPTURE *Adapters;
 	UINT nAdapters;

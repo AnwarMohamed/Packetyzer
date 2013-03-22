@@ -19,17 +19,27 @@
  */
 
 #pragma once
-#include "cConStream.h"
+#include "cTCPStream.h"
+#include "cString.h"
 
-class cHTTPStream : public cConStream
+class cHTTPStream : public cTCPStream
 {
+	BOOL CheckType(UCHAR* buffer);
 protected:
-	virtual VOID AnalyzeProtocol();
+	void AnalyzeProtocol();
 public:
 
 	static BOOL Identify(cPacket* Packet);
+	BOOL AddPacket(cPacket* Packet);
 
 	cHTTPStream(void);
 	~cHTTPStream(void);
+
+	cString** Cookies;
+	UINT nCookies;
+
+	cString* UserAgent;
+	cString* Referer;
+	cString* ServerType;
 };
 

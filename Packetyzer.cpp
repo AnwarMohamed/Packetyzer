@@ -68,9 +68,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	UINT Packets = 5;
-	if (!capture.CapturePackets(6,Packets))
+	if (!capture.CapturePackets(6,Packets, "ip and tcp "))
 	{
 		cout << "Failed to capture" << endl;
+		system("PAUSE");
 		return FALSE;
 	}
 
@@ -114,8 +115,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//for (UINT i=0; i < gen_packet.GeneratedPacketSize; i++)
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 	//cPcapFile pckts("C:\\Users\\Anwar Mohamed\\Downloads\\dns.cap");
-	//cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
-	//cout << pckts.Traffic.nConnections << endl;
+	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
+	cout << pckts.Traffic.nHTTP << endl;
 
 	
 	//cout << (PDWORD)pckts.BaseAddress << endl;
