@@ -38,6 +38,7 @@ cHTTPStream::cHTTPStream()
 	Referer = NULL;
 	ServerType = NULL;
 
+	Files = (cFile**)malloc(nFiles * sizeof(cFile*));
 };
 
 BOOL cHTTPStream::Identify(cPacket* Packet)
@@ -93,7 +94,7 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 
 void cHTTPStream::AnalyzeProtocol()
 {
-	string data;	cmatch res;		regex rx;	cString* TempString;
+	string data;	cmatch res;		regex rx;	cString* TempString;	cFile* TempFile;
 
 	if (nPackets == 0 && Packets[0]->TCPDataSize > 0 && CheckType(Packets[0]->TCPData))
 		data = (CHAR*)Packets[0]->TCPData;
@@ -130,15 +131,24 @@ void cHTTPStream::AnalyzeProtocol()
 	if (Referer == NULL && regex_search(data.c_str(), res, regex("Referer:\\s(.*?)\\r\\n")))
 	{
 		Referer = new cString(string(res[1]).c_str());
-		cout << Referer->GetChar() << endl;
+		//cout << Referer->GetChar() << endl;
 	}
 
-
-	//rx = "GET\\s(.*?)\\s(.*?)\\r\\n";
-	//rx = "Set-Cookie:\\s(.*?)\\r\\n";
-
-	//if (regex_search(data.c_str(), res, rx))
-	//	cout << res[1] << " " << res[2].length() << "\n";
+	/* check cfile */
+	if (regex_search(data.c_str(), res, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
+		string(res[2]) == "200 OK" &&
+		regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n")) &&
+		string(res[1]).find("application/x-javascript") == string::npos &&
+		string(res[1]).find("text/css") == string::npos &&
+		string(res[1]).find("text/html") == string::npos &&
+		regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")) )
+	{
+		UINT length = atoi(string(res[1]).c_str());
+		Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
+		TempFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
+		memcpy(&Files[nFiles], &TempFile, sizeof(cFile*));
+		nFiles++;
+	}
 }
 
 cHTTPStream::~cHTTPStream() 

@@ -21,6 +21,7 @@
 #pragma once
 #include "cTCPStream.h"
 #include "cString.h"
+#include "cFile.h"
 
 class cHTTPStream : public cTCPStream
 {
@@ -41,5 +42,8 @@ public:
 	cString* UserAgent;
 	cString* Referer;
 	cString* ServerType;
+
+	cFile** Files;
+	UINT nFiles;
 };
 
