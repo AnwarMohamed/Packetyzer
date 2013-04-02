@@ -18,8 +18,10 @@
  *
  */
 
-#include "stdafx.h"
-#include "cFile.h"
+#include "Packetyzer.h"
+//#include "cFile.h"
+
+using namespace Packetyzer::Elements;
 
 cFile::cFile(char* szFilename)
 {

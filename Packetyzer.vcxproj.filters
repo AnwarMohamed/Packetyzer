@@ -27,12 +27,6 @@
     <ClCompile Include="cPcapFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Packetyzer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cWinpcapCapture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,6 +63,12 @@
     <ClCompile Include="cString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cFile.h">
@@ -84,12 +84,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hPackets.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cWinpcapCapture.h">
@@ -126,6 +120,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Packetyzer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

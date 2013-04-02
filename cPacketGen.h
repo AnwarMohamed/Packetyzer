@@ -19,9 +19,8 @@
  */
 
 #pragma once
-#include "cPacket.h"
-#include <algorithm>
-#include <iostream>
+#include "Packetyzer.h"
+//#include "cPacket.h"
 
 #define GENERATE_TCP		1
 #define GENERATE_UDP		2
@@ -35,7 +34,9 @@
 #define TCP_PSH				16
 #define TCP_URG				32
 
-class cPacketGen
+using namespace Packetyzer::Analyzers;
+
+class DLLIMPORT Packetyzer::Generators::cPacketGen
 {
 	/* global */
 	cPacket* Packet;

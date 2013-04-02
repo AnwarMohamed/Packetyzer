@@ -1,13 +1,14 @@
 //Copyrights (c) by Yuantu Huang at 2000 ... and all rights reserved to him
 //portions of this code are copyrighted by Amr Thabet at 2012 under GPL Licence
 
-#include "stdafx.h"
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
-#include "cString.h"
+//#include "cString.h"
+#include "Packetyzer.h"
 
 using namespace std;
+using namespace Packetyzer::Elements;
 
 cString::cString(const char* str)
 {
@@ -91,7 +92,8 @@ void cString::VarToString(const double var)
 	char str[33];
 
 	memset (&str,0,33);
-	_gcvt(var, 16, str);
+	//_gcvt(var, 16, str);
+	_gcvt_s(str, var, 16);
 	m_nLength = strlen(str);
 	if (str[m_nLength - 1] == '.')
 	{
@@ -115,7 +117,8 @@ int cString::Format(const char* format, ...)
 		memset(MaxBuf,0,len+1);
 		if (!MaxBuf) return 0;
 		// some UNIX's do not support vsnprintf and snprintf
-		len = _vsnprintf(MaxBuf, len, format, (char*)(&format + 1));
+		len = _vsnprintf_s(MaxBuf, len, len, format, (char*)(&format + 1));
+		//len = _vsnprintf(MaxBuf, len, format, (char*)(&format + 1));
 		if (len > 0) break;
 		if (len == 0) return 0;
 	}

@@ -19,9 +19,10 @@
  */
 
 #pragma once
-#include "cUDPStream.h"
+#include "Packetyzer.h"
+//#include "cUDPStream.h"
 
-class cDNSStream : public cUDPStream
+class DLLIMPORT Packetyzer::Traffic::Streams::cDNSStream : public Packetyzer::Traffic::Streams::cUDPStream
 {
 private:
 	DNS_HEADER* DNSHeader;

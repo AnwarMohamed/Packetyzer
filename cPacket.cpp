@@ -18,17 +18,18 @@
  *
  */
 
-#include "StdAfx.h"
-#include "cPacket.h"
-#include "cFile.h"
-#include "hPackets.h"
+#include "Packetyzer.h"
 #include <iostream>
 #include <intrin.h>
 #include <algorithm>
 #include <ctime>
+//#include "cPacket.h"
+//#include "cFile.h"
 
 #pragma comment(lib, "ws2_32.lib")
 using namespace std;
+using namespace Packetyzer::Analyzers;
+using namespace Packetyzer::Elements;
 
 cPacket::cPacket(string filename, time_t timestamp)
 {

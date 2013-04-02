@@ -18,12 +18,15 @@
  *
  */
 
-#include "stdafx.h"
-#include "cWinpcapCapture.h"
-#include "cPacket.h"
+#include "Packetyzer.h"
+//#include "cWinpcapCapture.h"
+//#include "cPacket.h"
 #include <iostream>
 #include <string>
 
+
+using namespace Packetyzer::Analyzers;
+using namespace Packetyzer::Capture;
 using namespace std;
 
 BOOL cWinpcapCapture::InitializeAdapters()

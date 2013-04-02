@@ -18,13 +18,14 @@
  *
  */
 
-#include "stdafx.h"
-#include "cHTTPStream.h"
+//#include "cHTTPStream.h"
 #include <iostream>
 #include <regex>
+#include "Packetyzer.h"
 
 using namespace std;
 using namespace std::tr1;
+using namespace Packetyzer::Traffic::Streams;
 
 //typedef match_results<const char*> cmatch;
 const CHAR head[][5] = {"GET", "POST", "HEAD", "HTTP"};
@@ -39,6 +40,11 @@ cHTTPStream::cHTTPStream()
 	ServerType = NULL;
 
 	Files = (cFile**)malloc(nFiles * sizeof(cFile*));
+
+	nRequests = 0;
+	Requests = (REQUEST*)malloc(nRequests * sizeof(REQUEST));
+	nResponses = 0;
+	Responses = (cString**)malloc(nResponses * sizeof(cString*));
 };
 
 BOOL cHTTPStream::Identify(cPacket* Packet)
@@ -148,6 +154,27 @@ void cHTTPStream::AnalyzeProtocol()
 		TempFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
 		memcpy(&Files[nFiles], &TempFile, sizeof(cFile*));
 		nFiles++;
+	}
+
+	/* check requests */
+	if (regex_search(data.c_str(), res, regex("GET\\s(.*?)\\s(.*?)\\r\\n")) ||
+		regex_search(data.c_str(), res, regex("POST\\s(.*?)\\s(.*?)\\r\\n")))
+	{
+		nRequests ++;
+		Requests = (REQUEST*)realloc(Requests, nRequests * sizeof(REQUEST));
+		Requests[nRequests - 1].Address = new cString(string(res[1]).c_str());
+		
+		/* parse for get */
+		if (memcmp(string(res[0]).c_str(), &head[0], strlen((const char*)head[0])) == 0)
+		{
+			Requests[nRequests-1].RequestType = (UCHAR*)(head[0]);
+		}
+
+		/* parse for post */
+		else if (memcmp(string(res[0]).c_str(), &head[1], strlen((const char*)head[1])) == 0)
+		{
+			Requests[nRequests-1].RequestType = (UCHAR*)(head[1]);
+		}
 	}
 }
 

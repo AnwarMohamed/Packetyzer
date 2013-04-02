@@ -18,8 +18,10 @@
  *
  */
 
-#include "stdafx.h"
-#include "cUDPStream.h"
+//#include "cUDPStream.h"
+#include "Packetyzer.h"
+
+using namespace Packetyzer::Traffic::Streams;
 
 cUDPStream::cUDPStream(void)
 {

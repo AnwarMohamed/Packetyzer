@@ -19,11 +19,13 @@
  */
 
 #pragma once
-#include "cConStream.h"
-#include "cDNSStream.h"
-#include "cConnection.h"
+#include "Packetyzer.h"
+//#include "cConnection.h"
 
-class cTraffic
+using namespace Packetyzer::Analyzers;
+using namespace Packetyzer::Traffic::Connections;
+
+class DLLIMPORT Packetyzer::Traffic::Connections::cTraffic
 {
 public:
 	UINT nConnections;
@@ -33,7 +35,5 @@ public:
 
 	cTraffic();
 	~cTraffic();
-
-	UINT nHTTP;
 };
 

@@ -19,9 +19,10 @@
  */
 
 #pragma once
-#include "cConnection.h"
+#include "Packetyzer.h"
+//#include "cConnection.h"
 
-class cICMPStream : public cConnection
+class DLLIMPORT Packetyzer::Traffic::Streams::cICMPStream : public Packetyzer::Traffic::Connections::cConnection
 {
 	void AnalyzeProtocol();
 public:

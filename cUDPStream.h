@@ -19,9 +19,12 @@
  */
 
 #pragma once
+#include "Packetyzer.h"
 #include "cConStream.h"
 
-class cUDPStream : public cConStream
+using namespace Packetyzer::Analyzers;
+
+class DLLIMPORT Packetyzer::Traffic::Streams::cUDPStream : public Packetyzer::Traffic::Streams::cConStream
 {
 public:
 	cUDPStream(void);

@@ -19,8 +19,11 @@
  */
 
 #pragma once
-#include <pcap.h>
-#include "cTraffic.h"
+#include "Packetyzer.h"
+//#include <pcap.h>
+//#include "cTraffic.h"
+
+using namespace Packetyzer::Traffic::Connections;
 
 struct NETWORK_ADAPTERS_CAPTURE
 {
@@ -28,7 +31,7 @@ struct NETWORK_ADAPTERS_CAPTURE
 	CHAR ID[200];
 };
 
-class cWinpcapCapture
+class DLLIMPORT Packetyzer::Capture::cWinpcapCapture
 {
 	//BOOL CheckAdapter(UINT id);
 	//BOOL InitializeAdaptersList();

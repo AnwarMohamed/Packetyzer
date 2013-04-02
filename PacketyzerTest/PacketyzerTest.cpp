@@ -18,26 +18,19 @@
  *
  */
 
-#include "stdafx.h"
+#include <conio.h>
+#include "../Packetyzer.h"
 
-//#include <Windows.h>
-
-#include "cWinpcapCapture.h"
-#include "cWinpcapSend.h"
-#include "cPacket.h"
-#include "cPcapFile.h"
-#include "cConStream.h"
-#include "cPacketGen.h"
 
 
 //#include <string>
 //#include <iostream>
 //#include <iomanip>
 
-
+using namespace Packetyzer::Analyzers;
 using namespace std;
 
-int _tmain(int argc, _TCHAR* argv[])
+INT main(INT argc, CHAR* argv[])
 {
 	UCHAR buffer[] = {
 		0x00,0x1c,0xc0,0xe6,0xa2,0xab,0x00,0x24,0x2b,0x32,0xc3,0x55,0x08,0x00,
@@ -116,24 +109,23 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 	//cPcapFile pckts("C:\\Users\\Anwar Mohamed\\Downloads\\dns.cap");
 	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
-	cout << pckts.Traffic.nHTTP << endl;
-
+	//cout << pckts.Traffic.nHTTP << endl;
 	
-	//cout << (PDWORD)pckts.BaseAddress << endl;
-	//cout << pckts.FileLength << endl;
+	cout << "0x" << (PDWORD)pckts.BaseAddress << endl;
+	cout << pckts.FileLength << "bytes" << endl;
 	//cout << pckts.nPackets << endl;
 
-	/*cout << "nPackets: " << pckts.nPackets << endl;
-	cout << "nStreams: " << pckts.Traffic.nConStreams << endl;
-	int z = 0;
+	cout << "nPackets: " << pckts.nPackets << endl;
+	cout << "nStreams: " << pckts.Traffic.nConnections << endl;
+	/*int z = 0;
 	int y = 0;
-	for (UINT i=0; i < pckts.Traffic.nConStreams; i++)
+	for (UINT i=0; i < pckts.Traffic.nConnections; i++)
 	{
-		if (pckts.Traffic.ConStreams[i]->isTCPPacket)
+		if (pckts.Traffic.Connections[i]->Packets[0]->isTCPPacket)
 		{
-			UCHAR* ip = (UCHAR*)&pckts.Traffic.ConStreams[i]->ClientIP;
-			UCHAR* ip2 = (UCHAR*)&pckts.Traffic.ConStreams[i]->ServerIP;
-			printf("%u.%u.%u.%u\t%d\t%u.%u.%u.%u\t%d\n\n", ip[0], ip[1], ip[2], ip[3], pckts.Traffic.ConStreams[i]->ClientPort, ip2[0], ip2[1], ip2[2], ip2[3], pckts.Traffic.ConStreams[i]->ServerPort);
+			UCHAR* ip = (UCHAR*)&pckts.Traffic.Connections[i]->ClientIP;
+			UCHAR* ip2 = (UCHAR*)&pckts.Traffic.Connections[i]->ServerIP;
+			printf("%u.%u.%u.%u\t%d\t%u.%u.%u.%u\t%d\n\n", ip[0], ip[1], ip[2], ip[3], pckts.Traffic.Connections[i]->ClientPort, ip2[0], ip2[1], ip2[2], ip2[3], pckts.Traffic.Connections[i]->ServerPort);
 		}
 		if (pckts.Traffic.ConStreams[i]->isTCPPacket) z++;
 		if (pckts.Traffic.ConStreams[i]->isUDPPacket) y++;

@@ -19,9 +19,11 @@
  */
 
 #pragma once
-#include <pcap.h>
-#include "cPacket.h"
-#include "hPackets.h"
+//#include <pcap.h>
+#include "Packetyzer.h"
+//#include "cPacket.h"
+
+using namespace Packetyzer::Analyzers;
 
 struct NETWORK_ADAPTERS_SEND
 {
@@ -29,7 +31,7 @@ struct NETWORK_ADAPTERS_SEND
 	CHAR ID[200];
 };
 
-class cWinpcapSend
+class DLLIMPORT Packetyzer::Send::cWinpcapSend
 {
 	#define LINE_LEN 16
 	pcap_if_t *alldevs, *d;

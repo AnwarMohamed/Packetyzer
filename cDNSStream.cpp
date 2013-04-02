@@ -18,11 +18,12 @@
  *
  */
 
-#include "stdafx.h"
-#include "cDNSStream.h"
+//#include "cDNSStream.h"
 #include <iostream>
+#include "Packetyzer.h"
 
 using namespace std;
+using namespace Packetyzer::Traffic::Streams;
 
 cDNSStream::cDNSStream()
 {

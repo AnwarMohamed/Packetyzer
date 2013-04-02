@@ -18,8 +18,10 @@
  *
  */
 
-#include "stdafx.h"
-#include "cWinpcapSend.h"
+//#include "cWinpcapSend.h"
+#include "Packetyzer.h"
+
+using namespace Packetyzer::Send;
 
 cWinpcapSend::cWinpcapSend()
 {

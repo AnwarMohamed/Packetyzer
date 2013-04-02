@@ -19,9 +19,12 @@
  */
 
 #pragma once
-#include "cConnection.h"
+#include "Packetyzer.h"
+//#include "cConnection.h"
 
-class cARPStream : public cConnection
+using namespace Packetyzer::Analyzers;
+
+class DLLIMPORT Packetyzer::Traffic::Streams::cARPStream : public Packetyzer::Traffic::Connections::cConnection
 {
 	void AnalyzeProtocol();
 public:

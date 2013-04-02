@@ -19,9 +19,12 @@
  */
 
 #pragma once
-#include "cPacket.h"
+#include "Packetyzer.h"
+//#include "cPacket.h"
 
-class cConnection
+using namespace Packetyzer::Analyzers;
+
+class DLLIMPORT Packetyzer::Traffic::Connections::cConnection
 {
 protected:
 	virtual BOOL AnalyzePackets();

@@ -19,9 +19,10 @@
  */
 
 #pragma once
-#include "cConnection.h"
+#include "Packetyzer.h"
+//#include "cConnection.h"
 
-class cConStream : public cConnection
+class DLLIMPORT Packetyzer::Traffic::Streams::cConStream : public Packetyzer::Traffic::Connections::cConnection
 {
 public:
 	cConStream();

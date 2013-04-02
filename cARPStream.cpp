@@ -18,9 +18,10 @@
  *
  */
 
-#include "stdafx.h"
-#include "cARPStream.h"
+#include "Packetyzer.h"
+//#include "cARPStream.h"
 
+using namespace Packetyzer::Traffic::Streams;
 
 cARPStream::cARPStream(void)
 {

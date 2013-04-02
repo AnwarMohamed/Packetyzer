@@ -18,10 +18,13 @@
  *
  */
 
-#include "StdAfx.h"
-#include "cPacketGen.h"
-#include "hPackets.h"
+#include "Packetyzer.h"
+//#include "cPacketGen.h"
+//#include "hPackets.h"
+#include <algorithm>
 #include <ctime>
+
+using namespace Packetyzer::Generators;
 
 cPacketGen::cPacketGen(UINT type)
 {

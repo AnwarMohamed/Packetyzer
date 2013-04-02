@@ -1,11 +1,9 @@
 #pragma once
+#include "Packetyzer.h"
 
-#ifndef WINDOWS_HEADER
-#define WINDOWS_HEADER
-#include <Windows.h>
-#endif
+using namespace Packetyzer::Elements;
 
-class cFile
+class DLLIMPORT Packetyzer::Elements::cFile
 {
 	HANDLE		hFile;
     HANDLE		hMapping;

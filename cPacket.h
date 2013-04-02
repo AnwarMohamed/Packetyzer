@@ -19,8 +19,7 @@
  */
 
 #pragma once
-#include <string>
-#include "hPackets.h"
+#include "Packetyzer.h"
 
 using namespace std;
 
@@ -31,7 +30,7 @@ using namespace std;
 #define PACKET_ICMP_CHECKSUM		0x4
 #define PACKET_IP_TTL			0x5
 
-class cPacket
+class DLLIMPORT Packetyzer::Analyzers::cPacket
 {
 	void CheckIfMalformed();
 	UINT sHeader;

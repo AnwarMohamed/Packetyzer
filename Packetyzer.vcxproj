@@ -23,7 +23,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -57,7 +57,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>C:\WpdPack\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -96,6 +96,7 @@
     <ClCompile Include="cConStream.cpp" />
     <ClCompile Include="cDNSStream.cpp" />
     <ClCompile Include="cFile.cpp" />
+    <ClCompile Include="cHash.cpp" />
     <ClCompile Include="cHTTPStream.cpp" />
     <ClCompile Include="cICMPStream.cpp" />
     <ClCompile Include="cPacket.cpp" />
@@ -107,11 +108,7 @@
     <ClCompile Include="cWinpcapCapture.cpp" />
     <ClCompile Include="cPcapFile.cpp" />
     <ClCompile Include="cWinpcapSend.cpp" />
-    <ClCompile Include="Packetyzer.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cARPStream.h" />
@@ -119,6 +116,7 @@
     <ClInclude Include="cConStream.h" />
     <ClInclude Include="cDNSStream.h" />
     <ClInclude Include="cFile.h" />
+    <ClInclude Include="cHash.h" />
     <ClInclude Include="cHTTPStream.h" />
     <ClInclude Include="cICMPStream.h" />
     <ClInclude Include="cPacket.h" />
@@ -131,8 +129,7 @@
     <ClInclude Include="cPcapFile.h" />
     <ClInclude Include="cWinpcapSend.h" />
     <ClInclude Include="hPackets.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Packetyzer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

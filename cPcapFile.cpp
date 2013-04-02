@@ -18,13 +18,15 @@
  *
  */
 
-#include "StdAfx.h"
-#include "cPcapFile.h"
-#include "cFile.h"
-#include <iostream>
-#include "cPacket.h"
+//#include "cPcapFile.h"
+//#include "cFile.h"
+//#include <iostream>
+//#include "cPacket.h"
+#include "Packetyzer.h"
 
 using namespace std;
+using namespace Packetyzer::Analyzers;
+using namespace Packetyzer::Elements;
 
 cPcapFile::cPcapFile(char* szFilename) : cFile(szFilename)
 {

@@ -18,8 +18,11 @@
  *
  */
 
-#include "stdafx.h"
-#include "cTCPStream.h"
+//#include "cTCPStream.h"
+#include "Packetyzer.h"
+
+using namespace Packetyzer::Analyzers;
+using namespace Packetyzer::Traffic::Streams;
 
 cTCPStream::cTCPStream(void)
 {

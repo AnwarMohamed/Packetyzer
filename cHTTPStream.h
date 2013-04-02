@@ -19,11 +19,24 @@
  */
 
 #pragma once
-#include "cTCPStream.h"
-#include "cString.h"
-#include "cFile.h"
+#include "Packetyzer.h"
+//#include "cString.h"
+//#include "cHash.h"
+//#include "cFile.h"
+//#include "cTCPStream.h"
+#include "Packetyzer.h"
 
-class cHTTPStream : public cTCPStream
+using namespace Packetyzer::Elements;
+
+struct REQUEST
+{
+	UCHAR*	RequestType;
+	cString*	Address;
+	cHash*		Arguments;
+	UINT		ReplyNumber;
+};
+
+class Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::Traffic::Streams::cTCPStream
 {
 	BOOL CheckType(UCHAR* buffer);
 protected:
@@ -45,5 +58,11 @@ public:
 
 	cFile** Files;
 	UINT nFiles;
+
+	REQUEST* Requests;
+	UINT nRequests;
+
+	cString** Responses;
+	UINT nResponses;
 };
 

@@ -1,11 +1,9 @@
 #if !defined(__STR_H__)
 #define __STR_H__
 
-#include <string.h>
-#include <stdlib.h>
-#include <Windows.h>
+#include "Packetyzer.h"
 
-class cString
+class DLLIMPORT Packetyzer::Elements::cString
 {
 public:
 	// constructors and destructor

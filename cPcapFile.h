@@ -19,15 +19,13 @@
  */
 
 #pragma once
-#include <string>
-
-#include "hPackets.h"
-#include "cPacket.h"
+#include "Packetyzer.h"
 #include "cFile.h"
-#include "cConStream.h"
 #include "cTraffic.h"
 
-using namespace std;
+using namespace Packetyzer::Analyzers;
+using namespace Packetyzer::Elements;
+using namespace Packetyzer::Traffic::Connections;
 
 struct FOLLOW_STREAM
 {
@@ -40,7 +38,7 @@ struct FOLLOW_STREAM
 	USHORT	dest_port;
 };
 
-class cPcapFile : public cFile
+class DLLIMPORT Packetyzer::Analyzers::cPcapFile : public Packetyzer::Elements::cFile
 {
 	PCAP_GENERAL_HEADER* PCAP_General_Header;
 	PCAP_PACKET_HEADER* PCAP_Packet_Header;

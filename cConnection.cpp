@@ -18,10 +18,11 @@
  *
  */
 
-#include "stdafx.h"
-#include "cConnection.h"
+//#include "cConnection.h"
+#include "Packetyzer.h"
 
 using namespace std;
+using namespace Packetyzer::Traffic::Connections;
 
 cConnection::cConnection()
 {

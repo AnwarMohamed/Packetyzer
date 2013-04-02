@@ -18,11 +18,12 @@
  *
  */
 
-#include "stdafx.h"
-#include "cConStream.h"
+//#include "cConStream.h"
+#include "Packetyzer.h"
 #include <iostream>
 
 using namespace std;
+using namespace Packetyzer::Traffic::Streams;
 
 cConStream::cConStream()
 {

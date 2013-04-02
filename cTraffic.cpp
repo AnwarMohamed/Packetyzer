@@ -18,28 +18,28 @@
  *
  */
 
-#include "stdafx.h"
-#include "cTraffic.h"
-#include "cTCPStream.h"
-#include "cUDPStream.h"
-#include "cDNSStream.h"
-#include "cICMPStream.h"
-#include "cARPStream.h"
-#include "cHTTPStream.h"
-#include <iostream>
+#include "Packetyzer.h"
+//#include "cTraffic.h"
+//#include "cConStream.h"
+//#include "cTCPStream.h"
+//#include "cHTTPStream.h"
+//#include "cUDPStream.h"
+//#include "cDNSStream.h"
+//#include "cICMPStream.h"
+//#include "cARPStream.h"
 
 using namespace std;
+using namespace Packetyzer::Traffic::Connections;
+using namespace Packetyzer::Traffic::Streams;
 
 cTraffic::cTraffic()
 {
 	nConnections = 0;
-	nHTTP = 0;
 	Connections = (cConnection**)malloc( sizeof(cConnection*) * nConnections);
 }
 
 BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 {
-	if (cHTTPStream::Identify(Packet)) nHTTP++;
 	cConnection* TmpConnection = NULL;
 
 	if (nConnections > 0)
