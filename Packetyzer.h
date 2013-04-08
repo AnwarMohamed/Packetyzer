@@ -19,6 +19,7 @@ namespace Packetyzer
 		class cFile;
 		class cString;
 		class cHash;
+		class cTCPReassembler;
 	}
 
 	namespace Generators
@@ -72,6 +73,7 @@ namespace Packetyzer
 #include "cString.h"
 #include "cFile.h"
 #include "cHash.h"
+#include "cTCPReassembler.h"
 
 #include "cPacketGen.h"
 

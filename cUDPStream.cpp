@@ -27,6 +27,8 @@ cUDPStream::cUDPStream(void)
 {
 	ServerPort = NULL;
 	ClientPort = NULL;
+
+	//cout << "UDP" << endl;
 }
 
 cUDPStream::~cUDPStream(void)

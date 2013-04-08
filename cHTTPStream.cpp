@@ -42,9 +42,9 @@ cHTTPStream::cHTTPStream()
 	Files = (cFile**)malloc(nFiles * sizeof(cFile*));
 
 	nRequests = 0;
-	Requests = (REQUEST*)malloc(nRequests * sizeof(REQUEST));
-	nResponses = 0;
-	Responses = (cString**)malloc(nResponses * sizeof(cString*));
+	Requests = (REQUEST*)malloc(nRequests * sizeof(REQUEST)); 
+
+	//cout << "HTTP" << endl;
 };
 
 BOOL cHTTPStream::Identify(cPacket* Packet)
@@ -56,6 +56,7 @@ BOOL cHTTPStream::Identify(cPacket* Packet)
 
 BOOL cHTTPStream::AddPacket(cPacket* Packet)
 {
+	
 	if (!Identify(Packet)) return FALSE;
 
 	if (nPackets > 0)
@@ -100,14 +101,25 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 
 void cHTTPStream::AnalyzeProtocol()
 {
-	string data;	cmatch res;		regex rx;	cString* TempString;	cFile* TempFile;
+	tcp.AddPacket(Packets[nPackets - 1]);
+	string data;	
+	UINT data_size;
+	cmatch res;		
+	regex rx;	
+	cString* TempString;	
+	cFile* TempFile;
 
 	if (nPackets == 0 && Packets[0]->TCPDataSize > 0 && CheckType(Packets[0]->TCPData))
-		data = (CHAR*)Packets[0]->TCPData;
+	{
+		data = string((CHAR*)Packets[0]->TCPData);
+		data_size = Packets[0]->TCPDataSize;
+	}
 	else if (nPackets > 0 && Packets[nPackets - 1]->TCPDataSize > 0 && CheckType(Packets[nPackets - 1]->TCPData))
-		data = (CHAR*)Packets[nPackets - 1]->TCPData;
-	else 
-		return;
+	{
+		data = string((CHAR*)Packets[nPackets - 1]->TCPData);
+		data_size = Packets[nPackets - 1]->TCPDataSize;
+	}
+	else return;
 	
 	/* check new cookies */
 	if (regex_search(data.c_str(), res, regex("Set-Cookie:\\s(.*?)\\r\\n")))
@@ -140,11 +152,14 @@ void cHTTPStream::AnalyzeProtocol()
 		//cout << Referer->GetChar() << endl;
 	}
 
+	/* ------------------------------------------------------------------------------------------------*/
+
 	/* check cfile */
-	if (regex_search(data.c_str(), res, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
+	/*if (regex_search(data.c_str(), res, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
 		string(res[2]) == "200 OK" &&
 		regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n")) &&
 		string(res[1]).find("application/x-javascript") == string::npos &&
+		cout << string(res[1]) << endl &&
 		string(res[1]).find("text/css") == string::npos &&
 		string(res[1]).find("text/html") == string::npos &&
 		regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")) )
@@ -153,8 +168,9 @@ void cHTTPStream::AnalyzeProtocol()
 		Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
 		TempFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
 		memcpy(&Files[nFiles], &TempFile, sizeof(cFile*));
+		printf("%x %x %x %x\n", Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 0], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 1], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+2], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+3]); 
 		nFiles++;
-	}
+	}*/
 
 	/* check requests */
 	if (regex_search(data.c_str(), res, regex("GET\\s(.*?)\\s(.*?)\\r\\n")) ||
@@ -162,20 +178,54 @@ void cHTTPStream::AnalyzeProtocol()
 	{
 		nRequests ++;
 		Requests = (REQUEST*)realloc(Requests, nRequests * sizeof(REQUEST));
+		memset(&Requests[nRequests - 1], 0, sizeof(REQUEST)); 
+
 		Requests[nRequests - 1].Address = new cString(string(res[1]).c_str());
-		
+		Requests[nRequests - 1].Arguments = new cHash();
+
+		CHAR* ArgumentBuffer;
+
 		/* parse for get */
 		if (memcmp(string(res[0]).c_str(), &head[0], strlen((const char*)head[0])) == 0)
 		{
 			Requests[nRequests-1].RequestType = (UCHAR*)(head[0]);
+			
+			/* parse arguments */
+			char* main; int i=0;
+			main = strtok(Requests[nRequests-1].Address->GetChar(),"?");
+			main = strtok(NULL,"?");	
+			ArgumentBuffer = strtok(main,"&");
 		}
 
 		/* parse for post */
 		else if (memcmp(string(res[0]).c_str(), &head[1], strlen((const char*)head[1])) == 0)
 		{
 			Requests[nRequests-1].RequestType = (UCHAR*)(head[1]);
+			
+			if (regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n")) &&
+				string(res[1]).find("application/x-www-form-urlencoded") != string::npos &&
+				regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")) )
+			{
+				UINT content_length = atoi(string(res[1]).c_str());
+				//cout << content_length << "\t" << data_size << endl;
+				CHAR* buffer = (CHAR*)(data.c_str()) + data_size - content_length;
+				ArgumentBuffer = strtok((CHAR*)(data.c_str()) - content_length ,"&");
+			}
+		}
+
+		while (ArgumentBuffer != NULL)
+		{
+			UINT pos = string(ArgumentBuffer).find("=");
+			if (pos != string::npos)
+				Requests[nRequests - 1].Arguments->AddItem(cString(string(ArgumentBuffer).erase(pos, string(ArgumentBuffer).size() - pos).c_str()), cString(string(ArgumentBuffer + pos + 1).c_str()));
+			else
+				Requests[nRequests - 1].Arguments->AddItem(cString(string(ArgumentBuffer).c_str()), cString("None"));
+			ArgumentBuffer = strtok (NULL, "&");
 		}
 	}
+
+	/* ------------------------------------------------------------------------------------------------*/
+
 }
 
 cHTTPStream::~cHTTPStream() 

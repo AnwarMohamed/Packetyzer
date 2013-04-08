@@ -21,8 +21,6 @@
 #include <conio.h>
 #include "../Packetyzer.h"
 
-
-
 //#include <string>
 //#include <iostream>
 //#include <iomanip>
@@ -108,15 +106,15 @@ INT main(INT argc, CHAR* argv[])
 	//for (UINT i=0; i < gen_packet.GeneratedPacketSize; i++)
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 	//cPcapFile pckts("C:\\Users\\Anwar Mohamed\\Downloads\\dns.cap");
-	cPcapFile pckts("H:\\Github\\Packetyzer\\example.pcap");
+	cPcapFile pckts("H:\\Github\\Packetyzer\\example1.pcap");
 	//cout << pckts.Traffic.nHTTP << endl;
 	
-	cout << "0x" << (PDWORD)pckts.BaseAddress << endl;
-	cout << pckts.FileLength << "bytes" << endl;
+	//cout << "0x" << (PDWORD)pckts.BaseAddress << endl;
+	//cout << pckts.FileLength << "bytes" << endl;
 	//cout << pckts.nPackets << endl;
 
-	cout << "nPackets: " << pckts.nPackets << endl;
-	cout << "nStreams: " << pckts.Traffic.nConnections << endl;
+	//cout << "nPackets: " << pckts.nPackets << endl;
+	//cout << "nStreams: " << pckts.Traffic.nConnections << endl;
 	/*int z = 0;
 	int y = 0;
 	for (UINT i=0; i < pckts.Traffic.nConnections; i++)

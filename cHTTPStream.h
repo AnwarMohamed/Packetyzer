@@ -27,6 +27,7 @@
 #include "Packetyzer.h"
 
 using namespace Packetyzer::Elements;
+//using namespace Packetyzer::Traffic::Connections;
 
 struct REQUEST
 {
@@ -39,6 +40,7 @@ struct REQUEST
 class Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::Traffic::Streams::cTCPStream
 {
 	BOOL CheckType(UCHAR* buffer);
+	cTCPReassembler tcp;
 protected:
 	void AnalyzeProtocol();
 public:
@@ -62,7 +64,5 @@ public:
 	REQUEST* Requests;
 	UINT nRequests;
 
-	cString** Responses;
-	UINT nResponses;
 };
 

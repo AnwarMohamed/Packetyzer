@@ -28,6 +28,7 @@ cTCPStream::cTCPStream(void)
 {
 	ServerPort = NULL;
 	ClientPort = NULL;
+	//cout << "TCP" << endl;
 }
 
 cTCPStream::~cTCPStream(void)
