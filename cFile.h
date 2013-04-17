@@ -3,7 +3,7 @@
 
 using namespace Packetyzer::Elements;
 
-class DLLIMPORT Packetyzer::Elements::cFile
+class DLLEXPORT Packetyzer::Elements::cFile
 {
 	HANDLE		hFile;
     HANDLE		hMapping;

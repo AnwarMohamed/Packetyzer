@@ -30,7 +30,7 @@ using namespace std;
 #define PACKET_ICMP_CHECKSUM		0x4
 #define PACKET_IP_TTL			0x5
 
-class DLLIMPORT Packetyzer::Analyzers::cPacket
+class DLLEXPORT Packetyzer::Analyzers::cPacket
 {
 	void CheckIfMalformed();
 	UINT sHeader;

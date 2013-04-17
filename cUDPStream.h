@@ -24,7 +24,7 @@
 
 using namespace Packetyzer::Analyzers;
 
-class DLLIMPORT Packetyzer::Traffic::Streams::cUDPStream : public Packetyzer::Traffic::Streams::cConStream
+class DLLEXPORT Packetyzer::Traffic::Streams::cUDPStream : public Packetyzer::Traffic::Streams::cConStream
 {
 public:
 	cUDPStream(void);

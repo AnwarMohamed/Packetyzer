@@ -36,7 +36,7 @@
 
 using namespace Packetyzer::Analyzers;
 
-class DLLIMPORT Packetyzer::Generators::cPacketGen
+class DLLEXPORT Packetyzer::Generators::cPacketGen
 {
 	/* global */
 	cPacket* Packet;

@@ -25,7 +25,7 @@
 using namespace Packetyzer::Analyzers;
 using namespace Packetyzer::Traffic::Connections;
 
-class DLLIMPORT Packetyzer::Traffic::Connections::cTraffic
+class DLLEXPORT Packetyzer::Traffic::Connections::cTraffic
 {
 public:
 	UINT nConnections;

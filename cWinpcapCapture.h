@@ -31,7 +31,7 @@ struct NETWORK_ADAPTERS_CAPTURE
 	CHAR ID[200];
 };
 
-class DLLIMPORT Packetyzer::Capture::cWinpcapCapture
+class DLLEXPORT Packetyzer::Capture::cWinpcapCapture
 {
 	//BOOL CheckAdapter(UINT id);
 	//BOOL InitializeAdaptersList();

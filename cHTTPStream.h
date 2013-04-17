@@ -26,8 +26,8 @@
 //#include "cTCPStream.h"
 #include "Packetyzer.h"
 
-using namespace Packetyzer::Elements;
-//using namespace Packetyzer::Traffic::Connections;
+//using namespace Packetyzer::Elements;
+using namespace Packetyzer::Traffic::Connections;
 
 struct REQUEST
 {
@@ -37,10 +37,10 @@ struct REQUEST
 	UINT		ReplyNumber;
 };
 
-class Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::Traffic::Streams::cTCPStream
+class DLLEXPORT Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::Traffic::Streams::cTCPStream
 {
 	BOOL CheckType(UCHAR* buffer);
-	cTCPReassembler tcp;
+	cTCPReassembler ExtractedFiles;
 protected:
 	void AnalyzeProtocol();
 public:
@@ -63,6 +63,5 @@ public:
 
 	REQUEST* Requests;
 	UINT nRequests;
-
 };
 

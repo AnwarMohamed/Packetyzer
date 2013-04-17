@@ -1,9 +1,11 @@
 #pragma once
+#pragma warning (disable : 4251)
+
 #include <pcap.h>
 #include <Windows.h>
 
-#ifndef DLLIMPORT
-#define DLLIMPORT __declspec(dllexport) 
+#ifndef DLLEXPORT
+#define DLLEXPORT __declspec(dllexport) 
 #endif
 
 #include <iostream>
@@ -19,7 +21,6 @@ namespace Packetyzer
 		class cFile;
 		class cString;
 		class cHash;
-		class cTCPReassembler;
 	}
 
 	namespace Generators
@@ -39,6 +40,7 @@ namespace Packetyzer
 		{
 			class cTraffic;
 			class cConnection;
+			class cTCPReassembler;
 		}
 
 		namespace Streams

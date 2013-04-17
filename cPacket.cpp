@@ -100,9 +100,10 @@ BOOL cPacket::ProcessPacket()
 			if (TCPDataSize != 0)
 			{
 				TCPData = new UCHAR[TCPDataSize];
-				UCHAR* data = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4));
+				UCHAR* data = (UCHAR*)(BaseAddress) + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4);
 				
-				memcpy(TCPData,data,TCPDataSize);
+				memcpy_s(TCPData,TCPDataSize,data,TCPDataSize);
+				
 			}
 		}
 		else if ((USHORT)(IPHeader->Protocol) == UDP_PACKET)

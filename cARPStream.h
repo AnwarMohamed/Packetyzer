@@ -24,7 +24,7 @@
 
 using namespace Packetyzer::Analyzers;
 
-class DLLIMPORT Packetyzer::Traffic::Streams::cARPStream : public Packetyzer::Traffic::Connections::cConnection
+class DLLEXPORT Packetyzer::Traffic::Streams::cARPStream : public Packetyzer::Traffic::Connections::cConnection
 {
 	void AnalyzeProtocol();
 public:

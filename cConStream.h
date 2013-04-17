@@ -22,7 +22,7 @@
 #include "Packetyzer.h"
 //#include "cConnection.h"
 
-class DLLIMPORT Packetyzer::Traffic::Streams::cConStream : public Packetyzer::Traffic::Connections::cConnection
+class DLLEXPORT Packetyzer::Traffic::Streams::cConStream : public Packetyzer::Traffic::Connections::cConnection
 {
 public:
 	cConStream();

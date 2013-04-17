@@ -3,7 +3,7 @@
 
 #include "Packetyzer.h"
 
-class DLLIMPORT Packetyzer::Elements::cString
+class DLLEXPORT Packetyzer::Elements::cString
 {
 public:
 	// constructors and destructor

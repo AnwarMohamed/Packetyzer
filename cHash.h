@@ -2,7 +2,7 @@
 #include "Packetyzer.h"
 //#include "cString.h"
 
-class DLLIMPORT Packetyzer::Elements::cHash
+class DLLEXPORT Packetyzer::Elements::cHash
 {
 protected:
 	struct HASH_STRUCT

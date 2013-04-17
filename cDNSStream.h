@@ -22,7 +22,7 @@
 #include "Packetyzer.h"
 //#include "cUDPStream.h"
 
-class DLLIMPORT Packetyzer::Traffic::Streams::cDNSStream : public Packetyzer::Traffic::Streams::cUDPStream
+class DLLEXPORT Packetyzer::Traffic::Streams::cDNSStream : public Packetyzer::Traffic::Streams::cUDPStream
 {
 private:
 	DNS_HEADER* DNSHeader;

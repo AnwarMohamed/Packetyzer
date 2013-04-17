@@ -24,7 +24,7 @@
 
 using namespace Packetyzer::Analyzers;
 
-class DLLIMPORT Packetyzer::Traffic::Connections::cConnection
+class DLLEXPORT Packetyzer::Traffic::Connections::cConnection
 {
 protected:
 	virtual BOOL AnalyzePackets();

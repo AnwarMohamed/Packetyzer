@@ -4,15 +4,34 @@
 
 using namespace Packetyzer::Analyzers;
 
-class Packetyzer::Elements::cTCPReassembler
+class DLLEXPORT Packetyzer::Traffic::Connections::cTCPReassembler
 {
-	void ReassembleAll();
+	typedef std::map<UINT, cPacket*> cpacket_map;
+	typedef std::pair<UINT, cPacket*> cpacket_pair;
 
-	UINT Sequence;
-	UINT Acknowledge;
+	struct DATA_PACKAGE
+	{
+		BOOL Syn;
+		BOOL SynAck;
+		BOOL sAck;
+		BOOL fPush;
+		BOOL lPush;
 
-	BOOL Syn, SynAck,  Push, sAck, FinAck, fAck;
+		UINT Sequence;
+		UINT Acknowledge;
 
+		cpacket_map *PacketSequences;
+	}; 
+
+	struct DATA_EXTRACT
+	{
+		UCHAR*		Buffer;
+		UINT		Size;
+		cPacket**	Packets;
+		UINT		nPackets;
+	};
+
+	void ReassembleAll(UINT id);
 	BOOL CheckPacket(cPacket* Packet);
 
 	UINT	ClientIP;
@@ -20,19 +39,23 @@ class Packetyzer::Elements::cTCPReassembler
 	USHORT ClientPort;
 	USHORT ServerPort;
 
-	map<UINT, cPacket*> PacketSequences;
+	DATA_PACKAGE* DataPackages;
+	UINT nDataPackages;
+
+	cHash DataTable;
 
 public:
 
+	DATA_EXTRACT* ExtractedData;
+	UINT nExtractedData;
+
 	BOOL AddPacket(cPacket* Packet);
-	cPacket** Packets;
-	UINT nPackets;
-
-	UCHAR* SegmentedData;
-	UINT SegmentedDataSize;
-
 	BOOL FullSegments;
+
 	cTCPReassembler(void);
 	~cTCPReassembler(void);
+
+	void Empty();
+	static BOOL Identify(cPacket* Packet);
 };
 

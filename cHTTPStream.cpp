@@ -66,6 +66,7 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
 				ClientPort == ntohs(Packet->TCPHeader->DestinationPort) && ServerPort == ntohs(Packet->TCPHeader->SourcePort)) )
 		{
+			ExtractedFiles.AddPacket(Packet);
 			nActivePackets++;
 			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
 			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
@@ -78,6 +79,7 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 	}
 	else
 	{
+		ExtractedFiles.AddPacket(Packet);
 		nActivePackets++;
 		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
 		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
@@ -101,13 +103,8 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 
 void cHTTPStream::AnalyzeProtocol()
 {
-	tcp.AddPacket(Packets[nPackets - 1]);
-	string data;	
-	UINT data_size;
-	cmatch res;		
-	regex rx;	
-	cString* TempString;	
-	cFile* TempFile;
+	string data;	UINT data_size;		cmatch res;		regex rx;	
+	cString* TempString;	//cFile* TempFile;
 
 	if (nPackets == 0 && Packets[0]->TCPDataSize > 0 && CheckType(Packets[0]->TCPData))
 	{

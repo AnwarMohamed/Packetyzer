@@ -31,7 +31,7 @@ struct NETWORK_ADAPTERS_SEND
 	CHAR ID[200];
 };
 
-class DLLIMPORT Packetyzer::Send::cWinpcapSend
+class DLLEXPORT Packetyzer::Send::cWinpcapSend
 {
 	#define LINE_LEN 16
 	pcap_if_t *alldevs, *d;
