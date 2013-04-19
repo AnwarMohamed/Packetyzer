@@ -40,11 +40,12 @@ cHTTPStream::cHTTPStream()
 	ServerType = NULL;
 
 	Files = (cFile**)malloc(nFiles * sizeof(cFile*));
+	nFiles = 0;
 
 	nRequests = 0;
 	Requests = (REQUEST*)malloc(nRequests * sizeof(REQUEST)); 
 
-	//cout << "HTTP" << endl;
+	ExtractedFilesCursor = 0;
 };
 
 BOOL cHTTPStream::Identify(cPacket* Packet)
@@ -66,7 +67,6 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
 				ClientPort == ntohs(Packet->TCPHeader->DestinationPort) && ServerPort == ntohs(Packet->TCPHeader->SourcePort)) )
 		{
-			ExtractedFiles.AddPacket(Packet);
 			nActivePackets++;
 			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
 			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
@@ -79,7 +79,6 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 	}
 	else
 	{
-		ExtractedFiles.AddPacket(Packet);
 		nActivePackets++;
 		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
 		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
@@ -104,7 +103,26 @@ BOOL cHTTPStream::AddPacket(cPacket* Packet)
 void cHTTPStream::AnalyzeProtocol()
 {
 	string data;	UINT data_size;		cmatch res;		regex rx;	
-	cString* TempString;	//cFile* TempFile;
+	cString* TempString;	cFile* TempFile;
+
+	ExtractedFiles.AddPacket(Packets[nPackets-1]);
+
+	if (ExtractedFiles.nExtractedData > ExtractedFilesCursor)
+	{
+		data = (CHAR*)ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Packets[0]->TCPData;
+		if (regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")))
+		{
+			UINT length = atoi(string(res[1]).c_str());
+
+			ExtractedFilesCursor++;
+			Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
+			TempFile = new cFile((CHAR*)ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Buffer[ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Size - length], length);
+			memcpy(&Files[nFiles], &TempFile, sizeof(cFile*));
+			nFiles++;
+		}
+	}
+	
+	//if (nFiles >0) cout << nFiles << endl;
 
 	if (nPackets == 0 && Packets[0]->TCPDataSize > 0 && CheckType(Packets[0]->TCPData))
 	{
@@ -152,22 +170,28 @@ void cHTTPStream::AnalyzeProtocol()
 	/* ------------------------------------------------------------------------------------------------*/
 
 	/* check cfile */
-	/*if (regex_search(data.c_str(), res, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
+	if (regex_search(data.c_str(), res, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
 		string(res[2]) == "200 OK" &&
+		Packets[nPackets - 1]->TCPHeader->PushFlag == 1 &&
+		Packets[nPackets - 1]->TCPHeader->AcknowledgmentFlag == 1 &&
 		regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n")) &&
 		string(res[1]).find("application/x-javascript") == string::npos &&
-		cout << string(res[1]) << endl &&
 		string(res[1]).find("text/css") == string::npos &&
+		string(res[1]).find("text/javascript") == string::npos &&
 		string(res[1]).find("text/html") == string::npos &&
 		regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")) )
 	{
 		UINT length = atoi(string(res[1]).c_str());
+
+		//regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n"));
+		//cout << string(res[1]).c_str() << endl;
+
 		Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
 		TempFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
 		memcpy(&Files[nFiles], &TempFile, sizeof(cFile*));
-		printf("%x %x %x %x\n", Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 0], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 1], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+2], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+3]); 
+		//printf("%x %x %x %x\n", Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 0], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 1], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+2], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+3]); 
 		nFiles++;
-	}*/
+	}
 
 	/* check requests */
 	if (regex_search(data.c_str(), res, regex("GET\\s(.*?)\\s(.*?)\\r\\n")) ||

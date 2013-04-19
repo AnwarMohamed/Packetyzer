@@ -41,6 +41,7 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::T
 {
 	BOOL CheckType(UCHAR* buffer);
 	cTCPReassembler ExtractedFiles;
+	UINT ExtractedFilesCursor;
 protected:
 	void AnalyzeProtocol();
 public:

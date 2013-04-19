@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (C) 2013  Anwar Mohamed <anwarelmakrahy[at]gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to Anwar Mohamed
+ *  anwarelmakrahy[at]gmail.com
+ *
+ */
+
 #include "Packetyzer.h"
 //#include "cTCPReassembler.h"
 #include <map>
@@ -166,11 +186,12 @@ void cTCPReassembler::ReassembleAll(UINT id)
 	memset(&ExtractedData[nExtractedData -1], 0 , sizeof(DATA_EXTRACT));
 	ExtractedData[nExtractedData -1].Packets = (cPacket**)malloc( ExtractedData[nExtractedData -1].nPackets * sizeof(cPacket*));
 
+	UINT datatable_id = atoi(DataTable.GetValue(cString(id)).GetChar());
+
 	for(it_type iterator = DataPackages[id].PacketSequences->begin(); iterator != DataPackages[id].PacketSequences->end(); iterator++) {
 
 		cPacket* TempcPacket = iterator->second;
-		UINT datatable_id = atoi(DataTable.GetValue(cString(id)).GetChar());
-
+		
 		ExtractedData[datatable_id].nPackets++;
 		ExtractedData[datatable_id].Packets = (cPacket**)realloc( ExtractedData[datatable_id].Packets, ExtractedData[datatable_id].nPackets * sizeof(cPacket*) );
 		memcpy(&ExtractedData[datatable_id].Packets[ExtractedData[datatable_id].nPackets - 1], &TempcPacket, sizeof(cPacket*));
@@ -192,11 +213,11 @@ void cTCPReassembler::ReassembleAll(UINT id)
 	}
 	myfile.close();*/
 
-	//for (UINT i=1; i <= 1400/*SegmentedDataSize*/; i++)
-	/*{
-		printf("%02x ", (UCHAR)SegmentedData[i-1]);
-		if (i%16==0) cout << endl;
-	}*/
+	//for (UINT i=1; i <= 20/*SegmentedDataSize*/; i++)
+	//{
+	//	printf("%c", (UCHAR)ExtractedData[datatable_id].Buffer[i-1]);
+	//	if (i%20==0) cout << endl;
+	//}
 }
 
 cTCPReassembler::~cTCPReassembler(void)

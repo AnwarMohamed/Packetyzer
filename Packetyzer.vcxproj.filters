@@ -51,9 +51,6 @@
     <ClCompile Include="cTCPStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cUDPStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cARPStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,6 +67,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cTCPReassembler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cUDPStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
