@@ -18,7 +18,6 @@
  *
  */
 
-//#include "cTCPStream.h"
 #include "Packetyzer.h"
 
 using namespace Packetyzer::Analyzers;
@@ -28,12 +27,10 @@ cTCPStream::cTCPStream(void)
 {
 	ServerPort = NULL;
 	ClientPort = NULL;
-	//cout << "TCP" << endl;
+	ExtractedFilesCursor = 0;
 }
 
-cTCPStream::~cTCPStream(void)
-{
-}
+cTCPStream::~cTCPStream(void) { }
 
 BOOL cTCPStream::Identify(cPacket* Packet) { return Packet->isTCPPacket; }
 
@@ -43,30 +40,33 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 
 	if (nPackets > 0)
 	{
-		if ( (	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress &&
+		if (CheckPacket(Packet) &&
+			(	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress &&
 				ServerPort == ntohs(Packet->TCPHeader->DestinationPort) && ClientPort == ntohs(Packet->TCPHeader->SourcePort)) ||
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
 				ClientPort == ntohs(Packet->TCPHeader->DestinationPort) && ServerPort == ntohs(Packet->TCPHeader->SourcePort)) )
 		{
+			if (PushProtocol(Packet)) return FALSE;
+
 			nActivePackets++;
 			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
 			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 			nPackets++;
 
+			AnalyzeProtocol();
 			return TRUE;
 		}
 		else return FALSE;
 	}
 	else
 	{
+		if (!CheckPacket(Packet)) return FALSE;
+		if (PushProtocol(Packet)) return FALSE;
+
 		nActivePackets++;
 		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
 		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 		nPackets++;
-
-		isIPConnection = Packet->isIPPacket;
-		isTCPConnection = Packet->isTCPPacket;
-		isUDPConnection = Packet->isUDPPacket;
 
 		memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
 		memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
@@ -76,6 +76,25 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 		ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
 		ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
 
+		AnalyzeProtocol();
 		return TRUE;
 	}
+}
+
+BOOL cTCPStream::CheckPacket(cPacket* Packet) {	return Packet->isTCPPacket; }
+void cTCPStream::AnalyzeProtocol() { }
+
+BOOL cTCPStream::PushProtocol(cPacket* Packet)
+{
+	if (!ExtractedFiles.AddPacket(Packet)) return FALSE;
+	if (ExtractedFiles.nExtractedData > ExtractedFilesCursor)
+	{
+		Packet->TCPDataSize = ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Size * sizeof(UCHAR);
+		Packet->TCPData = (UCHAR*)malloc( Packet->TCPDataSize );
+		memset(Packet->TCPData, 0, Packet->TCPDataSize);
+		memcpy(Packet->TCPData, ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Buffer, Packet->TCPDataSize);
+		ExtractedFilesCursor++;
+	}
+
+	return TRUE;
 }

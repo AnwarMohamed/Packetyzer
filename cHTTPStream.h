@@ -20,13 +20,7 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cString.h"
-//#include "cHash.h"
-//#include "cFile.h"
-//#include "cTCPStream.h"
-#include "Packetyzer.h"
 
-//using namespace Packetyzer::Elements;
 using namespace Packetyzer::Traffic::Connections;
 
 struct REQUEST
@@ -40,14 +34,11 @@ struct REQUEST
 class DLLEXPORT Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::Traffic::Streams::cTCPStream
 {
 	BOOL CheckType(UCHAR* buffer);
-	cTCPReassembler ExtractedFiles;
-	UINT ExtractedFilesCursor;
-protected:
 	void AnalyzeProtocol();
+	BOOL CheckPacket(cPacket* Packet);
 public:
 
 	static BOOL Identify(cPacket* Packet);
-	BOOL AddPacket(cPacket* Packet);
 
 	cHTTPStream(void);
 	~cHTTPStream(void);

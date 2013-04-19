@@ -20,12 +20,17 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cConStream.h"
 
 using namespace Packetyzer::Analyzers;
 
 class DLLEXPORT Packetyzer::Traffic::Streams::cTCPStream : public Packetyzer::Traffic::Streams::cConStream
 {
+	virtual BOOL CheckPacket(cPacket* Packet);
+	virtual void AnalyzeProtocol();
+	BOOL PushProtocol(cPacket* Packet);
+
+	cTCPReassembler ExtractedFiles;
+	UINT ExtractedFilesCursor;
 public:
 	cTCPStream();
 	~cTCPStream();
@@ -36,4 +41,3 @@ public:
 	BOOL AddPacket(cPacket* Packet);
 	static BOOL Identify(cPacket* Packet);
 };
-

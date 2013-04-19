@@ -19,14 +19,6 @@
  */
 
 #include "Packetyzer.h"
-//#include "cTraffic.h"
-//#include "cConStream.h"
-//#include "cTCPStream.h"
-//#include "cHTTPStream.h"
-//#include "cUDPStream.h"
-//#include "cDNSStream.h"
-//#include "cICMPStream.h"
-//#include "cARPStream.h"
 
 using namespace std;
 using namespace Packetyzer::Traffic::Connections;

@@ -45,7 +45,6 @@ cHTTPStream::cHTTPStream()
 	nRequests = 0;
 	Requests = (REQUEST*)malloc(nRequests * sizeof(REQUEST)); 
 
-	ExtractedFilesCursor = 0;
 };
 
 BOOL cHTTPStream::Identify(cPacket* Packet)
@@ -55,146 +54,66 @@ BOOL cHTTPStream::Identify(cPacket* Packet)
 	return TRUE;
 }
 
-BOOL cHTTPStream::AddPacket(cPacket* Packet)
-{
-	
-	if (!Identify(Packet)) return FALSE;
-
-	if (nPackets > 0)
-	{
-		if ( (	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress &&
-				ServerPort == ntohs(Packet->TCPHeader->DestinationPort) && ClientPort == ntohs(Packet->TCPHeader->SourcePort)) ||
-			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
-				ClientPort == ntohs(Packet->TCPHeader->DestinationPort) && ServerPort == ntohs(Packet->TCPHeader->SourcePort)) )
-		{
-			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
-			nPackets++;
-
-			AnalyzeProtocol();
-			return TRUE;
-		}
-		else return FALSE;
-	}
-	else
-	{
-		nActivePackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
-		nPackets++;
-
-		isIPConnection = Packet->isIPPacket;
-		isTCPConnection = Packet->isTCPPacket;
-
-		memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
-		memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
-		Protocol = Packets[0]->EthernetHeader->ProtocolType;
-		ServerIP = Packets[0]->IPHeader->DestinationAddress;
-		ClientIP = Packets[0]->IPHeader->SourceAddress;
-		ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);
-		ClientPort = ntohs(Packets[0]->TCPHeader->SourcePort);
-
-		AnalyzeProtocol();
-		return TRUE;
-	}
-}
+BOOL cHTTPStream::CheckPacket(cPacket* Packet) { return Identify(Packet); }
 
 void cHTTPStream::AnalyzeProtocol()
 {
-	string data;	UINT data_size;		cmatch res;		regex rx;	
-	cString* TempString;	cFile* TempFile;
+	CHAR* RegxData;	
+	UINT RegxDataSize;		
+	cmatch RegxResult;		
 
-	ExtractedFiles.AddPacket(Packets[nPackets-1]);
-
-	if (ExtractedFiles.nExtractedData > ExtractedFilesCursor)
+	if (Packets[nPackets - 1]->TCPDataSize > 0 && 
+		CheckType(Packets[nPackets - 1]->TCPData))
 	{
-		data = (CHAR*)ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Packets[0]->TCPData;
-		if (regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")))
+		RegxData = (CHAR*)Packets[nPackets - 1]->TCPData;
+		RegxDataSize = Packets[nPackets - 1]->TCPDataSize;
+	}	else return;
+	
+	if (CheckType(Packets[nPackets - 1]->TCPData))
+	{
+		/* check new cookies */
+		if (regex_search(RegxData, RegxResult, regex("Set-Cookie:\\s(.*?)\\r\\n")))
 		{
-			UINT length = atoi(string(res[1]).c_str());
+			cString* Cookie = new cString(string(RegxResult[1]).c_str());
+			Cookies = (cString**)realloc(Cookies, nCookies + 1);
+			memcpy(&Cookies[nCookies], &Cookie, sizeof(cString*));
+			nCookies++;
+		}
 
-			ExtractedFilesCursor++;
+		/* get user-agent */
+		if (UserAgent == NULL && regex_search(RegxData, RegxResult, regex("User-Agent:\\s(.*?)\\r\\n")))
+			UserAgent = new cString(string(RegxResult[1]).c_str());
+
+		/* get server */
+		if (ServerType == NULL && regex_search(RegxData, RegxResult, regex("Server:\\s(.*?)\\r\\n")))
+			ServerType = new cString(string(RegxResult[1]).c_str());
+
+		/* get referer */
+		if (Referer == NULL && regex_search(RegxData, RegxResult, regex("Referer:\\s(.*?)\\r\\n")))
+			Referer = new cString(string(RegxResult[1]).c_str());
+
+		/* check cfile */
+		if (regex_search(RegxData, RegxResult, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
+			string(RegxResult[2]) == "200 OK" &&
+			Packets[nPackets - 1]->TCPHeader->PushFlag == 1 &&
+			Packets[nPackets - 1]->TCPHeader->AcknowledgmentFlag == 1 &&
+			regex_search(RegxData, RegxResult, regex("Content-Type:\\s(.*?)\\r\\n")) &&
+			string(RegxResult[1]).find("application/x-javascript") == string::npos &&
+			string(RegxResult[1]).find("text/css") == string::npos &&
+			string(RegxResult[1]).find("text/javascript") == string::npos &&
+			string(RegxResult[1]).find("text/html") == string::npos &&
+			regex_search(RegxData, RegxResult, regex("Content-Length:\\s(.*?)\\r\\n")) )
+		{
+			UINT length = atoi(string(RegxResult[1]).c_str());
 			Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
-			TempFile = new cFile((CHAR*)ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Buffer[ExtractedFiles.ExtractedData[ExtractedFiles.nExtractedData - 1].Size - length], length);
-			memcpy(&Files[nFiles], &TempFile, sizeof(cFile*));
+			cFile* ExtFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
+			memcpy(&Files[nFiles], &ExtFile, sizeof(cFile*));
 			nFiles++;
 		}
 	}
-	
-	//if (nFiles >0) cout << nFiles << endl;
-
-	if (nPackets == 0 && Packets[0]->TCPDataSize > 0 && CheckType(Packets[0]->TCPData))
-	{
-		data = string((CHAR*)Packets[0]->TCPData);
-		data_size = Packets[0]->TCPDataSize;
-	}
-	else if (nPackets > 0 && Packets[nPackets - 1]->TCPDataSize > 0 && CheckType(Packets[nPackets - 1]->TCPData))
-	{
-		data = string((CHAR*)Packets[nPackets - 1]->TCPData);
-		data_size = Packets[nPackets - 1]->TCPDataSize;
-	}
-	else return;
-	
-	/* check new cookies */
-	if (regex_search(data.c_str(), res, regex("Set-Cookie:\\s(.*?)\\r\\n")))
-	{
-		TempString = new cString(string(res[1]).c_str());
-		Cookies = (cString**)realloc(Cookies, nCookies + 1);
-		memcpy(&Cookies[nCookies], &TempString, sizeof(cString*));
-		nCookies++;
-		//cout << Cookies[nCookies -1]->GetChar() << endl;
-	}
-
-	/* get user-agent */
-	if (UserAgent == NULL && regex_search(data.c_str(), res, regex("User-Agent:\\s(.*?)\\r\\n")))
-	{
-		UserAgent = new cString(string(res[1]).c_str());
-		//cout << UserAgent->GetChar() << endl;
-	}
-
-	/* get server */
-	if (ServerType == NULL && regex_search(data.c_str(), res, regex("Server:\\s(.*?)\\r\\n")))
-	{
-		ServerType = new cString(string(res[1]).c_str());
-		//cout << ServerType->GetChar() << endl;
-	}
-
-	/* get referer */
-	if (Referer == NULL && regex_search(data.c_str(), res, regex("Referer:\\s(.*?)\\r\\n")))
-	{
-		Referer = new cString(string(res[1]).c_str());
-		//cout << Referer->GetChar() << endl;
-	}
-
-	/* ------------------------------------------------------------------------------------------------*/
-
-	/* check cfile */
-	if (regex_search(data.c_str(), res, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
-		string(res[2]) == "200 OK" &&
-		Packets[nPackets - 1]->TCPHeader->PushFlag == 1 &&
-		Packets[nPackets - 1]->TCPHeader->AcknowledgmentFlag == 1 &&
-		regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n")) &&
-		string(res[1]).find("application/x-javascript") == string::npos &&
-		string(res[1]).find("text/css") == string::npos &&
-		string(res[1]).find("text/javascript") == string::npos &&
-		string(res[1]).find("text/html") == string::npos &&
-		regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")) )
-	{
-		UINT length = atoi(string(res[1]).c_str());
-
-		//regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n"));
-		//cout << string(res[1]).c_str() << endl;
-
-		Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
-		TempFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
-		memcpy(&Files[nFiles], &TempFile, sizeof(cFile*));
-		//printf("%x %x %x %x\n", Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 0], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+ 1], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+2], Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length+3]); 
-		nFiles++;
-	}
 
 	/* check requests */
-	if (regex_search(data.c_str(), res, regex("GET\\s(.*?)\\s(.*?)\\r\\n")) ||
+	/*if (regex_search(data.c_str(), res, regex("GET\\s(.*?)\\s(.*?)\\r\\n")) ||
 		regex_search(data.c_str(), res, regex("POST\\s(.*?)\\s(.*?)\\r\\n")))
 	{
 		nRequests ++;
@@ -204,22 +123,22 @@ void cHTTPStream::AnalyzeProtocol()
 		Requests[nRequests - 1].Address = new cString(string(res[1]).c_str());
 		Requests[nRequests - 1].Arguments = new cHash();
 
-		CHAR* ArgumentBuffer;
+		CHAR* ArgumentBuffer;*/
 
 		/* parse for get */
-		if (memcmp(string(res[0]).c_str(), &head[0], strlen((const char*)head[0])) == 0)
+		/*if (memcmp(string(res[0]).c_str(), &head[0], strlen((const char*)head[0])) == 0)
 		{
-			Requests[nRequests-1].RequestType = (UCHAR*)(head[0]);
+			Requests[nRequests-1].RequestType = (UCHAR*)(head[0]);*/
 			
 			/* parse arguments */
-			char* main; int i=0;
+			/*char* main; int i=0;
 			main = strtok(Requests[nRequests-1].Address->GetChar(),"?");
 			main = strtok(NULL,"?");	
 			ArgumentBuffer = strtok(main,"&");
-		}
+		}*/
 
 		/* parse for post */
-		else if (memcmp(string(res[0]).c_str(), &head[1], strlen((const char*)head[1])) == 0)
+		/*else if (memcmp(string(res[0]).c_str(), &head[1], strlen((const char*)head[1])) == 0)
 		{
 			Requests[nRequests-1].RequestType = (UCHAR*)(head[1]);
 			
@@ -243,10 +162,7 @@ void cHTTPStream::AnalyzeProtocol()
 				Requests[nRequests - 1].Arguments->AddItem(cString(string(ArgumentBuffer).c_str()), cString("None"));
 			ArgumentBuffer = strtok (NULL, "&");
 		}
-	}
-
-	/* ------------------------------------------------------------------------------------------------*/
-
+	}*/
 }
 
 cHTTPStream::~cHTTPStream() 

@@ -19,7 +19,6 @@
  */
 
 #include "Packetyzer.h"
-//#include "cTCPReassembler.h"
 #include <map>
 #include <fstream>
 
@@ -203,47 +202,21 @@ void cTCPReassembler::ReassembleAll(UINT id)
 	}
 
 	DataPackages[id].PacketSequences->empty();
-
-	/*ofstream myfile;
-	myfile.open("test1.mp3", ios::in | ios::out | ios::binary);
-	if (myfile.is_open()) 
-	{
-		myfile.write((const char*)SegmentedData, SegmentedDataSize);
-		cout << "success" << endl;
-	}
-	myfile.close();*/
-
-	//for (UINT i=1; i <= 20/*SegmentedDataSize*/; i++)
-	//{
-	//	printf("%c", (UCHAR)ExtractedData[datatable_id].Buffer[i-1]);
-	//	if (i%20==0) cout << endl;
-	//}
 }
 
 cTCPReassembler::~cTCPReassembler(void)
 {
-	//free(SegmentedData);
-	//free(Packets);
 }
 
 void cTCPReassembler::Empty()
 {
 	FullSegments = FALSE;
 
-	//SegmentedDataSize = 0;
-	//free(SegmentedData);// = (UCHAR*)malloc( SegmentedDataSize * sizeof(UCHAR) );
-
-	//nPackets = 0;
-	//free(Packets);// = (cPacket**)malloc( nPackets * sizeof(cPacket*) );
-
 	ServerPort = NULL;
 	ClientPort = NULL;
 	ServerIP = NULL;
 	ClientIP = NULL;
 
-	//Syn = SynAck = sAck = fPush = lPush = FinAck = fAck = FALSE;
-
-	//PacketSequences.empty();
 }
 
 BOOL cTCPReassembler::Identify(cPacket* Packet)
