@@ -19,9 +19,7 @@
  */
 
 #pragma once
-//#include <pcap.h>
 #include "Packetyzer.h"
-//#include "cPacket.h"
 
 using namespace Packetyzer::Analyzers;
 

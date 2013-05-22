@@ -18,7 +18,6 @@
  *
  */
 
-//#include "cConnection.h"
 #include "Packetyzer.h"
 
 using namespace std;

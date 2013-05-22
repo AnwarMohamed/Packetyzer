@@ -37,11 +37,11 @@ class DLLEXPORT Packetyzer::Analyzers::cPacket
 	UINT eType;
 	void ResetIs();
 	USHORT GlobalChecksum(USHORT *buffer, UINT length);
-	BOOL ProcessPacket();
+	BOOL ProcessPacket(UINT network);
 
 public:
-	cPacket(string filename, time_t timestamp = NULL);
-	cPacket(UCHAR* buffer, UINT size, time_t timestamp = NULL);
+	cPacket(string filename, time_t timestamp = NULL ,UINT network = LINKTYPE_ETHERNET);
+	cPacket(UCHAR* buffer, UINT size, time_t timestamp = NULL ,UINT network = LINKTYPE_ETHERNET);
 	~cPacket();
 
 	BOOL FixIPChecksum();
@@ -54,6 +54,7 @@ public:
 	DWORD BaseAddress;
 	UINT Size;
 
+	SLL_HEADER* SLLHeader;
 	ETHER_HEADER*	EthernetHeader;
 	IP_HEADER*		IPHeader;
 	TCP_HEADER*	TCPHeader;

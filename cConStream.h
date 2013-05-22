@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cConnection.h"
 
 class DLLEXPORT Packetyzer::Traffic::Streams::cConStream : public Packetyzer::Traffic::Connections::cConnection
 {

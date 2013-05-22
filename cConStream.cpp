@@ -18,9 +18,7 @@
  *
  */
 
-//#include "cConStream.h"
 #include "Packetyzer.h"
-#include <iostream>
 
 using namespace std;
 using namespace Packetyzer::Traffic::Streams;

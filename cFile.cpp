@@ -19,7 +19,6 @@
  */
 
 #include "Packetyzer.h"
-//#include "cFile.h"
 
 using namespace Packetyzer::Elements;
 

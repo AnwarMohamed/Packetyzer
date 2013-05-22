@@ -18,7 +18,6 @@
  *
  */
 
-//#include "cICMPStream.h"
 #include "cICMPStream.h"
 
 using namespace Packetyzer::Traffic::Streams;

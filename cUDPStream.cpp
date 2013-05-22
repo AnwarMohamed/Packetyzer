@@ -18,7 +18,6 @@
  *
  */
 
-//#include "cUDPStream.h"
 #include "Packetyzer.h"
 
 using namespace Packetyzer::Traffic::Streams;
@@ -27,8 +26,6 @@ cUDPStream::cUDPStream(void)
 {
 	ServerPort = NULL;
 	ClientPort = NULL;
-
-	//cout << "UDP" << endl;
 }
 
 cUDPStream::~cUDPStream(void)

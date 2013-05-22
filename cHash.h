@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cString.h"
 
 class DLLEXPORT Packetyzer::Elements::cHash
 {

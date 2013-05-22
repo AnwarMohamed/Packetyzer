@@ -19,8 +19,6 @@
  */
 
 #include "Packetyzer.h"
-//#include "cPacketGen.h"
-//#include "hPackets.h"
 #include <algorithm>
 #include <ctime>
 

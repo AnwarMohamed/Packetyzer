@@ -18,8 +18,6 @@
  *
  */
 
-//#include "cDNSStream.h"
-#include <iostream>
 #include "Packetyzer.h"
 
 using namespace std;

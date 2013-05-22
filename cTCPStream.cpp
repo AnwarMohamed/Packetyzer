@@ -23,11 +23,12 @@
 using namespace Packetyzer::Analyzers;
 using namespace Packetyzer::Traffic::Streams;
 
-cTCPStream::cTCPStream(void)
+cTCPStream::cTCPStream()
 {
 	ServerPort = NULL;
 	ClientPort = NULL;
-	ExtractedFilesCursor = 0;
+	//ExtractedFilesCursor = 0;
+	//Segmented = FALSE;
 }
 
 cTCPStream::~cTCPStream(void) { }
@@ -40,13 +41,13 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 
 	if (nPackets > 0)
 	{
-		if (CheckPacket(Packet) &&
-			(	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress &&
+		if ((	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress &&
 				ServerPort == ntohs(Packet->TCPHeader->DestinationPort) && ClientPort == ntohs(Packet->TCPHeader->SourcePort)) ||
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
 				ClientPort == ntohs(Packet->TCPHeader->DestinationPort) && ServerPort == ntohs(Packet->TCPHeader->SourcePort)) )
 		{
-			if (PushProtocol(Packet)) return FALSE;
+			if (!CheckPacket(Packet)) return FALSE;
+			//if (PushProtocol(Packet)) { Segmented = TRUE; return TRUE; }
 
 			nActivePackets++;
 			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
@@ -61,7 +62,7 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 	else
 	{
 		if (!CheckPacket(Packet)) return FALSE;
-		if (PushProtocol(Packet)) return FALSE;
+		//if (PushProtocol(Packet)) { Segmented = TRUE; return TRUE; }
 
 		nActivePackets++;
 		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
@@ -84,7 +85,7 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 BOOL cTCPStream::CheckPacket(cPacket* Packet) {	return Packet->isTCPPacket; }
 void cTCPStream::AnalyzeProtocol() { }
 
-BOOL cTCPStream::PushProtocol(cPacket* Packet)
+/*BOOL cTCPStream::PushProtocol(cPacket* Packet)
 {
 	if (!ExtractedFiles.AddPacket(Packet)) return FALSE;
 	if (ExtractedFiles.nExtractedData > ExtractedFilesCursor)
@@ -97,4 +98,4 @@ BOOL cTCPStream::PushProtocol(cPacket* Packet)
 	}
 
 	return TRUE;
-}
+}*/

@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cPacket.h"
 
 using namespace Packetyzer::Analyzers;
 

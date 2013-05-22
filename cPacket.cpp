@@ -23,15 +23,14 @@
 #include <intrin.h>
 #include <algorithm>
 #include <ctime>
-//#include "cPacket.h"
-//#include "cFile.h"
+
 
 #pragma comment(lib, "ws2_32.lib")
 using namespace std;
 using namespace Packetyzer::Analyzers;
 using namespace Packetyzer::Elements;
 
-cPacket::cPacket(string filename, time_t timestamp)
+cPacket::cPacket(string filename, time_t timestamp, UINT network)
 {
 	BaseAddress = 0;
 	Size = 0;
@@ -44,11 +43,11 @@ cPacket::cPacket(string filename, time_t timestamp)
 
 	Timestamp = timestamp;
 
-	isParsed = ProcessPacket();
+	isParsed = ProcessPacket(network);
 	return;
 };
 
-cPacket::cPacket(UCHAR* buffer, UINT size, const time_t timestamp)
+cPacket::cPacket(UCHAR* buffer, UINT size, time_t timestamp, UINT network)
 {
 	//if (timestamp != NULL) cout << ctime(&timestamp) << endl;
 
@@ -60,88 +59,105 @@ cPacket::cPacket(UCHAR* buffer, UINT size, const time_t timestamp)
 
 	Timestamp = timestamp;
 
-	isParsed = ProcessPacket();
+	isParsed = ProcessPacket(network);
 	return;
 };
 
-BOOL cPacket::ProcessPacket()
+BOOL cPacket::ProcessPacket(UINT network)
 {
 	ResetIs();
 	if (BaseAddress == 0 || Size == 0) return false;
 
 	PacketSize = Size;
 
-	EthernetHeader = (ETHER_HEADER*)BaseAddress;
-	sHeader = sizeof(ETHER_HEADER);
-	eType = ntohs(EthernetHeader->ProtocolType);
-
-	/* packet ether type */
-	if (eType == ETHERTYPE_IP)
+	switch(network)
 	{
-		isIPPacket = true;
-		IPHeader = (IP_HEADER*)(BaseAddress + sHeader);
+	case LINKTYPE_LINUX_SLL:
+		SLLHeader = (SLL_HEADER*)BaseAddress;
+		sHeader = sizeof(SLL_HEADER);
+		eType = ntohs(SLLHeader->ProtocolType);
+		break;
+	case LINKTYPE_ETHERNET:
+		EthernetHeader = (ETHER_HEADER*)BaseAddress;
+		sHeader = sizeof(ETHER_HEADER);
+		eType = ntohs(EthernetHeader->ProtocolType);
+		break;
+	default:
+		return FALSE;
+	}
 
-		if ((USHORT)(IPHeader->Protocol) == TCP_PACKET)
+	/* check for sll or ethernet*/
+	if (network == LINKTYPE_LINUX_SLL || network == LINKTYPE_ETHERNET)
+	{
+		/* packet ether type */
+		if (eType == ETHERTYPE_IP)
 		{
-			isTCPPacket = true;
-			TCPHeader = (TCP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
+			isIPPacket = true;
+			IPHeader = (IP_HEADER*)(BaseAddress + sHeader);
+
+			if ((USHORT)(IPHeader->Protocol) == TCP_PACKET)
+			{
+				isTCPPacket = true;
+				TCPHeader = (TCP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
 			
-			TCPDataSize =  Size - sHeader - (IPHeader->HeaderLength*4) - (TCPHeader->DataOffset*4);
-			TCPOptionsSize = (TCPHeader->DataOffset*4) - sizeof(TCP_HEADER);
+				TCPDataSize =  Size - sHeader - (IPHeader->HeaderLength*4) - (TCPHeader->DataOffset*4);
+				TCPOptionsSize = (TCPHeader->DataOffset*4) - sizeof(TCP_HEADER);
 
-			if (TCPOptionsSize != 0)
-			{
-				TCPOptions = new UCHAR[TCPOptionsSize];
-				UCHAR* opdata = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4) - TCPOptionsSize);
+				if (TCPOptionsSize != 0)
+				{
+					TCPOptions = new UCHAR[TCPOptionsSize];
+					UCHAR* opdata = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4) - TCPOptionsSize);
 				
-				memcpy(TCPOptions,opdata,TCPOptionsSize);
+					memcpy(TCPOptions,opdata,TCPOptionsSize);
+				}
+
+				if (TCPDataSize != 0)
+				{
+					TCPData = new UCHAR[TCPDataSize];
+					UCHAR* data = (UCHAR*)(BaseAddress) + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4);
+				
+					memcpy_s(TCPData,TCPDataSize,data,TCPDataSize);
+				
+				}
 			}
-
-			if (TCPDataSize != 0)
+			else if ((USHORT)(IPHeader->Protocol) == UDP_PACKET)
 			{
-				TCPData = new UCHAR[TCPDataSize];
-				UCHAR* data = (UCHAR*)(BaseAddress) + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4);
-				
-				memcpy_s(TCPData,TCPDataSize,data,TCPDataSize);
-				
+				isUDPPacket = true;
+				UDPHeader = (UDP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
+
+				UDPDataSize = ntohs(UDPHeader->DatagramLength) - sizeof(UDP_HEADER);
+				UDPData = new UCHAR[UDPDataSize];
+				UCHAR* data = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(UDP_HEADER));
+
+				memcpy(UDPData,data,UDPDataSize);
+			}
+			else if ((USHORT)(IPHeader->Protocol) == ICMP_PACKET)
+			{
+				isICMPPacket = true;
+				ICMPHeader = (ICMP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
+
+				ICMPDataSize = Size - sHeader - (IPHeader->HeaderLength*4) - sizeof(ICMP_HEADER);
+				ICMPData = new UCHAR[ICMPDataSize];
+				UCHAR* data = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(ICMP_HEADER));
+
+				memcpy(ICMPData,data,ICMPDataSize);
+			}
+			else if ((USHORT)(IPHeader->Protocol) == IGMP_PACKET)
+			{
+				isIGMPPacket = true;
+				IGMPHeader = (IGMP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
 			}
 		}
-		else if ((USHORT)(IPHeader->Protocol) == UDP_PACKET)
+		else if (eType == ETHERTYPE_ARP)
 		{
-			isUDPPacket = true;
-			UDPHeader = (UDP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
-
-			UDPDataSize = ntohs(UDPHeader->DatagramLength) - sizeof(UDP_HEADER);
-			UDPData = new UCHAR[UDPDataSize];
-			UCHAR* data = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(UDP_HEADER));
-
-			memcpy(UDPData,data,UDPDataSize);
+			isARPPacket = true;
+			ARPHeader = (ARP_HEADER*)(BaseAddress + sHeader);
 		}
-		else if ((USHORT)(IPHeader->Protocol) == ICMP_PACKET)
-		{
-			isICMPPacket = true;
-			ICMPHeader = (ICMP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
 
-			ICMPDataSize = Size - sHeader - (IPHeader->HeaderLength*4) - sizeof(ICMP_HEADER);
-			ICMPData = new UCHAR[ICMPDataSize];
-			UCHAR* data = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(ICMP_HEADER));
-
-			memcpy(ICMPData,data,ICMPDataSize);
-		}
-		else if ((USHORT)(IPHeader->Protocol) == IGMP_PACKET)
-		{
-			isIGMPPacket = true;
-			IGMPHeader = (IGMP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
-		}
+		CheckIfMalformed();
+		return true;
 	}
-	else if (eType == ETHERTYPE_ARP)
-	{
-		isARPPacket = true;
-		ARPHeader = (ARP_HEADER*)(BaseAddress + sHeader);
-	}
-
-	CheckIfMalformed();
-	return true;
+	else return FALSE;
 };
 
 void cPacket::CheckIfMalformed()
@@ -291,6 +307,15 @@ void cPacket::ResetIs()
 	TCPOptionsSize = 0;
 	ICMPDataSize = 0;
 	UDPDataSize = 0;
+
+	SLLHeader = NULL;
+	EthernetHeader = NULL;
+	IPHeader = NULL;
+	TCPHeader = NULL;
+	ARPHeader = NULL;
+	UDPHeader = NULL;
+	ICMPHeader = NULL;
+	IGMPHeader = NULL;
 };
 
 BOOL cPacket::FixICMPChecksum()
@@ -425,36 +450,48 @@ BOOL cPacket::FixUDPChecksum()
 UCHAR* cPacket::GetPacketBuffer()
 {
 	UCHAR* Packet;	Packet = (UCHAR*)malloc(PacketSize);
-	memcpy(Packet, EthernetHeader, sizeof(ETHER_HEADER));
+	UINT mHeaderSize;
+
+	if (EthernetHeader != NULL)
+	{
+		memcpy(Packet, EthernetHeader, sizeof(ETHER_HEADER));
+		mHeaderSize = sizeof(ETHER_HEADER);
+	}
+	else if (SLLHeader != NULL)
+	{
+		memcpy(Packet, SLLHeader, sizeof(SLL_HEADER));
+		mHeaderSize = sizeof(SLL_HEADER);
+	}
+	else return NULL;
 
 	if(isIPPacket)
 	{
-		memcpy(Packet + sizeof(ETHER_HEADER) , IPHeader, sizeof(IP_HEADER));
+		memcpy(Packet + mHeaderSize , IPHeader, sizeof(IP_HEADER));
 		
 		if (isTCPPacket)
 		{
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) , TCPHeader, sizeof(TCP_HEADER));
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) + sizeof(TCP_HEADER) , TCPOptions, TCPOptionsSize);
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) + sizeof(TCP_HEADER) + TCPOptionsSize , TCPData, TCPDataSize);
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , TCPHeader, sizeof(TCP_HEADER));
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(TCP_HEADER) , TCPOptions, TCPOptionsSize);
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(TCP_HEADER) + TCPOptionsSize , TCPData, TCPDataSize);
 		}
 		else if (isUDPPacket)
 		{
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) , UDPHeader, sizeof(UDP_HEADER));
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) + sizeof(UDP_HEADER) , UDPData, UDPDataSize);
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , UDPHeader, sizeof(UDP_HEADER));
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(UDP_HEADER) , UDPData, UDPDataSize);
 		}
 		else if(isICMPPacket)
 		{
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) , ICMPHeader, sizeof(ICMP_HEADER));
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) + sizeof(ICMP_HEADER) , ICMPData, ICMPDataSize);
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , ICMPHeader, sizeof(ICMP_HEADER));
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(ICMP_HEADER) , ICMPData, ICMPDataSize);
 		}
 		else if (isIGMPPacket)
 		{
-			memcpy(Packet + sizeof(ETHER_HEADER) + sizeof(IP_HEADER) , IGMPHeader, sizeof(IGMP_HEADER));
+			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , IGMPHeader, sizeof(IGMP_HEADER));
 		}
 	}
 	else if(isARPPacket)
 	{
-		memcpy(Packet + sizeof(ETHER_HEADER) , ARPHeader, sizeof(ARP_HEADER));
+		memcpy(Packet + mHeaderSize , ARPHeader, sizeof(ARP_HEADER));
 	}
 
 	return Packet;

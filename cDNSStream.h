@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cUDPStream.h"
 
 class DLLEXPORT Packetyzer::Traffic::Streams::cDNSStream : public Packetyzer::Traffic::Streams::cUDPStream
 {

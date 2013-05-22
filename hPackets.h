@@ -172,14 +172,6 @@ struct PCAP_PACKET_HEADER
 
 
 #define SLL_ADDRLEN		8
-struct SLL_HEADER 
-{
-	u_int16_t sll_pkttype;          /* packet type */
-	u_int16_t sll_hatype;           /* link-layer address type */
-	u_int16_t sll_halen;            /* link-layer address length */
-	u_int8_t sll_addr[SLL_ADDRLEN]; /* link-layer address */
-	u_int16_t sll_protocol;         /* protocol */
-};
 
 #pragma pack(push, r1, 1)
 
@@ -365,5 +357,89 @@ typedef struct
     UCHAR *Name;
     struct QUESTION *Ques;
 } QUERY;
+
+
+#define LINKTYPE_NULL				0	
+#define LINKTYPE_ETHERNET			1	
+#define LINKTYPE_AX25				3
+#define LINKTYPE_IEEE802_5			6
+#define LINKTYPE_ARCNET_BSD			7	
+#define LINKTYPE_SLIP				8	
+#define LINKTYPE_PPP				9
+#define LINKTYPE_FDDI				10
+#define LINKTYPE_PPP_HDLC			50
+#define LINKTYPE_PPP_ETHER			51
+#define LINKTYPE_ATM_RFC1483		100
+#define LINKTYPE_RAW				101
+#define LINKTYPE_C_HDLC				104	
+#define LINKTYPE_IEEE802_11			105	
+#define LINKTYPE_FRELAY				107	
+#define LINKTYPE_LOOP				108	
+#define LINKTYPE_LINUX_SLL			113	
+#define LINKTYPE_LTALK				114	
+#define LINKTYPE_PFLOG				117
+#define LINKTYPE_IEEE802_11_PRISM	119
+#define LINKTYPE_IP_OVER_FC			122	
+#define LINKTYPE_SUNATM				123
+#define LINKTYPE_IEEE802_11_RADIOTAP	127
+#define LINKTYPE_ARCNET_LINUX		129
+#define LINKTYPE_APPLE_IP_OVER_IEEE1394	138	
+#define LINKTYPE_MTP2_WITH_PHDR		139	
+#define LINKTYPE_MTP2				140	
+#define LINKTYPE_MTP3				141	
+#define LINKTYPE_SCCP				142	
+#define LINKTYPE_DOCSIS				143	
+#define LINKTYPE_LINUX_IRDA			144	
+//#define LINKTYPE_USER0-LINKTYPE-USER15	147-162	
+#define LINKTYPE_IEEE802_11_AVS		163	
+#define LINKTYPE_BACNET_MS_TP		165	
+#define LINKTYPE_PPP_PPPD			166	
+#define LINKTYPE_GPRS_LLC			169	
+#define LINKTYPE_LINUX_LAPD			177	
+#define LINKTYPE_BLUETOOTH_HCI_H4	187	
+#define LINKTYPE_USB_LINUX			189	
+#define LINKTYPE_PPI				192	
+#define LINKTYPE_IEEE802_15_4		195	
+#define LINKTYPE_SITA				196	
+#define LINKTYPE_ERF				197	
+#define LINKTYPE_BLUETOOTH_HCI_H4_WITH_PHDR	201	
+#define LINKTYPE_AX25_KISS			202	
+#define LINKTYPE_LAPD				203	
+#define LINKTYPE_PPP_WITH_DIR		204	
+#define LINKTYPE_C_HDLC_WITH_DIR	205	
+#define LINKTYPE_FRELAY_WITH_DIR	206	
+#define LINKTYPE_IPMB_LINUX			209	
+#define LINKTYPE_IEEE802_15_4_NONASK_PHY	215	
+#define LINKTYPE_USB_LINUX_MMAPPED	220	
+#define LINKTYPE_FC_2				224	
+#define LINKTYPE_FC_2_WITH_FRAME_DELIMS	225	
+#define LINKTYPE_IPNET				226	
+#define LINKTYPE_CAN_SOCKETCAN		227	
+#define LINKTYPE_IPV4				228	
+#define LINKTYPE_IPV6				229	
+#define LINKTYPE_IEEE802_15_4_NOFCS	230	
+#define LINKTYPE_DBUS				231	
+#define LINKTYPE_DVB_CI				235	
+#define LINKTYPE_MUX27010			236	
+#define LINKTYPE_STANAG_5066_D_PDU	237	
+#define LINKTYPE_NFLOG				239	
+#define LINKTYPE_NETANALYZER		240	
+#define LINKTYPE_NETANALYZER_TRANSPARENT	241
+#define LINKTYPE_IPOIB				242	
+#define LINKTYPE_MPEG_2_TS			243
+#define LINKTYPE_NG40				244	
+#define LINKTYPE_NFC_LLCP			245	
+#define LINKTYPE_INFINIBAND			247	
+#define LINKTYPE_SCTP				248
+#define LINKTYPE_USBPCAP			249
+
+struct SLL_HEADER 
+{
+	u_int16_t PacketType;			/* packet type */
+	u_int16_t AddressType;			/* link-layer address type */
+	u_int16_t AddressLength;		/* link-layer address length */
+	u_int8_t Address[SLL_ADDRLEN];	/* link-layer address */
+	u_int16_t ProtocolType;				/* protocol */
+};
 
 #endif

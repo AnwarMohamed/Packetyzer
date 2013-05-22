@@ -20,8 +20,6 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include <pcap.h>
-//#include "cTraffic.h"
 
 using namespace Packetyzer::Traffic::Connections;
 

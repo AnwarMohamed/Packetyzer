@@ -18,7 +18,6 @@
  *
  */
 
-//#include "cHTTPStream.h"
 #include <iostream>
 #include <regex>
 #include "Packetyzer.h"
@@ -93,7 +92,7 @@ void cHTTPStream::AnalyzeProtocol()
 			Referer = new cString(string(RegxResult[1]).c_str());
 
 		/* check cfile */
-		if (regex_search(RegxData, RegxResult, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
+		/*if (regex_search(RegxData, RegxResult, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
 			string(RegxResult[2]) == "200 OK" &&
 			Packets[nPackets - 1]->TCPHeader->PushFlag == 1 &&
 			Packets[nPackets - 1]->TCPHeader->AcknowledgmentFlag == 1 &&
@@ -109,7 +108,7 @@ void cHTTPStream::AnalyzeProtocol()
 			cFile* ExtFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
 			memcpy(&Files[nFiles], &ExtFile, sizeof(cFile*));
 			nFiles++;
-		}
+		}*/
 	}
 
 	/* check requests */

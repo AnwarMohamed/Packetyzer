@@ -77,5 +77,6 @@ public:
 
 	void Empty();
 	static BOOL Identify(cPacket* Packet);
+	void UpdateData(UCHAR* Data, UINT DataSize, UINT TableID);
 };
 

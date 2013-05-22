@@ -18,10 +18,6 @@
  *
  */
 
-//#include "cPcapFile.h"
-//#include "cFile.h"
-//#include <iostream>
-//#include "cPacket.h"
 #include "Packetyzer.h"
 
 using namespace std;
@@ -79,7 +75,5 @@ cPcapFile::~cPcapFile()
 void cPcapFile::GetStreams()
 {
 	for (UINT i=0; i<nPackets; i++)
-	{
 		Traffic.AddPacket(Packets[i], NULL);
-	}
 };

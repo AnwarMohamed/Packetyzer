@@ -18,7 +18,6 @@
  *
  */
 
-//#include "cHash.h"
 #include "Packetyzer.h"
 
 using namespace Packetyzer::Elements;

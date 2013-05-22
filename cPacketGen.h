@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cPacket.h"
 
 #define GENERATE_TCP		1
 #define GENERATE_UDP		2
@@ -38,7 +37,6 @@ using namespace Packetyzer::Analyzers;
 
 class DLLEXPORT Packetyzer::Generators::cPacketGen
 {
-	/* global */
 	cPacket* Packet;
 
 	UCHAR src_mac_hex[6], dest_mac_hex[6];

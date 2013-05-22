@@ -48,6 +48,7 @@ BOOL cTCPReassembler::AddPacket(cPacket* Packet)
 
 	if (nDataPackages > 0)
 	{
+		cout << ntohs(Packet->TCPHeader->SourcePort) << "\t" << ntohs(Packet->TCPHeader->DestinationPort) << endl;
 		if ( (	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress &&
 				ServerPort == ntohs(Packet->TCPHeader->DestinationPort) && ClientPort == ntohs(Packet->TCPHeader->SourcePort)) ||
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
@@ -149,6 +150,7 @@ BOOL cTCPReassembler::CheckPacket(cPacket* Packet)
 		{
 
 			DataPackages[i].PacketSequences->insert(cpacket_pair(ntohl(Packet->TCPHeader->Sequence), Packet));
+			//UpdateData(Packet->TCPData, Packet->TCPDataSize, i);
 			return TRUE;
 		}
 		else if (DataPackages[i].Syn && DataPackages[i].SynAck && DataPackages[i].sAck &&
@@ -164,7 +166,7 @@ BOOL cTCPReassembler::CheckPacket(cPacket* Packet)
 		{
 			DataPackages[i].lPush = TRUE;
 			DataPackages[i].PacketSequences->insert(cpacket_pair(ntohl(Packet->TCPHeader->Sequence), Packet));
-
+			//UpdateData(Packet->TCPData, Packet->TCPDataSize, i);
 			if (Packet->TCPHeader->FinishFlag == 1)	FullSegments = TRUE;
 
 			ReassembleAll(i);
@@ -216,7 +218,6 @@ void cTCPReassembler::Empty()
 	ClientPort = NULL;
 	ServerIP = NULL;
 	ClientIP = NULL;
-
 }
 
 BOOL cTCPReassembler::Identify(cPacket* Packet)
@@ -229,4 +230,14 @@ BOOL cTCPReassembler::Identify(cPacket* Packet)
 		return TRUE;
 	else 
 		return FALSE;
+}
+
+void cTCPReassembler::UpdateData(UCHAR* Data, UINT DataSize, UINT TableID)
+{
+	cout << "Data Arrival" << endl;
+	ExtractedData[TableID].Size += DataSize;
+	ExtractedData[TableID].Buffer = (UCHAR*)realloc(ExtractedData[TableID].Buffer, ExtractedData[TableID].Size * sizeof(UCHAR));
+	memset((UCHAR*)ExtractedData[TableID].Buffer + ExtractedData[TableID].Size - DataSize, 0, DataSize);
+	memcpy((UCHAR*)ExtractedData[TableID].Buffer + ExtractedData[TableID].Size - DataSize, Data, DataSize);
+
 }

@@ -27,10 +27,10 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cTCPStream : public Packetyzer::Tr
 {
 	virtual BOOL CheckPacket(cPacket* Packet);
 	virtual void AnalyzeProtocol();
-	BOOL PushProtocol(cPacket* Packet);
+	//BOOL PushProtocol(cPacket* Packet);
 
-	cTCPReassembler ExtractedFiles;
-	UINT ExtractedFilesCursor;
+	//cTCPReassembler ExtractedFiles;
+	//UINT ExtractedFilesCursor;
 public:
 	cTCPStream();
 	~cTCPStream();
@@ -40,4 +40,6 @@ public:
 
 	BOOL AddPacket(cPacket* Packet);
 	static BOOL Identify(cPacket* Packet);
+
+	//BOOL Segmented;
 };

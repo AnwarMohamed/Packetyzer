@@ -20,7 +20,6 @@
 
 #pragma once
 #include "Packetyzer.h"
-//#include "cConnection.h"
 
 using namespace Packetyzer::Analyzers;
 
