@@ -60,7 +60,7 @@ BOOL cPcapFile::ProcessPCAP()
 		fsize = fsize + PCAP_Packet_Header->incl_len;
 		UINT PSize = PCAP_Packet_Header->incl_len;
 		
-		Packet = new cPacket((UCHAR*)PBaseAddress,PSize, PCAP_Packet_Header->ts_sec + PCAP_Packet_Header->ts_usec/1000000);
+		Packet = new cPacket((UCHAR*)PBaseAddress,PSize, PCAP_Packet_Header->ts_sec + PCAP_Packet_Header->ts_usec/1000000, PCAP_General_Header->network);
 		memcpy((void**)&Packets[i],(void**)&Packet,sizeof(cPacket*));
 	}
 

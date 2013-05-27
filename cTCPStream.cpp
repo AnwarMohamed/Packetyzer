@@ -69,9 +69,20 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 		nPackets++;
 
-		memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
-		memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
-		Protocol = Packets[0]->EthernetHeader->ProtocolType;
+		if (Packets[0]->hasEtherHeader)
+		{
+			memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
+			memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+			Protocol = Packets[0]->EthernetHeader->ProtocolType;
+		}
+		else if (Packets[0]->hasSLLHeader && ntohs(Packets[0]->SLLHeader->AddressLength) == ETHER_ADDR_LEN)
+		{
+			memset(&ServerMAC, 0,ETHER_ADDR_LEN);
+			memcpy(&ClientMAC, &Packets[0]->SLLHeader->Address, ETHER_ADDR_LEN);
+			Protocol = Packets[0]->SLLHeader->ProtocolType;
+		}
+		//set else statement
+
 		ServerIP = Packets[0]->IPHeader->DestinationAddress;
 		ClientIP = Packets[0]->IPHeader->SourceAddress;
 		ServerPort = ntohs(Packets[0]->TCPHeader->DestinationPort);

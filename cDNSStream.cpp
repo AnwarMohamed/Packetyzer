@@ -76,9 +76,19 @@ BOOL cDNSStream::AddPacket(cPacket* Packet)
 		isTCPConnection = Packet->isTCPPacket;
 		isUDPConnection = Packet->isUDPPacket;
 
-		memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
-		memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
-		Protocol = Packets[0]->EthernetHeader->ProtocolType;
+		if (Packets[0]->hasEtherHeader)
+		{
+			memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
+			memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+			Protocol = Packets[0]->EthernetHeader->ProtocolType;
+		}
+		else if (Packets[0]->hasSLLHeader && ntohs(Packets[0]->SLLHeader->AddressLength) == ETHER_ADDR_LEN)
+		{
+			memset(&ServerMAC, 0,ETHER_ADDR_LEN);
+			memcpy(&ClientMAC, &Packets[0]->SLLHeader->Address, ETHER_ADDR_LEN);
+			Protocol = Packets[0]->SLLHeader->ProtocolType;
+		}
+
 		ServerIP = Packets[0]->IPHeader->DestinationAddress;
 		ClientIP = Packets[0]->IPHeader->SourceAddress;
 		ServerPort = ntohs(Packets[0]->UDPHeader->DestinationPort);

@@ -34,7 +34,7 @@ BOOL cWinpcapSend::SendPacket(UINT AdapterIndex, cPacket* Packet)
 	if (AdapterIndex< 1 || AdapterIndex > nAdapters) return FALSE;
 	for (d=alldevs, i=0; i< AdapterIndex-1 ;d=d->next, i++);        
 	if ((fp=pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL) return FALSE;
-	if (pcap_sendpacket(fp, Packet->GetPacketBuffer(), Packet->PacketSize) != 0) return FALSE;
+	if (pcap_sendpacket(fp, Packet->RawPacket, Packet->PacketSize) != 0) return FALSE;
 	return TRUE;
 }
 

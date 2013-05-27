@@ -69,7 +69,7 @@ VPython for visualization, etc.
 ## Features
 
 *	It has the ability to decode:
-	Ethernet, ARP, IP, IP options, IGMP, ICMP, TCP, TCP options, UDP, DNS and HTTP
+	SLL, Ethernet, ARP, IP, IP options, IGMP, ICMP, TCP, TCP options, UDP, DNS and HTTP
 
 *	The cPacket class is an abstract class designed to manage the data structure of any packet, 
 	which is the base of all protocols implemented in Packetyzer. All the classes derived from the
@@ -102,5 +102,5 @@ VPython for visualization, etc.
 ## To-Do List
 
 *	Enhancing TCP Reassembler to be more intelligent.
-*	Implementing SLL , IPv6, IPv6 Options Decoders.
+*	Implementing IPv6, IPv6 Options Decoders.
 *	Adding Layered Service Provider class.

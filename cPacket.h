@@ -63,7 +63,9 @@ public:
 	ICMP_HEADER*	ICMPHeader;
 	IGMP_HEADER*	IGMPHeader;
 
+	UCHAR* RawPacket;
 	UINT PacketSize;
+
 	BOOL isParsed;
 	WORD PacketError;
 
@@ -74,6 +76,11 @@ public:
 	BOOL isARPPacket;
 	BOOL isIPPacket;
 	BOOL isMalformed;
+	BOOL isIPv6Packet;
+	BOOL isUnknownPacket;
+
+	BOOL hasSLLHeader;
+	BOOL hasEtherHeader;
 
 	UCHAR* TCPData;
 	UINT TCPDataSize;
@@ -85,7 +92,5 @@ public:
 
 	UCHAR* ICMPData;
 	UINT ICMPDataSize;
-
-	UCHAR* GetPacketBuffer();
 };
 

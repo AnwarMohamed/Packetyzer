@@ -50,12 +50,17 @@ BOOL cConnection::AddPacket(cPacket* Packet)
 	}
 	else
 	{
-		if (	(	memcmp(&ClientMAC, &Packet->EthernetHeader->SourceHost, ETHER_ADDR_LEN) == 0 && 
-					memcmp(&ServerMAC, &Packet->EthernetHeader->DestinationHost, ETHER_ADDR_LEN) == 0 &&
-					memcmp(&Protocol, &Packet->EthernetHeader->ProtocolType, sizeof(USHORT)) == 0	) ||
+		if (	(	Packet->hasSLLHeader && 
+					memcmp(&Protocol, &Packet->SLLHeader->ProtocolType, sizeof(USHORT)) == 0 &&
+				(	memcmp(&ClientMAC, &Packet->SLLHeader->Address, ETHER_ADDR_LEN) == 0	||
+					memcmp(&ServerMAC, &Packet->SLLHeader->Address, ETHER_ADDR_LEN) == 0 ))	||
+
+				(	Packet->hasEtherHeader && 
+					memcmp(&Protocol, &Packet->EthernetHeader->ProtocolType, sizeof(USHORT)) == 0 &&
+				((	memcmp(&ClientMAC, &Packet->EthernetHeader->SourceHost, ETHER_ADDR_LEN) == 0 && 
+					memcmp(&ServerMAC, &Packet->EthernetHeader->DestinationHost, ETHER_ADDR_LEN) == 0) ||
 				(	memcmp(&ServerMAC, &Packet->EthernetHeader->SourceHost, ETHER_ADDR_LEN) == 0 &&
-					memcmp(&ClientMAC, &Packet->EthernetHeader->DestinationHost, ETHER_ADDR_LEN) == 0 &&
-					memcmp(&Protocol, &Packet->EthernetHeader->ProtocolType, sizeof(USHORT)) == 0	))
+					memcmp(&ClientMAC, &Packet->EthernetHeader->DestinationHost, ETHER_ADDR_LEN) == 0))))
 		{
 			nActivePackets++;
 			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
@@ -72,10 +77,21 @@ BOOL cConnection::AnalyzePackets()
 {
 	if (nPackets > 0)
 	{
-		memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
-		memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
-		Protocol = Packets[0]->EthernetHeader->ProtocolType;
-		return true;
+		if (Packets[0]->hasEtherHeader)
+		{
+			memcpy(&ServerMAC, &Packets[0]->EthernetHeader->DestinationHost, ETHER_ADDR_LEN);
+			memcpy(&ClientMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+			Protocol = Packets[0]->EthernetHeader->ProtocolType;
+			return true;
+		}
+		else if (Packets[0]->hasSLLHeader && ntohs(Packets[0]->SLLHeader->AddressLength) == 6)
+		{
+			memset(&ServerMAC, 0,ETHER_ADDR_LEN);
+			memcpy(&ClientMAC, &Packets[0]->SLLHeader->Address, ETHER_ADDR_LEN);
+			Protocol = Packets[0]->SLLHeader->ProtocolType;
+			return true;
+		}
+		else return false;
 	}
 	else return FALSE;  //revise
 };

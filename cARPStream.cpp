@@ -68,7 +68,10 @@ BOOL cARPStream::AddPacket(cPacket* Packet)
 			RequestedMACIP = Packets[0]->ARPHeader->SourceProtocolAddress;
 			memcpy(&RequestedMAC, &Packets[0]->ARPHeader->SourceHardwareAddress, ETHER_ADDR_LEN);
 
-			memcpy(&ReplierMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+			if (Packets[0]->hasEtherHeader)
+				memcpy(&ReplierMAC, &Packets[0]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+			else if (Packets[0]->hasSLLHeader)
+				memcpy(&ReplierMAC, &Packets[0]->SLLHeader->Address, ETHER_ADDR_LEN);
 
 			RequesterIP = Packets[0]->ARPHeader->TargetProtocolAddress;
 			memcpy(&RequesterMAC, &Packets[0]->ARPHeader->TargetHardwareAddress, ETHER_ADDR_LEN);
@@ -105,6 +108,11 @@ void cARPStream::AnalyzeProtocol()
 	{
 		GotReply = TRUE;
 		memcpy(&RequestedMAC, &Packets[nPackets - 1]->ARPHeader->SourceHardwareAddress, ETHER_ADDR_LEN);
-		memcpy(&ReplierMAC, &Packets[nPackets - 1]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+
+		if (Packets[nPackets - 1]->hasEtherHeader)
+			memcpy(&ReplierMAC, &Packets[nPackets - 1]->EthernetHeader->SourceHost, ETHER_ADDR_LEN);
+		else if (Packets[nPackets - 1]->hasSLLHeader && ntohs(Packets[nPackets - 1]->SLLHeader->AddressLength) == ETHER_ADDR_LEN)
+			memcpy(&ReplierMAC, &Packets[nPackets - 1]->SLLHeader->Address, ETHER_ADDR_LEN);
+		//need to set else statement
 	}
 }

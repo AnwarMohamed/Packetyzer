@@ -105,11 +105,12 @@ INT main(INT argc, CHAR* argv[])
 	
 	//for (UINT i=0; i < gen_packet.GeneratedPacketSize; i++)
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
-	//cPcapFile pckts("C:\\Users\\Anwar Mohamed\\Downloads\\dns.cap");
-	cPcapFile pckts("H:\\Github\\Packetyzer\\file.pcap");
-	//cout << pckts.Traffic.Connections[0]->Packets[3]->TCPData << endl;
-	for (u_int64 i=0; i<pckts.Traffic.Connections[0]->Packets[3]->TCPDataSize; i++) printf("%c", pckts.Traffic.Connections[0]->Packets[3]->TCPData[i]);
-	//cout << pckts.Traffic.nHTTP << endl;
+	cPcapFile pckts("D:\\Downloads\\attachment_SLL_Simple.pcap");
+	//cPcapFile pckts("H:\\Github\\Packetyzer\\file.pcap");
+	//cPcapFile pckts("D:\\Downloads\\IGMP dataset.pcap");
+	cout << pckts.nPackets << endl;
+	//for (u_int64 i=0; i<pckts.Traffic.Connections[0]->Packets[3]->PacketSize; i++) printf("%02x ", pckts.Traffic.Connections[0]->Packets[3]->GetPacketBuffer()[i]);
+	cout << pckts.Traffic.nConnections << endl;
 	
 	//cout << "0x" << (PDWORD)pckts.BaseAddress << endl;
 	//cout << pckts.FileLength << "bytes" << endl;

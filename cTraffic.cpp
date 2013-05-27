@@ -95,6 +95,7 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 					TmpConnection = new cUDPStream();
 
 			}
+
 		}
 		
 		else if (cICMPStream::Identify(Packet))

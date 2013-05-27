@@ -34,31 +34,24 @@ cPacket::cPacket(string filename, time_t timestamp, UINT network)
 {
 	BaseAddress = 0;
 	Size = 0;
-
 	cFile* File = new cFile((char*)filename.c_str());
 	if (File->FileLength == 0) return;
-	
 	BaseAddress = File->BaseAddress;
 	Size = File->FileLength;
-
 	Timestamp = timestamp;
-
+	RawPacket = (UCHAR*)BaseAddress;
 	isParsed = ProcessPacket(network);
 	return;
 };
 
 cPacket::cPacket(UCHAR* buffer, UINT size, time_t timestamp, UINT network)
 {
-	//if (timestamp != NULL) cout << ctime(&timestamp) << endl;
-
 	BaseAddress = 0;
 	Size = 0;
-
 	BaseAddress = (DWORD)buffer;
 	Size = size;
-
 	Timestamp = timestamp;
-
+	RawPacket = buffer;
 	isParsed = ProcessPacket(network);
 	return;
 };
@@ -76,18 +69,20 @@ BOOL cPacket::ProcessPacket(UINT network)
 		SLLHeader = (SLL_HEADER*)BaseAddress;
 		sHeader = sizeof(SLL_HEADER);
 		eType = ntohs(SLLHeader->ProtocolType);
+		hasSLLHeader = TRUE;
 		break;
 	case LINKTYPE_ETHERNET:
 		EthernetHeader = (ETHER_HEADER*)BaseAddress;
 		sHeader = sizeof(ETHER_HEADER);
 		eType = ntohs(EthernetHeader->ProtocolType);
+		hasEtherHeader = TRUE;
 		break;
 	default:
 		return FALSE;
 	}
 
 	/* check for sll or ethernet*/
-	if (network == LINKTYPE_LINUX_SLL || network == LINKTYPE_ETHERNET)
+	if (hasEtherHeader || hasSLLHeader)
 	{
 		/* packet ether type */
 		if (eType == ETHERTYPE_IP)
@@ -152,6 +147,15 @@ BOOL cPacket::ProcessPacket(UINT network)
 		{
 			isARPPacket = true;
 			ARPHeader = (ARP_HEADER*)(BaseAddress + sHeader);
+		}
+		else if (eType == ETHERTYPE_IPV6)
+		{
+
+		}
+		else
+		{
+			isUnknownPacket = TRUE;
+			return FALSE;
 		}
 
 		CheckIfMalformed();
@@ -293,15 +297,16 @@ cPacket::~cPacket(void)
 
 void cPacket::ResetIs()
 {
-	isTCPPacket = false;
-	isUDPPacket = false;
-	isICMPPacket = false;
-	isIGMPPacket = false;
-	isARPPacket = false;
-	isIPPacket = false;
+	isTCPPacket = FALSE;
+	isUDPPacket = FALSE;
+	isICMPPacket = FALSE;
+	isIGMPPacket = FALSE;
+	isARPPacket = FALSE;
+	isIPPacket = FALSE;
 	PacketError = PACKET_NOERROR;
-	isMalformed = false;
-	isParsed = false;
+	isMalformed = FALSE;
+	isParsed = FALSE;
+	isIPv6Packet = FALSE;
 
 	TCPDataSize = 0;
 	TCPOptionsSize = 0;
@@ -316,6 +321,11 @@ void cPacket::ResetIs()
 	UDPHeader = NULL;
 	ICMPHeader = NULL;
 	IGMPHeader = NULL;
+
+	hasSLLHeader = FALSE;
+	hasEtherHeader = FALSE;
+
+	isUnknownPacket = FALSE;
 };
 
 BOOL cPacket::FixICMPChecksum()
@@ -445,54 +455,4 @@ BOOL cPacket::FixUDPChecksum()
 	{ 
 		return false; 
 	}
-};
-
-UCHAR* cPacket::GetPacketBuffer()
-{
-	UCHAR* Packet;	Packet = (UCHAR*)malloc(PacketSize);
-	UINT mHeaderSize;
-
-	if (EthernetHeader != NULL)
-	{
-		memcpy(Packet, EthernetHeader, sizeof(ETHER_HEADER));
-		mHeaderSize = sizeof(ETHER_HEADER);
-	}
-	else if (SLLHeader != NULL)
-	{
-		memcpy(Packet, SLLHeader, sizeof(SLL_HEADER));
-		mHeaderSize = sizeof(SLL_HEADER);
-	}
-	else return NULL;
-
-	if(isIPPacket)
-	{
-		memcpy(Packet + mHeaderSize , IPHeader, sizeof(IP_HEADER));
-		
-		if (isTCPPacket)
-		{
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , TCPHeader, sizeof(TCP_HEADER));
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(TCP_HEADER) , TCPOptions, TCPOptionsSize);
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(TCP_HEADER) + TCPOptionsSize , TCPData, TCPDataSize);
-		}
-		else if (isUDPPacket)
-		{
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , UDPHeader, sizeof(UDP_HEADER));
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(UDP_HEADER) , UDPData, UDPDataSize);
-		}
-		else if(isICMPPacket)
-		{
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , ICMPHeader, sizeof(ICMP_HEADER));
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) + sizeof(ICMP_HEADER) , ICMPData, ICMPDataSize);
-		}
-		else if (isIGMPPacket)
-		{
-			memcpy(Packet + mHeaderSize + sizeof(IP_HEADER) , IGMPHeader, sizeof(IGMP_HEADER));
-		}
-	}
-	else if(isARPPacket)
-	{
-		memcpy(Packet + mHeaderSize , ARPHeader, sizeof(ARP_HEADER));
-	}
-
-	return Packet;
 };
