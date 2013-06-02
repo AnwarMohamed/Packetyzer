@@ -167,6 +167,7 @@ void cDNSStream::AnalyzeProtocol()
 
 cDNSStream::~cDNSStream()
 {
+	cout << "destroy cdnsstream" << endl;
 	free(DNSHeader);
 	delete DNSQuery;
 	delete QueryResponse;

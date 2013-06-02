@@ -74,7 +74,7 @@ void cHTTPStream::AnalyzeProtocol()
 		if (regex_search(RegxData, RegxResult, regex("Set-Cookie:\\s(.*?)\\r\\n")))
 		{
 			cString* Cookie = new cString(string(RegxResult[1]).c_str());
-			Cookies = (cString**)realloc(Cookies, nCookies + 1);
+			Cookies = (cString**)realloc(Cookies, (nCookies + 1) * sizeof(cString*));
 			memcpy(&Cookies[nCookies], &Cookie, sizeof(cString*));
 			nCookies++;
 		}
@@ -166,6 +166,7 @@ void cHTTPStream::AnalyzeProtocol()
 
 cHTTPStream::~cHTTPStream() 
 {
+	cout << "destroy chttpstream" << endl;
 };
 
 BOOL cHTTPStream::CheckType(UCHAR* buffer)

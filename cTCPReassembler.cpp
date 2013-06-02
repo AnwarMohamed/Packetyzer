@@ -208,6 +208,7 @@ void cTCPReassembler::ReassembleAll(UINT id)
 
 cTCPReassembler::~cTCPReassembler(void)
 {
+	cout << "destroy ctcpreassembler" << endl;
 }
 
 void cTCPReassembler::Empty()

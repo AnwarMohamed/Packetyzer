@@ -31,7 +31,10 @@ cTCPStream::cTCPStream()
 	//Segmented = FALSE;
 }
 
-cTCPStream::~cTCPStream(void) { }
+cTCPStream::~cTCPStream() 
+{
+	cout << "destroy ctcpstream" << endl;
+}
 
 BOOL cTCPStream::Identify(cPacket* Packet) { return Packet->isTCPPacket; }
 

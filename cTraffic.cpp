@@ -116,4 +116,12 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 
 cTraffic::~cTraffic()
 {
+	//cout << "destroy ctraffic" << endl;
+	for (UINT i=0; i<nConnections; i++)
+	{
+		//cout << i << "\t" << nConnections << endl;
+		delete Connections[i];
+		//free(Connections[i]);
+	}
+	free(Connections);
 }

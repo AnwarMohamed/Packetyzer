@@ -31,6 +31,7 @@ cICMPStream::cICMPStream(void)
 
 cICMPStream::~cICMPStream(void)
 {
+	cout << "destroy cicmpstream" << endl;
 }
 
 BOOL cICMPStream::Identify(cPacket* Packet)

@@ -57,7 +57,7 @@ public:
 
 	void DetectMalformedPackets();
 
-	cTraffic Traffic;
+	cTraffic *Traffic;
 	
 	cPcapFile(char* szFilename);
 	~cPcapFile();

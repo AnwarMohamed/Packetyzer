@@ -37,6 +37,7 @@ cARPStream::cARPStream(void)
 
 cARPStream::~cARPStream(void)
 {
+	cout << "destroy carpstream" << endl;
 }
 
 BOOL cARPStream::Identify(cPacket* Packet)

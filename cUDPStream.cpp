@@ -30,6 +30,7 @@ cUDPStream::cUDPStream(void)
 
 cUDPStream::~cUDPStream(void)
 {
+	cout << "destroy cudpstream" << endl;
 }
 
 BOOL cUDPStream::Identify(cPacket* Packet) { return Packet->isUDPPacket; }

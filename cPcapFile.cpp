@@ -26,6 +26,7 @@ using namespace Packetyzer::Elements;
 
 cPcapFile::cPcapFile(char* szFilename) : cFile(szFilename)
 {
+	Traffic = new cTraffic;
 	FileLoaded = ProcessPCAP();
 }
 
@@ -70,10 +71,16 @@ BOOL cPcapFile::ProcessPCAP()
 
 cPcapFile::~cPcapFile()
 {
+	cout << "destroy cpcapfile" << endl;
+	//delete PCAP_General_Header;
+	//delete PCAP_Packet_Header;
+	delete Packet;
+	free(Packets);
+	delete Traffic;
 };
 
 void cPcapFile::GetStreams()
 {
 	for (UINT i=0; i<nPackets; i++)
-		Traffic.AddPacket(Packets[i], NULL);
+		Traffic->AddPacket(Packets[i], NULL);
 };

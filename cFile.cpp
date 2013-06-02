@@ -65,6 +65,7 @@ cFile::cFile(char* szFilename)
         return;
     }
     FileLength  = (DWORD) GetFileSize(hFile,NULL);
+	Filename = szFilename;
 	IsFile = TRUE;
 	return;
 }
