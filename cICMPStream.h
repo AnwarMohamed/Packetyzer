@@ -25,8 +25,8 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cICMPStream : public Packetyzer::T
 {
 	void AnalyzeProtocol();
 public:
-	cICMPStream(void);
-	~cICMPStream(void);
+	cICMPStream();
+	virtual ~cICMPStream();
 
 	BOOL AddPacket(cPacket* Packet);
 	static BOOL Identify(cPacket* Packet);

@@ -166,7 +166,7 @@ void cHTTPStream::AnalyzeProtocol()
 
 cHTTPStream::~cHTTPStream() 
 {
-	cout << "destroy chttpstream" << endl;
+
 };
 
 BOOL cHTTPStream::CheckType(UCHAR* buffer)

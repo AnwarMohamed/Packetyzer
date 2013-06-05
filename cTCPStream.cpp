@@ -33,7 +33,6 @@ cTCPStream::cTCPStream()
 
 cTCPStream::~cTCPStream() 
 {
-	cout << "destroy ctcpstream" << endl;
 }
 
 BOOL cTCPStream::Identify(cPacket* Packet) { return Packet->isTCPPacket; }

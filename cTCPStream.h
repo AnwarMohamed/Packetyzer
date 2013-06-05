@@ -33,7 +33,7 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cTCPStream : public Packetyzer::Tr
 	//UINT ExtractedFilesCursor;
 public:
 	cTCPStream();
-	~cTCPStream();
+	virtual ~cTCPStream();
 
 	USHORT ClientPort;
 	USHORT ServerPort;

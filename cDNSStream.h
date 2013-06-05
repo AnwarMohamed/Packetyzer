@@ -42,7 +42,7 @@ public:
 	BOOL DomainIsFound;
 
 	cDNSStream();
-	~cDNSStream();
+	virtual ~cDNSStream();
 
 	BOOL AddPacket(cPacket* Packet);
 };

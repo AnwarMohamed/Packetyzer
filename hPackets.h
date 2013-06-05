@@ -247,7 +247,7 @@ struct ICMP_HEADER
 	u_int8_t Type;
 	u_int8_t SubCode;
 	u_int16_t Checksum;
-	/*union
+	union
 	{
 		struct
 		{
@@ -260,7 +260,7 @@ struct ICMP_HEADER
 		  u_int16_t	__unused;
 		  u_int16_t	Mtu;
 		} Frag;
-	} un;*/
+	} un;
 };
 
 

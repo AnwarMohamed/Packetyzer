@@ -25,7 +25,7 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cConStream : public Packetyzer::Tr
 {
 public:
 	cConStream();
-	~cConStream();
+	virtual ~cConStream();
 
 	UINT	ClientIP;
 	UINT	ServerIP; 

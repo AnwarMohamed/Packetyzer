@@ -307,7 +307,7 @@ BOOL cPacketGen::CustomizeICMP(UCHAR icmp_type, UCHAR icmp_code, UCHAR* icmp_dat
 
 cPacketGen::~cPacketGen()
 {
-	cout << "destroy cpacketgen" << endl;
+
 };
 
 UINT cPacketGen::IPToLong(const CHAR ip[]) {

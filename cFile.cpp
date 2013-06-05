@@ -24,7 +24,7 @@ using namespace Packetyzer::Elements;
 
 cFile::cFile(char* szFilename)
 {
-	Attributes = GetFileAttributes((LPCWSTR)szFilename);
+	Attributes = GetFileAttributes(/*(LPCWSTR)*/szFilename);
     hFile = CreateFileA(szFilename,
                         GENERIC_READ,
                         FILE_SHARE_READ | FILE_SHARE_WRITE,

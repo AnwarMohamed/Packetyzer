@@ -106,10 +106,9 @@ INT main(INT argc, CHAR* argv[])
 
 	TestPacket = new cPacket((UCHAR*)SLL_IP, sizeof(SLL_IP), NULL, LINKTYPE_LINUX_SLL);
 	printf(" [+] Testing SLL Packet of size %d \t%s\n", TestPacket->PacketSize, TestPacket->hasSLLHeader ? "OK":"FAILED");
-	delete(TestPacket);
+	delete(TestPacket);*/
 
-
-	cPcapFile* TestFile = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\example.pcap");
+	/*cPcapFile* TestFile = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\example.pcap");
 	printf(	"\n [*] Packets in pcap file:  (%s)\n" " -------------------------\n", TestFile->FileLoaded? TestFile->Filename:"FILE NOT LOADED");
 
 	printf(	" [+] Filesize %d\n" " [+] %d Packets are parsed\n"	" [+] %d Conversations are stacked\n",		
@@ -201,17 +200,26 @@ INT main(INT argc, CHAR* argv[])
 	//	printf("%x " , gen_packet.GeneratedPacket[i]);
 	//cPcapFile pckts("D:\\Downloads\\attachment_SLL_Simple.pcap");
 	
-	ULONGLONG begin = GetTickCount64(); 
+	//ULONGLONG begin = GetTickCount64(); 
 	
 
 	cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
-	//free(pckts);
-	delete pckts;
+	/*for (UINT i=0; i < pckts->nPackets; i++)*/ 
+	/*cout << pckts->Packets[4]->PacketError << endl;
+	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;
+	pckts->Packets[4]->FixTCPChecksum();
+	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;
+	//delete pckts;
 	ULONGLONG end = GetTickCount64();
-	printf(" %lld millisecond(s)\n", end-begin);
+	printf(" %lld millisecond(s)\n", end-begin);*/
 
-	//cPcapFile pckts("D:\\Downloads\\IGMP dataset.pcap");
-	//cout << pckts.nPackets << endl;
+	//cPcapFile *pckts = new cPcapFile("D:\\Downloads\\dns.cap", CPACKET_OPTIONS_MALFORM_CHECK);
+	//for (UINT i=0; i < pckts->nPackets; i++)
+	//	cout << pckts->Packets[i]->PacketError << " ";
+	//pckts->Traffic->Connections[0]->ClearActivePackets(0);
+	//cout << pckts->Traffic->Connections[0]->Packets[0]->hasSLLHeader << endl;
+	delete pckts;
+
 	//for (u_int64 i=0; i<pckts.Traffic.Connections[0]->Packets[3]->PacketSize; i++) printf("%02x ", pckts.Traffic.Connections[0]->Packets[3]->GetPacketBuffer()[i]);
 	//cout << pckts.Traffic.nConnections << endl;
 	

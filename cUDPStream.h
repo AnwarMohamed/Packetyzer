@@ -28,7 +28,7 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cUDPStream : public Packetyzer::Tr
 {
 public:
 	cUDPStream(void);
-	~cUDPStream(void);
+	virtual ~cUDPStream(void);
 
 	USHORT ClientPort;
 	USHORT ServerPort;

@@ -30,7 +30,7 @@ public:
 	UINT nConnections;
 	cConnection** Connections;
 
-	BOOL AddPacket(cPacket* Packet, UINT TimeStamp);
+	BOOL AddPacket(cPacket* Packet, time_t TimeStamp);
 
 	cTraffic();
 	~cTraffic();

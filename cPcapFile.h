@@ -27,6 +27,9 @@ using namespace Packetyzer::Analyzers;
 using namespace Packetyzer::Elements;
 using namespace Packetyzer::Traffic::Connections;
 
+#define CPCAP_OPTIONS_NONE				0x0000
+#define CPCAP_OPTIONS_MALFORM_CHECK		0x0001
+
 struct FOLLOW_STREAM
 {
 	UCHAR	ether_dhost[ETHER_ADDR_LEN];
@@ -45,7 +48,7 @@ class DLLEXPORT Packetyzer::Analyzers::cPcapFile : public Packetyzer::Elements::
 
 	cPacket* Packet;
 
-	BOOL ProcessPCAP();
+	BOOL ProcessPCAP(UINT Options);
 	void GetStreams();
 
 public:
@@ -59,6 +62,6 @@ public:
 
 	cTraffic *Traffic;
 	
-	cPcapFile(char* szFilename);
+	cPcapFile(char* szFilename, UINT Options = CPCAP_OPTIONS_NONE);
 	~cPcapFile();
 };

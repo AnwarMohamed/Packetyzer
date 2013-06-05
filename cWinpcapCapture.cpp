@@ -93,6 +93,5 @@ BOOL cWinpcapCapture::CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets, co
 
 cWinpcapCapture::~cWinpcapCapture()
 {
-	cout << "destroy cwinpcapcapture" << endl;
 	pcap_freealldevs(alldevs);
 };

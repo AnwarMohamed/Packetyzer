@@ -22,16 +22,25 @@
 
 using namespace Packetyzer::Traffic::Streams;
 
-cICMPStream::cICMPStream(void)
+cICMPStream::cICMPStream()
 {
 	nPingRequests = 0;
 	nPingResponses = 0;
+
+	PingReceivedData = NULL;
+	PingReceivedDataSize = 0;
+
+	PingSentData = NULL;
+	PingSentDataSize = 0;
+
+	PingRequester = NULL;
+	PingReceiver = NULL;
 }
 
 
-cICMPStream::~cICMPStream(void)
+cICMPStream::~cICMPStream()
 {
-	cout << "destroy cicmpstream" << endl;
+
 }
 
 BOOL cICMPStream::Identify(cPacket* Packet)
@@ -43,14 +52,14 @@ BOOL cICMPStream::AddPacket(cPacket* Packet)
 {
 	if (!Identify(Packet)) return FALSE;
 
-	if (nPackets > 0)
+	if (nActivePackets > 0)
 	{
 		if ( (	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress ) ||
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress ) )
 		{
 			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+			Packets = (cPacket**)realloc(Packets, nActivePackets * sizeof(cPacket*));
+			memcpy(&Packets[(nActivePackets-1)], &Packet, sizeof(cPacket*));
 			nPackets++;
 
 			AnalyzeProtocol();
@@ -61,8 +70,8 @@ BOOL cICMPStream::AddPacket(cPacket* Packet)
 	else
 	{
 		nActivePackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+		Packets = (cPacket**)realloc(Packets, nActivePackets * sizeof(cPacket*));
+		memcpy(&Packets[(nActivePackets-1)], &Packet, sizeof(cPacket*));
 		nPackets++;
 
 		isIPConnection = Packet->isIPPacket; 

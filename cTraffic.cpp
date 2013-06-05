@@ -30,7 +30,7 @@ cTraffic::cTraffic()
 	Connections = (cConnection**)malloc( sizeof(cConnection*) * nConnections);
 }
 
-BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
+BOOL cTraffic::AddPacket(cPacket* Packet, time_t TimeStamp)
 {
 	cConnection* TmpConnection = NULL;
 
@@ -109,19 +109,14 @@ BOOL cTraffic::AddPacket(cPacket* Packet, UINT TimeStamp)
 
 	TmpConnection->AddPacket(Packet);	
 	nConnections++;
-	Connections = (cConnection**)realloc((void*)Connections, nConnections * sizeof(cConnection*));
-	memcpy((void**)&Connections[nConnections-1],(void**)&TmpConnection, sizeof(cConnection*));
+	Connections = (cConnection**)realloc(Connections, nConnections * sizeof(cConnection*));
+	memcpy(&Connections[nConnections-1],&TmpConnection, sizeof(cConnection*));
 	return TRUE;
 }
 
 cTraffic::~cTraffic()
 {
-	//cout << "destroy ctraffic" << endl;
 	for (UINT i=0; i<nConnections; i++)
-	{
-		//cout << i << "\t" << nConnections << endl;
 		delete Connections[i];
-		//free(Connections[i]);
-	}
 	free(Connections);
 }

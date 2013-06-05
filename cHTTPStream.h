@@ -40,8 +40,8 @@ public:
 
 	static BOOL Identify(cPacket* Packet);
 
-	cHTTPStream(void);
-	~cHTTPStream(void);
+	cHTTPStream();
+	virtual ~cHTTPStream();
 
 	cString** Cookies;
 	UINT nCookies;

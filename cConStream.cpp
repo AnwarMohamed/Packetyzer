@@ -31,7 +31,7 @@ cConStream::cConStream()
 
 cConStream::~cConStream()
 {
-	cout << "destroy cconstream" << endl;
+
 };
 
 BOOL cConStream::AddPacket(cPacket* Packet)

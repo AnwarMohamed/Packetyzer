@@ -64,6 +64,5 @@ BOOL cWinpcapSend::InitializeAdapters()
 
 cWinpcapSend::~cWinpcapSend()
 {
-	cout << "destry cwinpcapsend" << endl;
 	pcap_freealldevs(alldevs);
 }

@@ -29,8 +29,8 @@ protected:
 	virtual BOOL AnalyzePackets();
 	virtual BOOL CheckPacket(cPacket* Packet);
 public:
-	cConnection(void);
-	~cConnection(void);
+	cConnection();
+	virtual ~cConnection();
 
 	cPacket**	Packets;
 	UINT		nPackets;

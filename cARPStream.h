@@ -27,8 +27,8 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cARPStream : public Packetyzer::Tr
 {
 	void AnalyzeProtocol();
 public:
-	cARPStream(void);
-	~cARPStream(void);
+	cARPStream();
+	virtual ~cARPStream();
 
 	BOOL AddPacket(cPacket* Packet);
 	static BOOL Identify(cPacket* Packet);

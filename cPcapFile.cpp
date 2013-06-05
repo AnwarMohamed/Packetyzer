@@ -24,13 +24,13 @@ using namespace std;
 using namespace Packetyzer::Analyzers;
 using namespace Packetyzer::Elements;
 
-cPcapFile::cPcapFile(char* szFilename) : cFile(szFilename)
+cPcapFile::cPcapFile(char* szFilename, UINT Options) : cFile(szFilename)
 {
 	Traffic = new cTraffic;
-	FileLoaded = ProcessPCAP();
+	FileLoaded = ProcessPCAP(Options);
 }
 
-BOOL cPcapFile::ProcessPCAP()
+BOOL cPcapFile::ProcessPCAP(UINT Options)
 {
 	nPackets = 0;
 	if (BaseAddress == 0 || FileLength == 0) return false;
@@ -61,8 +61,9 @@ BOOL cPcapFile::ProcessPCAP()
 		fsize = fsize + PCAP_Packet_Header->incl_len;
 		UINT PSize = PCAP_Packet_Header->incl_len;
 		
-		Packet = new cPacket((UCHAR*)PBaseAddress,PSize, PCAP_Packet_Header->ts_sec + PCAP_Packet_Header->ts_usec/1000000, PCAP_General_Header->network);
-		memcpy((void**)&Packets[i],(void**)&Packet,sizeof(cPacket*));
+		Packet = new cPacket((UCHAR*)PBaseAddress,PSize, PCAP_Packet_Header->ts_sec + PCAP_Packet_Header->ts_usec/1000000, 
+			PCAP_General_Header->network, (Options & CPCAP_OPTIONS_MALFORM_CHECK) ? CPACKET_OPTIONS_MALFORM_CHECK : CPACKET_OPTIONS_NONE);
+		memcpy(&Packets[i],&Packet,sizeof(cPacket*));
 	}
 
 	GetStreams();
@@ -71,16 +72,12 @@ BOOL cPcapFile::ProcessPCAP()
 
 cPcapFile::~cPcapFile()
 {
-	cout << "destroy cpcapfile" << endl;
-	//delete PCAP_General_Header;
-	//delete PCAP_Packet_Header;
-	delete Packet;
-	free(Packets);
 	delete Traffic;
+	free(Packets);
 };
 
 void cPcapFile::GetStreams()
 {
 	for (UINT i=0; i<nPackets; i++)
-		Traffic->AddPacket(Packets[i], NULL);
+		Traffic->AddPacket(Packets[i], Packets[i]->Timestamp);
 };

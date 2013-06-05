@@ -30,21 +30,21 @@ using namespace std;
 using namespace Packetyzer::Analyzers;
 using namespace Packetyzer::Elements;
 
-cPacket::cPacket(string filename, time_t timestamp, UINT network)
+cPacket::cPacket(string filename, time_t timestamp, UINT network, UINT Options)
 {
 	BaseAddress = 0;
 	Size = 0;
-	cFile* File = new cFile((char*)filename.c_str());
+	File = new cFile((char*)filename.c_str());
 	if (File->FileLength == 0) return;
 	BaseAddress = File->BaseAddress;
 	Size = File->FileLength;
 	Timestamp = timestamp;
 	RawPacket = (UCHAR*)BaseAddress;
-	isParsed = ProcessPacket(network);
+	isParsed = ProcessPacket(network, Options);
 	return;
 };
 
-cPacket::cPacket(UCHAR* buffer, UINT size, time_t timestamp, UINT network)
+cPacket::cPacket(UCHAR* buffer, UINT size, time_t timestamp, UINT network, UINT Options)
 {
 	BaseAddress = 0;
 	Size = 0;
@@ -52,11 +52,12 @@ cPacket::cPacket(UCHAR* buffer, UINT size, time_t timestamp, UINT network)
 	Size = size;
 	Timestamp = timestamp;
 	RawPacket = buffer;
-	isParsed = ProcessPacket(network);
+	File = NULL;
+	isParsed = ProcessPacket(network, Options);
 	return;
 };
 
-BOOL cPacket::ProcessPacket(UINT network)
+BOOL cPacket::ProcessPacket(UINT network, UINT Options)
 {
 	ResetIs();
 	if (BaseAddress == 0 || Size == 0) return false;
@@ -99,21 +100,12 @@ BOOL cPacket::ProcessPacket(UINT network)
 				TCPOptionsSize = (TCPHeader->DataOffset*4) - sizeof(TCP_HEADER);
 
 				if (TCPOptionsSize != 0)
-				{
-					//TCPOptions = new UCHAR[TCPOptionsSize];
-					/*UCHAR* opdata*/ TCPOptions = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4) - TCPOptionsSize);
-				
-					//memcpy(TCPOptions,opdata,TCPOptionsSize);
-				}
+					TCPOptions = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + 
+						(TCPHeader->DataOffset*4) - TCPOptionsSize);
 
 				if (TCPDataSize != 0)
-				{
-					//TCPData = new UCHAR[TCPDataSize];
-					/*UCHAR* data*/ TCPData= (UCHAR*)(BaseAddress) + sHeader + (IPHeader->HeaderLength*4) + (TCPHeader->DataOffset*4);
-				
-					//memcpy_s(TCPData,TCPDataSize,data,TCPDataSize);
-				
-				}
+					TCPData= (UCHAR*)(BaseAddress) + sHeader + (IPHeader->HeaderLength*4) + 
+						(TCPHeader->DataOffset*4);
 			}
 			else if ((USHORT)(IPHeader->Protocol) == UDP_PACKET)
 			{
@@ -121,10 +113,8 @@ BOOL cPacket::ProcessPacket(UINT network)
 				UDPHeader = (UDP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
 
 				UDPDataSize = ntohs(UDPHeader->DatagramLength) - sizeof(UDP_HEADER);
-				//UDPData = new UCHAR[UDPDataSize];
-				/*UCHAR* data*/ UDPData = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(UDP_HEADER));
+				UDPData = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(UDP_HEADER));
 
-				//memcpy(UDPData,data,UDPDataSize);
 			}
 			else if ((USHORT)(IPHeader->Protocol) == ICMP_PACKET)
 			{
@@ -132,10 +122,8 @@ BOOL cPacket::ProcessPacket(UINT network)
 				ICMPHeader = (ICMP_HEADER*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4));
 
 				ICMPDataSize = Size - sHeader - (IPHeader->HeaderLength*4) - sizeof(ICMP_HEADER);
-				//ICMPData = new UCHAR[ICMPDataSize];
-				/*UCHAR* data*/ ICMPData = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(ICMP_HEADER));
+				ICMPData = (UCHAR*)(BaseAddress + sHeader + (IPHeader->HeaderLength*4) + sizeof(ICMP_HEADER));
 
-				//memcpy(ICMPData,data,ICMPDataSize);
 			}
 			else if ((USHORT)(IPHeader->Protocol) == IGMP_PACKET)
 			{
@@ -158,7 +146,7 @@ BOOL cPacket::ProcessPacket(UINT network)
 			return FALSE;
 		}
 
-		CheckIfMalformed();
+		if (Options & CPACKET_OPTIONS_MALFORM_CHECK) CheckIfMalformed();
 		return true;
 	}
 	else return FALSE;
@@ -171,7 +159,7 @@ void cPacket::CheckIfMalformed()
 	if (isIPPacket)
 	{
 		IP_HEADER *ipheader = new IP_HEADER;
-		memcpy(ipheader,(void*)IPHeader,sizeof(IP_HEADER));
+		memcpy(ipheader,IPHeader,sizeof(IP_HEADER));
 		ipheader->Checksum =0x0000;
 
 		if(GlobalChecksum((USHORT*)ipheader,sizeof(IP_HEADER)) != IPHeader->Checksum)
@@ -183,8 +171,8 @@ void cPacket::CheckIfMalformed()
 		else if (isTCPPacket)
 		{
 			TCP_HEADER *tcpheader = new TCP_HEADER;
-			memcpy((void*)tcpheader,(void*)TCPHeader,sizeof(TCP_HEADER));
-			tcpheader->Checksum = 0;
+			memcpy(tcpheader,TCPHeader,sizeof(TCP_HEADER));
+			tcpheader->Checksum = 0x0000;
 
 			PSEUDO_HEADER *psheader = new PSEUDO_HEADER;
 			memcpy(&psheader->daddr, &IPHeader->DestinationAddress, sizeof(UINT));
@@ -193,15 +181,15 @@ void cPacket::CheckIfMalformed()
 			psheader->length = htons((USHORT)(sizeof(TCP_HEADER) + TCPOptionsSize + TCPDataSize));
 			psheader->zero = 0;
 
-			UCHAR *tcppacket;
 			UINT packet_size = sizeof(TCP_HEADER) + TCPOptionsSize + TCPDataSize + sizeof(PSEUDO_HEADER);
 			packet_size = packet_size + ((packet_size%2)*2);
-			tcppacket = (UCHAR*)malloc(packet_size);
+			UCHAR *tcppacket = (UCHAR*)malloc(packet_size);
+
 			memset(tcppacket,0, packet_size);
-			memcpy((void*)&tcppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
-			memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER)], (void*)&tcpheader,sizeof(TCP_HEADER));
-			memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER)],(void*)TCPOptions,TCPOptionsSize);
-			memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER) + TCPOptionsSize],(void*)TCPData, TCPDataSize);
+			memcpy(&tcppacket[0], psheader, sizeof(PSEUDO_HEADER));
+			memcpy(&tcppacket[sizeof(PSEUDO_HEADER)], tcpheader,sizeof(TCP_HEADER));
+			memcpy(&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER)],TCPOptions,TCPOptionsSize);
+			memcpy(&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER) + TCPOptionsSize],TCPData, TCPDataSize);
 
 			if (GlobalChecksum((USHORT*)tcppacket,packet_size) != TCPHeader->Checksum)
 			{
@@ -217,7 +205,7 @@ void cPacket::CheckIfMalformed()
 		else if (isUDPPacket)
 		{
 			UDP_HEADER *udpheader = new UDP_HEADER;
-			memcpy((void*)udpheader,(void*)UDPHeader,sizeof(UDP_HEADER));
+			memcpy(udpheader,UDPHeader,sizeof(UDP_HEADER));
 			udpheader->Checksum = 0;
 
 			PSEUDO_HEADER *psheader = new PSEUDO_HEADER;
@@ -232,9 +220,9 @@ void cPacket::CheckIfMalformed()
 			packet_size = packet_size + ((packet_size%2)*2);
 			udppacket = (UCHAR*)malloc(packet_size);
 			memset(udppacket,0, packet_size);
-			memcpy((void*)&udppacket[0], (void*)psheader, sizeof(PSEUDO_HEADER));
-			memcpy((void*)&udppacket[sizeof(PSEUDO_HEADER)], (void*)udpheader,sizeof(UDP_HEADER));
-			memcpy((void*)&udppacket[sizeof(PSEUDO_HEADER) + sizeof(UDP_HEADER)],(void*)UDPData,UDPDataSize);
+			memcpy(&udppacket[0], psheader, sizeof(PSEUDO_HEADER));
+			memcpy(&udppacket[sizeof(PSEUDO_HEADER)], udpheader,sizeof(UDP_HEADER));
+			memcpy(&udppacket[sizeof(PSEUDO_HEADER) + sizeof(UDP_HEADER)],UDPData,UDPDataSize);
 
 			if (GlobalChecksum((USHORT*)udppacket,packet_size) != UDPHeader->Checksum)
 			{
@@ -250,24 +238,16 @@ void cPacket::CheckIfMalformed()
 		else if (isICMPPacket)
 		{
 			ICMP_HEADER *icmpheader = new ICMP_HEADER;
-			memcpy((void*)icmpheader,(void*)ICMPHeader,sizeof(ICMP_HEADER));
-			icmpheader->Checksum = 0;
+			memcpy(icmpheader,ICMPHeader,sizeof(ICMP_HEADER));
+			icmpheader->Checksum = 0x0000;
 
-			PSEUDO_HEADER *psheader = new PSEUDO_HEADER;
-			memcpy(&psheader->daddr, &IPHeader->DestinationAddress, sizeof(UINT));
-			memcpy(&psheader->saddr, &IPHeader->SourceAddress, sizeof(UINT));
-			psheader->protocol = IPHeader->Protocol;
-			psheader->length = htons((USHORT)(sizeof(UDP_HEADER) + ICMPDataSize));
-			psheader->zero = 0;
-
-			
-			UINT packet_size = sizeof(ICMP_HEADER) + ICMPDataSize + sizeof(PSEUDO_HEADER);
+			UINT packet_size = sizeof(ICMP_HEADER) + ICMPDataSize;
 			packet_size = packet_size + ((packet_size%2)*2);
-			UCHAR *icmppacket =  (UCHAR*)malloc(packet_size);
+			UCHAR *icmppacket = (UCHAR*)malloc(packet_size);
+
 			memset(icmppacket,0, packet_size);
-			memcpy(icmppacket, (void*)psheader, sizeof(PSEUDO_HEADER));
-			memcpy(&icmppacket[sizeof(PSEUDO_HEADER)], (void*)icmpheader,sizeof(ICMP_HEADER));
-			memcpy(&icmppacket[sizeof(PSEUDO_HEADER) + sizeof(UDP_HEADER)],(void*)ICMPData,ICMPDataSize);
+			memcpy(icmppacket, icmpheader,sizeof(ICMP_HEADER));
+			memcpy(&icmppacket[sizeof(ICMP_HEADER)],ICMPData,ICMPDataSize);
 
 			if (GlobalChecksum((USHORT*)icmppacket,packet_size) != ICMPHeader->Checksum)
 			{
@@ -277,8 +257,7 @@ void cPacket::CheckIfMalformed()
 
 			delete ipheader;
 			delete icmpheader;
-			delete psheader;
-			//VirtualFree(icmppacket, packet_size, MEM_RELEASE);
+			free(icmppacket);
 		} 
 		
 		if (isIPPacket && IPHeader->TimeToLive <= 10)
@@ -307,11 +286,11 @@ USHORT cPacket::GlobalChecksum(USHORT *buffer, UINT length)
 	return(answer);
 }
 
-cPacket::~cPacket(void)
+cPacket::~cPacket()
 {
-	//cout << "destroy cpacket" << endl;
+	if (File != NULL) delete File;
 };
-
+ 
 void cPacket::ResetIs()
 {
 	isTCPPacket = FALSE;
@@ -349,30 +328,26 @@ BOOL cPacket::FixICMPChecksum()
 {
 	if (!isICMPPacket) return FALSE;
 
-	ICMP_HEADER icmpheader;
-	memcpy((void*)&icmpheader,(void*)ICMPHeader,sizeof(ICMP_HEADER));
-	icmpheader.Checksum = 0;
+	ICMP_HEADER *icmpheader = new ICMP_HEADER;
+	memcpy(icmpheader,ICMPHeader,sizeof(ICMP_HEADER));
+	icmpheader->Checksum = 0;
 
-	PSEUDO_HEADER psheader;
-	memcpy(&psheader.daddr, &IPHeader->DestinationAddress, sizeof(UINT));
-	memcpy(&psheader.saddr, &IPHeader->SourceAddress, sizeof(UINT));
-	psheader.protocol = IPHeader->Protocol;
-	psheader.length = htons((USHORT)(sizeof(UDP_HEADER) + ICMPDataSize));
-	psheader.zero = 0;
-
-	UCHAR *icmppacket;
-	UINT packet_size = sizeof(ICMP_HEADER) + ICMPDataSize + sizeof(PSEUDO_HEADER);
+	UINT packet_size = sizeof(ICMP_HEADER) + ICMPDataSize;
 	packet_size = packet_size + ((packet_size%2)*2);
-	icmppacket = (UCHAR*)malloc(packet_size);
+	UCHAR* icmppacket = (UCHAR*)malloc(packet_size);
+
 	memset(icmppacket,0, packet_size);
-	memcpy((void*)&icmppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
-	memcpy((void*)&icmppacket[sizeof(PSEUDO_HEADER)], (void*)&icmpheader,sizeof(ICMP_HEADER));
-	memcpy((void*)&icmppacket[sizeof(PSEUDO_HEADER) + sizeof(UDP_HEADER)],(void*)ICMPData,ICMPDataSize);
+	memcpy(icmppacket, icmpheader,sizeof(ICMP_HEADER));
+	memcpy(&icmppacket[sizeof(ICMP_HEADER)],ICMPData,ICMPDataSize);
 
 	USHORT crc = GlobalChecksum((USHORT*)icmppacket,packet_size);
+
+	delete icmpheader;
+	free(icmppacket);
+
 	if(crc != ICMPHeader->Checksum)
 	{
-		memcpy(&ICMPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+		memcpy(&ICMPHeader->Checksum,&crc,sizeof(USHORT));
 		CheckIfMalformed();
 		return true;
 	} 
@@ -383,94 +358,96 @@ BOOL cPacket::FixIPChecksum()
 {
 	if (!isIPPacket) return FALSE;
 
-	IP_HEADER ipheader;
-	memcpy(&ipheader,(void*)IPHeader,sizeof(IP_HEADER));
+	IP_HEADER *ipheader = new IP_HEADER;
+	memcpy(ipheader,IPHeader,sizeof(IP_HEADER));
+	ipheader->Checksum =0;
 
-	ipheader.Checksum =0;
-	USHORT crc = GlobalChecksum((USHORT*)&ipheader,sizeof(IP_HEADER));
+	USHORT crc = GlobalChecksum((USHORT*)ipheader,sizeof(IP_HEADER));
+	
+	delete ipheader;
+
 	if(crc != IPHeader->Checksum)
 	{
-		memcpy(&IPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+		memcpy(&IPHeader->Checksum,&crc,sizeof(USHORT));
 		CheckIfMalformed();
 		return true;
 	} 
-	else 
-	{ 
-		return false; 
-	}
+	else return false; 
 };
 
 BOOL cPacket::FixTCPChecksum()
 {
 	if (!isTCPPacket) return FALSE;
 
-	TCP_HEADER tcpheader;
-	memcpy((void*)&tcpheader,(void*)TCPHeader,sizeof(TCP_HEADER));
-	tcpheader.Checksum = 0;
+	TCP_HEADER *tcpheader = new TCP_HEADER;
+	memcpy(tcpheader,TCPHeader,sizeof(TCP_HEADER));
+	tcpheader->Checksum = 0;
 
-	PSEUDO_HEADER psheader;
-	memcpy(&psheader.daddr, &IPHeader->DestinationAddress, sizeof(UINT));
-	memcpy(&psheader.saddr, &IPHeader->SourceAddress, sizeof(UINT));
-	psheader.protocol = IPHeader->Protocol;
-	psheader.length = htons((USHORT)(sizeof(TCP_HEADER) + TCPOptionsSize + TCPDataSize));
-	psheader.zero = 0;
+	PSEUDO_HEADER *psheader = new PSEUDO_HEADER;
+	memcpy(&psheader->daddr, &IPHeader->DestinationAddress, sizeof(UINT));
+	memcpy(&psheader->saddr, &IPHeader->SourceAddress, sizeof(UINT));
+	psheader->protocol = IPHeader->Protocol;
+	psheader->length = htons((USHORT)(sizeof(TCP_HEADER) + TCPOptionsSize + TCPDataSize));
+	psheader->zero = 0;
 
-	UCHAR *tcppacket;
 	UINT packet_size = sizeof(TCP_HEADER) + TCPOptionsSize + TCPDataSize + sizeof(PSEUDO_HEADER);
 	packet_size = packet_size + ((packet_size%2)*2);
-	tcppacket = (UCHAR*)malloc(packet_size);
+	UCHAR* tcppacket = (UCHAR*)malloc(packet_size);
+
 	memset(tcppacket,0, packet_size);
-	memcpy((void*)&tcppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
-	memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER)], (void*)&tcpheader,sizeof(TCP_HEADER));
-	memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER)],(void*)TCPOptions,TCPOptionsSize);
-	memcpy((void*)&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER) + TCPOptionsSize],(void*)TCPData, TCPDataSize);
+	memcpy(tcppacket, psheader, sizeof(PSEUDO_HEADER));
+	memcpy(&tcppacket[sizeof(PSEUDO_HEADER)], tcpheader,sizeof(TCP_HEADER));
+	memcpy(&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER)],TCPOptions,TCPOptionsSize);
+	memcpy(&tcppacket[sizeof(PSEUDO_HEADER) + sizeof(TCP_HEADER) + TCPOptionsSize],TCPData, TCPDataSize);
 
 	USHORT crc = GlobalChecksum((USHORT*)tcppacket,packet_size);
+
+	delete psheader;
+	delete tcpheader;
+	free(tcppacket);
 	if (crc != TCPHeader->Checksum)
 	{
-		memcpy(&TCPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+		memcpy(&TCPHeader->Checksum,&crc,sizeof(USHORT));
 		CheckIfMalformed();
 		return true;
 	} 
-	else 
-	{ 
-		return false; 
-	}	
+	else return false; 
 };
 
 BOOL cPacket::FixUDPChecksum()
 {
 	if (!isUDPPacket) return FALSE;
 
-	UDP_HEADER udpheader;
-	memcpy((void*)&udpheader,(void*)UDPHeader,sizeof(UDP_HEADER));
-	udpheader.Checksum = 0;
+	UDP_HEADER *udpheader = new UDP_HEADER;
+	memcpy(udpheader,UDPHeader,sizeof(UDP_HEADER));
+	udpheader->Checksum = 0;
 
-	PSEUDO_HEADER psheader;
-	memcpy(&psheader.daddr, &IPHeader->DestinationAddress, sizeof(UINT));
-	memcpy(&psheader.saddr, &IPHeader->SourceAddress, sizeof(UINT));
-	psheader.protocol = IPHeader->Protocol;
-	psheader.length = htons((USHORT)(sizeof(UDP_HEADER) + UDPDataSize));
-	psheader.zero = 0;
+	PSEUDO_HEADER *psheader = new PSEUDO_HEADER;
+	memcpy(&psheader->daddr, &IPHeader->DestinationAddress, sizeof(UINT));
+	memcpy(&psheader->saddr, &IPHeader->SourceAddress, sizeof(UINT));
+	psheader->protocol = IPHeader->Protocol;
+	psheader->length = htons((USHORT)(sizeof(UDP_HEADER) + UDPDataSize));
+	psheader->zero = 0;
 
-	UCHAR *udppacket;
 	UINT packet_size = sizeof(UDP_HEADER) + UDPDataSize + sizeof(PSEUDO_HEADER);
 	packet_size = packet_size + ((packet_size%2)*2);
-	udppacket = (UCHAR*)malloc(packet_size);
+	UCHAR* udppacket = (UCHAR*)malloc(packet_size);
 	memset(udppacket,0, packet_size);
-	memcpy((void*)&udppacket[0], (void*)&psheader, sizeof(PSEUDO_HEADER));
-	memcpy((void*)&udppacket[sizeof(PSEUDO_HEADER)], (void*)&udpheader,sizeof(UDP_HEADER));
-	memcpy((void*)&udppacket[sizeof(PSEUDO_HEADER) + sizeof(UDP_HEADER)],(void*)UDPData,UDPDataSize);
+	memcpy(&udppacket, psheader, sizeof(PSEUDO_HEADER));
+	memcpy(&udppacket[sizeof(PSEUDO_HEADER)], udpheader,sizeof(UDP_HEADER));
+	memcpy(&udppacket[sizeof(PSEUDO_HEADER) + sizeof(UDP_HEADER)],UDPData,UDPDataSize);
 
 	USHORT crc = GlobalChecksum((USHORT*)udppacket,packet_size);
+
+	delete psheader;
+	delete udpheader;
+	free(udppacket);
+
 	if (crc != UDPHeader->Checksum)
 	{
-		memcpy(&UDPHeader->Checksum,(void*)&crc,sizeof(USHORT));
+		memcpy(&UDPHeader->Checksum,&crc,sizeof(USHORT));
 		CheckIfMalformed();
 		return true;
 	} 
-	else 
-	{ 
-		return false; 
-	}
+	else return false; 
 };

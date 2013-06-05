@@ -23,7 +23,7 @@
 
 using namespace Packetyzer::Traffic::Streams;
 
-cARPStream::cARPStream(void)
+cARPStream::cARPStream()
 {
 	memset(&RequesterMAC, 0, ETHER_ADDR_LEN);
 	memset(&RequestedMAC, 0, ETHER_ADDR_LEN);
@@ -35,9 +35,8 @@ cARPStream::cARPStream(void)
 	GotReply = FALSE;
 }
 
-cARPStream::~cARPStream(void)
+cARPStream::~cARPStream()
 {
-	cout << "destroy carpstream" << endl;
 }
 
 BOOL cARPStream::Identify(cPacket* Packet)

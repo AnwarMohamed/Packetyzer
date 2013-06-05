@@ -29,7 +29,7 @@ cHash::cHash()
 };
 cHash::~cHash()
 {
-	cout << "destroy chash" << endl;
+
 	free(HashArray);
 };
 void cHash::AddItem(cString Name,cString Value)
