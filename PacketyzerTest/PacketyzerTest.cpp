@@ -22,10 +22,82 @@
 #include "../Packetyzer.h"
 
 using namespace Packetyzer::Analyzers;
+using namespace Packetyzer::Capture;
 using namespace std;
 
 INT main(INT argc, CHAR* argv[])
 {
+	int iRet = 0;
+    WCHAR GuidString[40] = { 0 };
+	
+	cLSPInstall* lspinstall = new cLSPInstall("PacketyzerLSP.dll");
+	
+	if (lspinstall->ReadyInstall)
+	{
+
+		wprintf(L"WSCEnumProtocols succeeded with protocol count = %d\n\n", lspinstall->nProtocolsInfo);
+
+		for (UINT i = 0; i < lspinstall->nProtocolsInfo; i++) 
+		{
+			wprintf(L"Winsock Catalog Provider Entry #%d\n", i);
+			wprintf(L"----------------------------------------------------------\n");
+			wprintf(L"Entry type:\t\t\t ");
+
+			if (lspinstall->ProtocolsInfo[i].ProtocolChain.ChainLen == 1)
+				wprintf(L"Base Service Provider\n");
+			else
+				wprintf(L"Layered Chain Entry\n");
+
+			wprintf(L"Protocol:\t\t\t %ws\n", lspinstall->ProtocolsInfo[i].szProtocol);
+
+			iRet =  StringFromGUID2(lspinstall->ProtocolsInfo[i].ProviderId,(LPOLESTR) & GuidString, 39);
+
+			if (iRet == 0) wprintf(L"StringFromGUID2 failed\n");
+			else wprintf(L"Provider ID:\t\t\t %ws\n", GuidString);
+
+			wprintf(L"Catalog Entry ID:\t\t %u\n", lspinstall->ProtocolsInfo[i].dwCatalogEntryId);
+
+			wprintf(L"Version:\t\t\t %d\n", lspinstall->ProtocolsInfo[i].iVersion);
+
+			wprintf(L"Address Family:\t\t\t %d\n",
+					lspinstall->ProtocolsInfo[i].iAddressFamily);
+			wprintf(L"Max Socket Address Length:\t %d\n",
+					lspinstall->ProtocolsInfo[i].iMaxSockAddr);
+			wprintf(L"Min Socket Address Length:\t %d\n",
+					lspinstall->ProtocolsInfo[i].iMinSockAddr);
+
+			wprintf(L"Socket Type:\t\t\t %d\n", lspinstall->ProtocolsInfo[i].iSocketType);
+			wprintf(L"Socket Protocol:\t\t %d\n", lspinstall->ProtocolsInfo[i].iProtocol);
+			wprintf(L"Socket Protocol Max Offset:\t %d\n",
+					lspinstall->ProtocolsInfo[i].iProtocolMaxOffset);
+
+			wprintf(L"Network Byte Order:\t\t %d\n",
+					lspinstall->ProtocolsInfo[i].iNetworkByteOrder);
+			wprintf(L"Security Scheme:\t\t %d\n",
+					lspinstall->ProtocolsInfo[i].iSecurityScheme);
+			wprintf(L"Max Message Size:\t\t %u\n", lspinstall->ProtocolsInfo[i].dwMessageSize);
+
+			wprintf(L"ServiceFlags1:\t\t\t 0x%x\n",
+					lspinstall->ProtocolsInfo[i].dwServiceFlags1);
+			wprintf(L"ServiceFlags2:\t\t\t 0x%x\n",
+					lspinstall->ProtocolsInfo[i].dwServiceFlags2);
+			wprintf(L"ServiceFlags3:\t\t\t 0x%x\n",
+					lspinstall->ProtocolsInfo[i].dwServiceFlags3);
+			wprintf(L"ServiceFlags4:\t\t\t 0x%x\n",
+					lspinstall->ProtocolsInfo[i].dwServiceFlags4);
+			wprintf(L"ProviderFlags:\t\t\t 0x%x\n",
+					lspinstall->ProtocolsInfo[i].dwProviderFlags);
+
+			wprintf(L"Protocol Chain length:\t\t %d\n",
+					lspinstall->ProtocolsInfo[i].ProtocolChain.ChainLen);
+
+			wprintf(L"\n");
+		}
+	}
+
+	delete lspinstall;
+
+
 	/*printf(	"\n +----------------------------------------------------+\n"
 			" +               Packetyzer Unit Tests                +\n"
 			" +----------------------------------------------------+\n\n");
@@ -203,7 +275,7 @@ INT main(INT argc, CHAR* argv[])
 	//ULONGLONG begin = GetTickCount64(); 
 	
 
-	cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
+	//cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
 	/*for (UINT i=0; i < pckts->nPackets; i++)*/ 
 	/*cout << pckts->Packets[4]->PacketError << endl;
 	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;
@@ -218,7 +290,7 @@ INT main(INT argc, CHAR* argv[])
 	//	cout << pckts->Packets[i]->PacketError << " ";
 	//pckts->Traffic->Connections[0]->ClearActivePackets(0);
 	//cout << pckts->Traffic->Connections[0]->Packets[0]->hasSLLHeader << endl;
-	delete pckts;
+	//delete pckts;
 
 	//for (u_int64 i=0; i<pckts.Traffic.Connections[0]->Packets[3]->PacketSize; i++) printf("%02x ", pckts.Traffic.Connections[0]->Packets[3]->GetPacketBuffer()[i]);
 	//cout << pckts.Traffic.nConnections << endl;

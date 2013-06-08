@@ -72,6 +72,9 @@
     <ClCompile Include="cUDPStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cLSPInstall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cFile.h">
@@ -132,6 +135,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cTCPReassembler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cLSPInstall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hLSP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

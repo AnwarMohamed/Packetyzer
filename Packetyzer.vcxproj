@@ -102,6 +102,7 @@
     <ClCompile Include="cHash.cpp" />
     <ClCompile Include="cHTTPStream.cpp" />
     <ClCompile Include="cICMPStream.cpp" />
+    <ClCompile Include="cLSPInstall.cpp" />
     <ClCompile Include="cPacket.cpp" />
     <ClCompile Include="cPacketGen.cpp" />
     <ClCompile Include="cString.cpp" />
@@ -123,6 +124,7 @@
     <ClInclude Include="cHash.h" />
     <ClInclude Include="cHTTPStream.h" />
     <ClInclude Include="cICMPStream.h" />
+    <ClInclude Include="cLSPInstall.h" />
     <ClInclude Include="cPacket.h" />
     <ClInclude Include="cPacketGen.h" />
     <ClInclude Include="cString.h" />
@@ -133,6 +135,7 @@
     <ClInclude Include="cWinpcapCapture.h" />
     <ClInclude Include="cPcapFile.h" />
     <ClInclude Include="cWinpcapSend.h" />
+    <ClInclude Include="hLSP.h" />
     <ClInclude Include="hPackets.h" />
     <ClInclude Include="Packetyzer.h" />
   </ItemGroup>
