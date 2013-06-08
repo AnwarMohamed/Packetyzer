@@ -38,24 +38,39 @@
 #define LSP_ERROR_DLLPATH	0x0002
 #define LSP_ERROR_MEMALLOC	0x0004
 #define LSP_ERROR_WSCENUMPROT	0x0008
+#define LSP_ERROR_GETLSPGUID	0x0010
+
+typedef enum
+{
+    LspCatalogBoth = 0,
+    LspCatalog32Only,
+    LspCatalog64Only
+} WINSOCK_CATALOG;
+
+typedef void (WSPAPI *LPFN_GETLSPGUID) (GUID *lpGuid);
 
 class DLLEXPORT Packetyzer::Capture::cLSPInstall
 {	
 	INT			rc;
 	WSADATA     wsaData;
-	HANDLE		hDLL;
+	HMODULE		hDLL;
 	INT			iErrno;
+	WINSOCK_CATALOG Catalog;
 
 	void EnumProtocols();
+	BOOL isValidCatalogID(UINT CatalogID);
+	BOOL WSPAPI GetGUID();
 public:
 
-	BOOL Install();
+	BOOL Install(UINT CatalogIDs[]);
+	BOOL Uninstall();
 
 	cLSPInstall(CHAR* DLLPath);
 	~cLSPInstall();
 
 	INT		LSPError;
 	BOOL	ReadyInstall;
+	GUID*	LSPGuid;
 
 	LPWSAPROTOCOL_INFOW ProtocolsInfo;
 	UINT nProtocolsInfo;

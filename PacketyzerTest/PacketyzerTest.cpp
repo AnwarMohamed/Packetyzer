@@ -32,10 +32,16 @@ INT main(INT argc, CHAR* argv[])
 	
 	cLSPInstall* lspinstall = new cLSPInstall("PacketyzerLSP.dll");
 	
+	UINT Catalogs[] = {1001, 1002};
+	lspinstall->Install(Catalogs);
+
+	cout << lspinstall->LSPGuid << endl;
+	lspinstall->Uninstall();
+
 	if (lspinstall->ReadyInstall)
 	{
 
-		wprintf(L"WSCEnumProtocols succeeded with protocol count = %d\n\n", lspinstall->nProtocolsInfo);
+		//wprintf(L"WSCEnumProtocols succeeded with protocol count = %d\n\n", lspinstall->nProtocolsInfo);
 
 		for (UINT i = 0; i < lspinstall->nProtocolsInfo; i++) 
 		{
@@ -50,14 +56,14 @@ INT main(INT argc, CHAR* argv[])
 
 			wprintf(L"Protocol:\t\t\t %ws\n", lspinstall->ProtocolsInfo[i].szProtocol);
 
-			iRet =  StringFromGUID2(lspinstall->ProtocolsInfo[i].ProviderId,(LPOLESTR) & GuidString, 39);
+			//iRet =  StringFromGUID2(lspinstall->ProtocolsInfo[i].ProviderId,(LPOLESTR)&GuidString, 39);
 
-			if (iRet == 0) wprintf(L"StringFromGUID2 failed\n");
-			else wprintf(L"Provider ID:\t\t\t %ws\n", GuidString);
+			//if (iRet == 0) wprintf(L"StringFromGUID2 failed\n");
+			//else wprintf(L"Provider ID:\t\t\t %ws\n", GuidString);
 
 			wprintf(L"Catalog Entry ID:\t\t %u\n", lspinstall->ProtocolsInfo[i].dwCatalogEntryId);
 
-			wprintf(L"Version:\t\t\t %d\n", lspinstall->ProtocolsInfo[i].iVersion);
+			/*wprintf(L"Version:\t\t\t %d\n", lspinstall->ProtocolsInfo[i].iVersion);
 
 			wprintf(L"Address Family:\t\t\t %d\n",
 					lspinstall->ProtocolsInfo[i].iAddressFamily);
@@ -89,7 +95,7 @@ INT main(INT argc, CHAR* argv[])
 					lspinstall->ProtocolsInfo[i].dwProviderFlags);
 
 			wprintf(L"Protocol Chain length:\t\t %d\n",
-					lspinstall->ProtocolsInfo[i].ProtocolChain.ChainLen);
+					lspinstall->ProtocolsInfo[i].ProtocolChain.ChainLen);*/
 
 			wprintf(L"\n");
 		}

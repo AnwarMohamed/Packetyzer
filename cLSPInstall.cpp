@@ -28,6 +28,13 @@ cLSPInstall::cLSPInstall(CHAR* DLLPath)
 	ProtocolsInfo = NULL;
 	nProtocolsInfo = 0;
 	ReadyInstall = FALSE;
+	LSPGuid = new GUID;
+
+#ifdef _WIN64
+    Catalog = LspCatalog64Only;
+#else
+    Catalog = LspCatalog32Only;
+#endif
 
     rc = WSAStartup( MAKEWORD(2,2), &wsaData );
     if ( 0 != rc )
@@ -44,6 +51,12 @@ cLSPInstall::cLSPInstall(CHAR* DLLPath)
 	}
 
 	fprintf(stdout, "%s loaded at 0x%x\n", DLLPath, (PHANDLE)hDLL);
+
+	if (!GetGUID())
+	{
+		LSPError = LSP_ERROR_GETLSPGUID;
+		return;
+	}
 	EnumProtocols();
 	ReadyInstall = TRUE;
 }
@@ -55,10 +68,14 @@ cLSPInstall::~cLSPInstall()
 		FREE(ProtocolsInfo);
 		ProtocolsInfo = NULL;
 	}
+
+	//if(NULL != hDLL)
+	//	FreeLibrary(hDLL);
+
 	WSACleanup();
 }
 
-BOOL cLSPInstall::Install()
+BOOL cLSPInstall::Install(UINT CatalogIDs[])
 {
 	return TRUE;
 }
@@ -127,16 +144,101 @@ void cLSPInstall::EnumProtocols()
                 WSACleanup();
                 return;
 			} else nProtocolsInfo = rc;
-
         }
     } else nProtocolsInfo = rc;
+}
 
-    
+BOOL cLSPInstall::isValidCatalogID(UINT CatalogID)
+{
+	if (!ReadyInstall) return FALSE;
+	for (UINT i=0; i<nProtocolsInfo; i++) 
+		if(CatalogID == ProtocolsInfo->dwCatalogEntryId) 
+			return TRUE;
+	return FALSE;
+}
 
+BOOL cLSPInstall::Uninstall()
+{
 
+#ifdef _WIN64
+    if (LspCatalogBoth == Catalog)
+    {
+        // Remove from 64-bit catalog
+        rc = WSCDeinstallProvider(LSPGuid, &iErrno);
+        if (SOCKET_ERROR == rc)
+        {
+            fprintf(stderr, "DeinstallProvider: WSCDeinstallProvider failed: %d\n", iErrno );
+			return FALSE;
+        }
 
+        // Remove from the 32-bit catalog
+        rc = WSCDeinstallProvider32(Guid, &iErrno);
+        if (SOCKET_ERROR == rc)
+        {
+            fprintf( stderr, "DeinstallProvider: WSCDeinstallProvider32 failed: %d\n", iErrno);
+			return FALSE;
+        }
+    }
+    else if (LspCatalog64Only == Catalog)
+    {
+        // Remove from 64-bit catalog
+        rc = WSCDeinstallProvider(LSPGuid, &iErrno);
+        if (SOCKET_ERROR == rc)
+        {
+            fprintf( stderr, "DeinstallProvider: WSCDeinstallProvider failed: %d\n", iErrno);
+			return FALSE;
+        }
+    }
+    else
+    {
+        // Remove from the 32-bit catalog
+        rc = WSCDeinstallProvider32(LSPGuid, &iErrno);
+        if (SOCKET_ERROR == rc)
+        {
+            fprintf(stderr, "DeinstallProvider: WSCDeinstallProvider32 failed: %d\n", iErrno);
+			return FALSE;
+        }
+    }
+#else
+    if (LspCatalog32Only == Catalog)
+    {
+        // Remove from the 32-bit catalog
+        rc = WSCDeinstallProvider(LSPGuid, &iErrno);
+        if (SOCKET_ERROR == rc)
+		{
+            fprintf( stderr, "DeinstallProvider: WSCDeinstallProvider failed: %d\n", iErrno);
+			return FALSE;
+		}
+    }
+    else
+    {
+        fprintf( stderr, "Unable to remove providers in 64-bit catalog from 32-bit process!\n" );
+        return FALSE;
+    }
+#endif
 
+	EnumProtocols();
+    return TRUE;
+}
 
+BOOL WSPAPI cLSPInstall::GetGUID()
+{
+    LPFN_GETLSPGUID fnGetLspGuid = NULL;
 
+    fnGetLspGuid = (LPFN_GETLSPGUID) GetProcAddress( hDLL, "GetLspGuid" );
+    if (NULL == fnGetLspGuid)
+    {
+        fprintf( stderr, "RetrieveLspGuid: GetProcAddress failed: %d\n", GetLastError());
+        goto cleanup;
+    }
 
+    fnGetLspGuid(LSPGuid);
+    return TRUE;
+
+cleanup:
+
+    if ( NULL != hDLL )
+        FreeLibrary( hDLL );
+
+    return FALSE;
 }
