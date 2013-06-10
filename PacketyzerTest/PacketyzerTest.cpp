@@ -33,17 +33,18 @@ INT main(INT argc, CHAR* argv[])
 	cLSPInstall* lspinstall = new cLSPInstall("PacketyzerLSP.dll");
 	
 	UINT Catalogs[] = {1001, 1002};
-	lspinstall->Install(Catalogs);
 
-	cout << lspinstall->LSPGuid << endl;
-	lspinstall->Uninstall();
+	lspinstall->Install(Catalogs, "Packetyzer LSP",FALSE, FALSE, LspCatalog32Only);
+
+	//cout << lspinstall->LSPGuid << endl;
+	lspinstall->UninstallAll();
 
 	if (lspinstall->ReadyInstall)
 	{
 
 		//wprintf(L"WSCEnumProtocols succeeded with protocol count = %d\n\n", lspinstall->nProtocolsInfo);
 
-		for (UINT i = 0; i < lspinstall->nProtocolsInfo; i++) 
+		for (UINT i = 0; i < lspinstall->nProtocols; i++) 
 		{
 			wprintf(L"Winsock Catalog Provider Entry #%d\n", i);
 			wprintf(L"----------------------------------------------------------\n");
@@ -63,18 +64,18 @@ INT main(INT argc, CHAR* argv[])
 
 			wprintf(L"Catalog Entry ID:\t\t %u\n", lspinstall->ProtocolsInfo[i].dwCatalogEntryId);
 
-			/*wprintf(L"Version:\t\t\t %d\n", lspinstall->ProtocolsInfo[i].iVersion);
+			wprintf(L"Version:\t\t\t %d\n", lspinstall->ProtocolsInfo[i].iVersion);
 
 			wprintf(L"Address Family:\t\t\t %d\n",
 					lspinstall->ProtocolsInfo[i].iAddressFamily);
-			wprintf(L"Max Socket Address Length:\t %d\n",
-					lspinstall->ProtocolsInfo[i].iMaxSockAddr);
-			wprintf(L"Min Socket Address Length:\t %d\n",
-					lspinstall->ProtocolsInfo[i].iMinSockAddr);
+			//wprintf(L"Max Socket Address Length:\t %d\n",
+			//		lspinstall->ProtocolsInfo[i].iMaxSockAddr);
+			//wprintf(L"Min Socket Address Length:\t %d\n",
+			//		lspinstall->ProtocolsInfo[i].iMinSockAddr);
 
 			wprintf(L"Socket Type:\t\t\t %d\n", lspinstall->ProtocolsInfo[i].iSocketType);
 			wprintf(L"Socket Protocol:\t\t %d\n", lspinstall->ProtocolsInfo[i].iProtocol);
-			wprintf(L"Socket Protocol Max Offset:\t %d\n",
+			/*wprintf(L"Socket Protocol Max Offset:\t %d\n",
 					lspinstall->ProtocolsInfo[i].iProtocolMaxOffset);
 
 			wprintf(L"Network Byte Order:\t\t %d\n",
