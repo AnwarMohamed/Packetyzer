@@ -32,11 +32,12 @@ INT main(INT argc, CHAR* argv[])
 	
 	cLSPInstall* lspinstall = new cLSPInstall("PacketyzerLSP.dll");
 	
-	UINT Catalogs[] = {1001, 1002};
+	UINT Catalogs[] = {1008};
 
 	lspinstall->Install(Catalogs, "Packetyzer LSP",FALSE, FALSE, LspCatalog32Only);
 
 	//cout << lspinstall->LSPGuid << endl;
+	system("PAUSE");
 	lspinstall->UninstallAll();
 
 	if (lspinstall->ReadyInstall)

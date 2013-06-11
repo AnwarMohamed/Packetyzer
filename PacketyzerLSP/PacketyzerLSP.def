@@ -1,0 +1,4 @@
+LIBRARY    PacketyzerLSP
+EXPORTS   
+	WSPStartup
+	GetLspGuid

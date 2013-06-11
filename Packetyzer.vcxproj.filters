@@ -84,6 +84,9 @@
     <ClCompile Include="LSPCommon\provider.cpp">
       <Filter>Source Files\LSPCommon</Filter>
     </ClCompile>
+    <ClCompile Include="cLSP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cFile.h">
@@ -154,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="LSPCommon\lspcommon.h">
       <Filter>Header Files\LSPCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="cLSP.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

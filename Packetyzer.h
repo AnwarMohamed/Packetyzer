@@ -79,6 +79,7 @@ namespace Packetyzer
 	{
 		class cWinpcapCapture;
 		class cLSPInstall;
+		class cLSP;
 	}
 
 	namespace Send
@@ -110,5 +111,6 @@ namespace Packetyzer
 
 #include "cWinpcapCapture.h"
 #include "cLSPInstall.h"
+#include "cLSP.h"
 
 #include "cWinpcapSend.h"
