@@ -81,11 +81,11 @@
     <ClCompile Include="cLSPInstall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LSPCommon\provider.cpp">
-      <Filter>Source Files\LSPCommon</Filter>
-    </ClCompile>
     <ClCompile Include="cLSP.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LSPCommon\provider.cpp">
+      <Filter>Header Files\LSPCommon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

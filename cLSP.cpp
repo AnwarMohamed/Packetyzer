@@ -22,6 +22,8 @@
 
 using namespace Packetyzer::Capture;
 
+//* CLASS TO BE CODED LATER */
+
 cLSP::cLSP(LPGUID Guid, UCHAR LSPType)
 {
 	memset(&LSPGuid, 0, sizeof(GUID));
@@ -37,16 +39,3 @@ void cLSP::GetGuid(LPGUID Guid)
 	memcpy_s(Guid, sizeof(GUID), &LSPGuid, sizeof(GUID));
 }
 
-BOOL cLSP::DLLMain()
-{
-	return TRUE;
-}
-
-INT WSPAPI cLSP::Startup(	_In_   WORD wVersionRequested,  
-						_Out_  LPWSPDATA lpWSPData,  
-						_In_   LPWSAPROTOCOL_INFO lpProtocolInfo,
-						_In_   WSPUPCALLTABLE UpcallTable,  
-						_Out_  LPWSPPROC_TABLE lpProcTable)
-{
-	return 0;
-}

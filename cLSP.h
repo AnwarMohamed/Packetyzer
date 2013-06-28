@@ -24,19 +24,13 @@
 #define LSP_NONIFS	0x00
 #define	LSP_IFS		0x01
 
+//* CLASS TO BE CODED LATER */
+
 class DLLEXPORT Packetyzer::Capture::cLSP
 {
 public:
-
 	void SetGuid(LPGUID Guid);
 	void GetGuid(LPGUID Guid);
-
-	BOOL DLLMain();
-	INT WSPAPI Startup(	_In_   WORD wVersionRequested,  
-					_Out_  LPWSPDATA lpWSPData,  
-					_In_   LPWSAPROTOCOL_INFO lpProtocolInfo,
-					_In_   WSPUPCALLTABLE UpcallTable,  
-					_Out_  LPWSPPROC_TABLE lpProcTable);
 
 	cLSP(LPGUID Guid, UCHAR LSPType);
 	~cLSP();
@@ -44,3 +38,4 @@ public:
 	GUID LSPGuid;
 };
 
+//* CLASS TO BE CODED LATER */
