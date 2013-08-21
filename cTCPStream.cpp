@@ -31,9 +31,7 @@ cTCPStream::cTCPStream()
 	//Segmented = FALSE;
 }
 
-cTCPStream::~cTCPStream() 
-{
-}
+cTCPStream::~cTCPStream() {}
 
 BOOL cTCPStream::Identify(cPacket* Packet) { return Packet->isTCPPacket; }
 
@@ -51,10 +49,10 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 			if (!CheckPacket(Packet)) return FALSE;
 			//if (PushProtocol(Packet)) { Segmented = TRUE; return TRUE; }
 
-			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+			//nActivePackets++;
 			nPackets++;
+			Packets = (cPacket**)realloc((void*)Packets, /*nActivePackets*/ nPackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(/*nActivePackets*/ nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 			AnalyzeProtocol();
 			return TRUE;
@@ -66,10 +64,11 @@ BOOL cTCPStream::AddPacket(cPacket* Packet)
 		if (!CheckPacket(Packet)) return FALSE;
 		//if (PushProtocol(Packet)) { Segmented = TRUE; return TRUE; }
 
-		nActivePackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+		//nActivePackets++;
 		nPackets++;
+		Packets = (cPacket**)realloc((void*)Packets, /*nActivePackets*/ nPackets * sizeof(cPacket*));
+		memcpy((void**)&Packets[(/*nActivePackets*/ nPackets-1)], (void**)&Packet, sizeof(cPacket*));
+
 
 		if (Packets[0]->hasEtherHeader)
 		{

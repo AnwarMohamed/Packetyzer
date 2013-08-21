@@ -18,7 +18,6 @@
  *
  */
 
-//#include "cWinpcapSend.h"
 #include "Packetyzer.h"
 
 using namespace Packetyzer::Send;
@@ -65,4 +64,5 @@ BOOL cWinpcapSend::InitializeAdapters()
 cWinpcapSend::~cWinpcapSend()
 {
 	pcap_freealldevs(alldevs);
+	free(Adapters);
 }

@@ -34,7 +34,7 @@ public:
 
 	cPacket**	Packets;
 	UINT		nPackets;
-	UINT		nActivePackets;
+	//UINT		nActivePackets;
 
 	virtual BOOL	AddPacket(cPacket* Packet);
 	BOOL	ClearActivePackets(UINT NumberToBeKeeped);

@@ -32,7 +32,6 @@ cTraffic::cTraffic()
 
 BOOL cTraffic::AddPacket(cPacket* Packet, time_t TimeStamp)
 {
-	cConnection* TmpConnection = NULL;
 
 	if (nConnections > 0)
 	{
@@ -49,6 +48,7 @@ BOOL cTraffic::AddPacket(cPacket* Packet, time_t TimeStamp)
 					if (cTCPStream::Identify(Packet))
 					{
 						if (cHTTPStream::Identify(Packet))
+							//TmpConnection = new cConnection();
 							TmpConnection = new cHTTPStream();
 						else
 							TmpConnection = new cTCPStream();	 
@@ -58,15 +58,18 @@ BOOL cTraffic::AddPacket(cPacket* Packet, time_t TimeStamp)
 					else if (cUDPStream::Identify(Packet))
 					{
 						if (cDNSStream::Identify(Packet))
-							TmpConnection = new cDNSStream();	 
+							TmpConnection = new cDNSStream();
+
 						else 
 							TmpConnection = new cUDPStream();
 					}
 				}
 				else if (cICMPStream::Identify(Packet))
 					TmpConnection = new cICMPStream();	
+
 				else if (cARPStream::Identify(Packet))
 					TmpConnection = new cARPStream();
+
 				else 
 					TmpConnection = new cConnection();	
 			}
@@ -80,6 +83,7 @@ BOOL cTraffic::AddPacket(cPacket* Packet, time_t TimeStamp)
 			if (cTCPStream::Identify(Packet))
 			{
 				if (cHTTPStream::Identify(Packet))
+					//TmpConnection = new cConnection();
 					TmpConnection = new cHTTPStream();
 				else
 					TmpConnection = new cTCPStream();	 
@@ -91,6 +95,7 @@ BOOL cTraffic::AddPacket(cPacket* Packet, time_t TimeStamp)
 
 				if (cDNSStream::Identify(Packet))
 					TmpConnection = new cDNSStream();	 
+
 				else 
 					TmpConnection = new cUDPStream();
 
@@ -100,16 +105,17 @@ BOOL cTraffic::AddPacket(cPacket* Packet, time_t TimeStamp)
 		
 		else if (cICMPStream::Identify(Packet))
 			TmpConnection = new cICMPStream();
+
 		else if (cARPStream::Identify(Packet))
 			TmpConnection = new cARPStream();
+		
 		else 
 			TmpConnection = new cConnection();	
 
 	}
 
 	TmpConnection->AddPacket(Packet);	
-	nConnections++;
-	Connections = (cConnection**)realloc(Connections, nConnections * sizeof(cConnection*));
+	Connections = (cConnection**)realloc(Connections, ++nConnections * sizeof(cConnection*));
 	memcpy(&Connections[nConnections-1],&TmpConnection, sizeof(cConnection*));
 	return TRUE;
 }

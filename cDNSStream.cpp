@@ -26,8 +26,6 @@ using namespace Packetyzer::Traffic::Streams;
 cDNSStream::cDNSStream()
 {
 	DNSHeader = NULL;
-	DNSQuery = NULL;
-	QueryResponse = NULL;
 	ResponseBase = NULL;
 
 	RequestedDomain = NULL;
@@ -35,6 +33,10 @@ cDNSStream::cDNSStream()
 	nResolvedIPs = 0;
 	DomainIsFound = FALSE;
 	Requester = NULL;
+
+	DNSQuery = new QUERY;
+	DNSQuery->Name = NULL;
+	QueryResponse = new RES_RECORD;
 }
 
 BOOL cDNSStream::Identify(cPacket* Packet)
@@ -55,10 +57,9 @@ BOOL cDNSStream::AddPacket(cPacket* Packet)
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
 				ClientPort == ntohs(Packet->UDPHeader->DestinationPort) && ServerPort == ntohs(Packet->UDPHeader->SourcePort)) )
 		{
-			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 			nPackets++;
+			Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 			AnalyzeProtocol();
 			return TRUE;
@@ -67,10 +68,9 @@ BOOL cDNSStream::AddPacket(cPacket* Packet)
 	}
 	else
 	{
-		nActivePackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 		nPackets++;
+		Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+		memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 		isIPConnection = Packet->isIPPacket;
 		isTCPConnection = Packet->isTCPPacket;
@@ -102,10 +102,7 @@ BOOL cDNSStream::AddPacket(cPacket* Packet)
 void cDNSStream::AnalyzeProtocol()
 {
 	DNSHeader = (DNS_HEADER*)Packets[nPackets-1]->UDPData;
-	
-	UINT NameSize = strlen((const char*)DNSHeader + sizeof(DNS_HEADER)) + 1;
-
-	DNSQuery = new QUERY;
+	NameSize = strlen((const char*)DNSHeader + sizeof(DNS_HEADER)) + 1;
 	DNSQuery->Ques = (QUESTION*)((UCHAR*)DNSHeader + sizeof(DNS_HEADER) + NameSize);
 
 	if (Requester == NULL && DNSHeader->QRFlag == 0)
@@ -113,7 +110,7 @@ void cDNSStream::AnalyzeProtocol()
 
 	if (RequestedDomain == NULL)
 	{
-		UINT current = 0,offset = 0;
+		current = 0, offset = 0;
 		DNSQuery->Name = (UCHAR*)malloc(NameSize * sizeof(UCHAR)); 
 		memset(DNSQuery->Name, 0, NameSize * sizeof(UCHAR));
 		strcpy_s((char*)DNSQuery->Name, NameSize, ((const char*)DNSHeader + sizeof(DNS_HEADER)));
@@ -129,23 +126,17 @@ void cDNSStream::AnalyzeProtocol()
 				memcpy(DNSQuery->Name, (UCHAR*)DNSQuery->Name +1, NameSize - 1);
 				DNSQuery->Name = (UCHAR*)realloc(DNSQuery->Name, (NameSize - 1) * sizeof(UCHAR));
 				RequestedDomain = DNSQuery->Name;
-				//printf("%s\n", RequestedDomain);
 				break;
 			}
 		}
-	} //else cout << RequestedDomain << endl;
+	}
 
 	if (DNSHeader->QRFlag == 1 && ResolvedIPs == NULL)
 	{
 		ResponseBase = (UCHAR*)(DNSQuery->Ques)  + sizeof(QUESTION);
-	
-		//for (UINT i=0; i< Packets[nPackets-1]->UDPDataSize; i++) printf("%02x ", (UCHAR*)(ResponseBase)[i]);
-		//cout << endl;
 
-		QueryResponse = new RES_RECORD;
-		
-		UINT current = 0, step = 0;	R_DATA* DNSResponse = NULL;
-		for (UINT i=0; i< ntohs(DNSHeader->ANSCount); i++)
+		current = 0, step = 0;
+		for (i=0; i< ntohs(DNSHeader->ANSCount); i++)
 		{
 			QueryResponse->Resource = (R_DATA*)((UCHAR*)ResponseBase + sizeof(USHORT) + step);
 
@@ -157,9 +148,6 @@ void cDNSStream::AnalyzeProtocol()
 				ResolvedIPs = (UINT*)realloc(ResolvedIPs, nResolvedIPs* sizeof(UINT));
 				memcpy(&ResolvedIPs[nResolvedIPs - 1], (void*)(&QueryResponse->Resource->DataLength + 1), sizeof(UINT));
 				DomainIsFound = TRUE;
-
-				//UCHAR* ip = (UCHAR*)&ResolvedIPs[nResolvedIPs - 1];
-				//printf("%u.%u.%u.%u\n", ip[0], ip[1], ip[2], ip[3]);	
 			}
 		}
 	}
@@ -167,6 +155,12 @@ void cDNSStream::AnalyzeProtocol()
 
 cDNSStream::~cDNSStream()
 {
+	if (DNSQuery->Name != NULL)
+		free(DNSQuery->Name);
+
+	if (ResolvedIPs != NULL)
+		free(ResolvedIPs);
+
 	delete DNSQuery;
 	delete QueryResponse;
 }

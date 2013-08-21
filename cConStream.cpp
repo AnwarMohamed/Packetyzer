@@ -43,10 +43,9 @@ BOOL cConStream::AddPacket(cPacket* Packet)
 		if ( ((ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress) ||
 			 (ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress)) )
 		{
-			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 			nPackets++;
+			Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 			return TRUE;
 		}
@@ -54,10 +53,9 @@ BOOL cConStream::AddPacket(cPacket* Packet)
 	}
 	else
 	{
-		nActivePackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 		nPackets++;
+		Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+		memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 		isIPConnection = Packet->isIPPacket;
 		isTCPConnection = Packet->isTCPPacket;

@@ -19,8 +19,6 @@
  */
 
 #include "Packetyzer.h"
-//#include "cWinpcapCapture.h"
-//#include "cPacket.h"
 #include <iostream>
 #include <string>
 
@@ -94,4 +92,5 @@ BOOL cWinpcapCapture::CapturePackets(UINT AdapterIndex, UINT MaxNumOfPackets, co
 cWinpcapCapture::~cWinpcapCapture()
 {
 	pcap_freealldevs(alldevs);
+	free(Adapters);
 };

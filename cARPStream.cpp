@@ -19,7 +19,6 @@
  */
 
 #include "Packetyzer.h"
-//#include "cARPStream.h"
 
 using namespace Packetyzer::Traffic::Streams;
 
@@ -50,10 +49,9 @@ BOOL cARPStream::AddPacket(cPacket* Packet)
 
 	if (nPackets == 0)
 	{
-		nActivePackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 		nPackets++;
+		Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+		memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 		if (ntohs(Packets[0]->ARPHeader->OperationCode) == ARPOP_REQUEST)
 		{
@@ -90,10 +88,10 @@ BOOL cARPStream::AddPacket(cPacket* Packet)
 				(	RequestedMACIP == Packet->ARPHeader->SourceProtocolAddress &&
 					RequesterIP == Packet->ARPHeader->TargetProtocolAddress )))
 		{
-			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
+
 			nPackets++;
+			Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 			AnalyzeProtocol();
 			return TRUE;

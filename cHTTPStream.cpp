@@ -19,14 +19,12 @@
  */
 
 #include <iostream>
-#include <regex>
 #include "Packetyzer.h"
 
 using namespace std;
 using namespace std::tr1;
 using namespace Packetyzer::Traffic::Streams;
 
-//typedef match_results<const char*> cmatch;
 const CHAR head[][5] = {"GET", "POST", "HEAD", "HTTP"};
 
 cHTTPStream::cHTTPStream()
@@ -43,12 +41,11 @@ cHTTPStream::cHTTPStream()
 
 	nRequests = 0;
 	Requests = (REQUEST*)malloc(nRequests * sizeof(REQUEST)); 
-
 };
 
 BOOL cHTTPStream::Identify(cPacket* Packet)
 {
-	if (!Packet->isTCPPacket /*|| Packet->TCPDataSize == 0*/) return FALSE;
+	if (!Packet->isTCPPacket) return FALSE;
 	if (ntohs(Packet->TCPHeader->DestinationPort) != 80 && ntohs(Packet->TCPHeader->SourcePort) != 80) return FALSE;
 	return TRUE;
 }
@@ -57,9 +54,6 @@ BOOL cHTTPStream::CheckPacket(cPacket* Packet) { return Identify(Packet); }
 
 void cHTTPStream::AnalyzeProtocol()
 {
-	CHAR* RegxData;	
-	UINT RegxDataSize;		
-	cmatch RegxResult;		
 
 	if (Packets[nPackets - 1]->TCPDataSize > 0 && 
 		CheckType(Packets[nPackets - 1]->TCPData))
@@ -68,17 +62,18 @@ void cHTTPStream::AnalyzeProtocol()
 		RegxDataSize = Packets[nPackets - 1]->TCPDataSize;
 	}	else return;
 	
+	
 	if (CheckType(Packets[nPackets - 1]->TCPData))
 	{
 		/* check new cookies */
 		if (regex_search(RegxData, RegxResult, regex("Set-Cookie:\\s(.*?)\\r\\n")))
 		{
-			cString* Cookie = new cString(string(RegxResult[1]).c_str());
+			Cookie = new cString(string(RegxResult[1]).c_str());
 			Cookies = (cString**)realloc(Cookies, (nCookies + 1) * sizeof(cString*));
 			memcpy(&Cookies[nCookies], &Cookie, sizeof(cString*));
 			nCookies++;
 		}
-
+		
 		/* get user-agent */
 		if (UserAgent == NULL && regex_search(RegxData, RegxResult, regex("User-Agent:\\s(.*?)\\r\\n")))
 			UserAgent = new cString(string(RegxResult[1]).c_str());
@@ -162,10 +157,35 @@ void cHTTPStream::AnalyzeProtocol()
 			ArgumentBuffer = strtok (NULL, "&");
 		}
 	}*/
+
+	//RegxResult.empty();
 }
 
 cHTTPStream::~cHTTPStream() 
 {
+	if (Cookies != NULL) {
+		for (UINT i=0; i<nCookies; i++)
+			delete Cookies[i];
+		free(Cookies);
+	}
+
+	if (Requests != NULL)
+		free(Requests);
+
+	if (Files != NULL) {
+		for (UINT i=0; i<nFiles; i++)
+			delete Files[i];
+		free(Files);
+	}
+
+	if (UserAgent != NULL)
+		delete UserAgent;
+
+	if (Referer != NULL)
+		delete Referer;
+
+	if (ServerType != NULL)
+		delete ServerType;
 
 };
 

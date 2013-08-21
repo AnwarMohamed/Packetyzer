@@ -348,14 +348,14 @@ struct R_DATA
 struct RES_RECORD
 {
 	UCHAR *Name;
-    struct R_DATA *Resource;
+    R_DATA *Resource;
     UCHAR *RData;
 };
       
 typedef struct
 {
     UCHAR *Name;
-    struct QUESTION *Ques;
+    QUESTION *Ques;
 } QUERY;
 
 

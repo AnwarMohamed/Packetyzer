@@ -29,6 +29,8 @@ private:
 	RES_RECORD* QueryResponse;
 	UCHAR* ResponseBase;
 
+	UINT NameSize;
+	UINT current,offset, step, i;
 	void AnalyzeProtocol();
 public:
 	static BOOL Identify(cPacket* Packet);

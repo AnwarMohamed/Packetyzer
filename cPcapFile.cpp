@@ -40,44 +40,34 @@ BOOL cPcapFile::ProcessPCAP(UINT Options)
 	PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(BaseAddress + sizeof(PCAP_GENERAL_HEADER));
 	psize = psize + PCAP_Packet_Header->incl_len;
 	
+	/* parse each packet*/
+	UINT fsize = 0;
+	UINT lsize = 0;
+
 	/* getting number of packets inside file */
 	for(UINT i=1; PCAP_Packet_Header->incl_len !=0 ;i++)
 	{
 		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER) * i) + psize);
 		psize = psize + PCAP_Packet_Header->incl_len;
-		nPackets = nPackets + 1;
-	}
+		nPackets++;
 
-	/* parse each packet*/
-	UINT fsize = 0;
-	UINT lsize = 0;
 
-	Packets = (cPacket**)malloc(sizeof(cPacket*) * nPackets);
-	for (UINT i=0; i < nPackets; i++)
-	{
-		DWORD PBaseAddress = (BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER)*(i+1)) + fsize);
-		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER)*(i)) + fsize);
+		PBaseAddress = (BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER)*(nPackets)) + fsize);
+		PCAP_Packet_Header = (PCAP_PACKET_HEADER*)(BaseAddress + sizeof(PCAP_GENERAL_HEADER) + (sizeof(PCAP_PACKET_HEADER)*(nPackets-1)) + fsize);
 		
 		fsize = fsize + PCAP_Packet_Header->incl_len;
-		UINT PSize = PCAP_Packet_Header->incl_len;
+		PSize = PCAP_Packet_Header->incl_len;
 		
 		Packet = new cPacket((UCHAR*)PBaseAddress,PSize, PCAP_Packet_Header->ts_sec + PCAP_Packet_Header->ts_usec/1000000, 
 			PCAP_General_Header->network, (Options & CPCAP_OPTIONS_MALFORM_CHECK) ? CPACKET_OPTIONS_MALFORM_CHECK : CPACKET_OPTIONS_NONE);
-		memcpy(&Packets[i],&Packet,sizeof(cPacket*));
+
+		Traffic->AddPacket(Packet, Packet->Timestamp);
 	}
 
-	GetStreams();
 	return true;
 };
 
 cPcapFile::~cPcapFile()
 {
 	delete Traffic;
-	free(Packets);
-};
-
-void cPcapFile::GetStreams()
-{
-	for (UINT i=0; i<nPackets; i++)
-		Traffic->AddPacket(Packets[i], Packets[i]->Timestamp);
 };

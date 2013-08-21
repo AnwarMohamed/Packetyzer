@@ -46,10 +46,10 @@ BOOL cUDPStream::AddPacket(cPacket* Packet)
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress &&
 				ClientPort == ntohs(Packet->UDPHeader->DestinationPort) && ServerPort == ntohs(Packet->UDPHeader->SourcePort)) )
 		{
-			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 			nPackets++;
+			Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
+			
 
 			return TRUE;
 		}
@@ -57,11 +57,10 @@ BOOL cUDPStream::AddPacket(cPacket* Packet)
 	}
 	else
 	{
-		nActivePackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-		memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
 		nPackets++;
-
+		Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+		memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
+		
 		isIPConnection = Packet->isIPPacket;
 		isTCPConnection = Packet->isTCPPacket;
 		isUDPConnection = Packet->isUDPPacket;

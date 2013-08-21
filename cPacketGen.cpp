@@ -27,6 +27,8 @@ using namespace Packetyzer::Generators;
 cPacketGen::cPacketGen(UINT type)
 {
 	GeneratedPacketSize = 0;
+	GeneratedPacket = NULL;
+
 	if (type == GENERATE_TCP)
 	{
 		PacketType = GENERATE_TCP;
@@ -307,7 +309,8 @@ BOOL cPacketGen::CustomizeICMP(UCHAR icmp_type, UCHAR icmp_code, UCHAR* icmp_dat
 
 cPacketGen::~cPacketGen()
 {
-
+	if (GeneratedPacket != NULL)
+		free(GeneratedPacket);
 };
 
 UINT cPacketGen::IPToLong(const CHAR ip[]) {

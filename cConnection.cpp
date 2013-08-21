@@ -25,15 +25,14 @@ using namespace Packetyzer::Traffic::Connections;
 
 cConnection::cConnection()
 {
-	nActivePackets = 0;
 	nPackets = 0;
 	isIPConnection = FALSE;
-	Packets = (cPacket**)malloc(nActivePackets * sizeof(cPacket*));
+	Packets = (cPacket**)malloc(nPackets * sizeof(cPacket*));
 };
 
 cConnection::~cConnection()
 {
-	for (UINT i=0; i<nActivePackets; i++) delete Packets[i];
+	for (UINT i=0; i<nPackets; i++) delete Packets[i];
 	free(Packets);
 };
 
@@ -42,11 +41,10 @@ BOOL cConnection::AddPacket(cPacket* Packet)
 	if (!CheckPacket(Packet)) return FALSE;
 	if (nPackets == 0)
 	{
-		nActivePackets++;
-		Packets = (cPacket**)realloc(Packets, nActivePackets * sizeof(cPacket*));
-		memcpy(&Packets[(nActivePackets-1)], &Packet, sizeof(cPacket*));
-		isIPConnection = Packet->isIPPacket;
 		nPackets++;
+		Packets = (cPacket**)realloc(Packets, nPackets * sizeof(cPacket*));
+		memcpy(&Packets[( nPackets-1)], &Packet, sizeof(cPacket*));
+		isIPConnection = Packet->isIPPacket;	
 		return AnalyzePackets();
 	}
 	else
@@ -63,11 +61,10 @@ BOOL cConnection::AddPacket(cPacket* Packet)
 				(	memcmp(&ServerMAC, &Packet->EthernetHeader->SourceHost, ETHER_ADDR_LEN) == 0 &&
 					memcmp(&ClientMAC, &Packet->EthernetHeader->DestinationHost, ETHER_ADDR_LEN) == 0))))
 		{
-			nActivePackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nActivePackets * sizeof(cPacket*));
-			memcpy((void**)&Packets[(nActivePackets-1)], (void**)&Packet, sizeof(cPacket*));
-			isIPConnection = Packet->isIPPacket;
 			nPackets++;
+			Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+			memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
+			isIPConnection = Packet->isIPPacket;
 			return AnalyzePackets();
 		}
 		else return FALSE;
@@ -99,19 +96,20 @@ BOOL cConnection::AnalyzePackets()
 
 BOOL cConnection::ClearActivePackets(UINT NumberToBeKeeped)
 {
-	if (NumberToBeKeeped > 0 && NumberToBeKeeped <= nActivePackets)
+	if (NumberToBeKeeped > 0 && NumberToBeKeeped <= nPackets)
 	{
-		memcpy(Packets, &Packets[nActivePackets - NumberToBeKeeped], NumberToBeKeeped * sizeof(cPacket*));
+		for (UINT i=0; i<nPackets - NumberToBeKeeped; i++) delete Packets[i];
+		memcpy(Packets, &Packets[nPackets - NumberToBeKeeped], NumberToBeKeeped * sizeof(cPacket*));
 		Packets = (cPacket**)realloc(Packets, NumberToBeKeeped * sizeof(cPacket*));
-		nActivePackets = ++nActivePackets - NumberToBeKeeped;
+		nPackets = NumberToBeKeeped;
 		return true;
 	}
 	else if (NumberToBeKeeped == 0)
 	{
-		for (UINT i=0; i<nActivePackets; i++) delete Packets[i];
+		for (UINT i=0; i<nPackets; i++) delete Packets[i];
 		free(Packets);
-		nActivePackets = 0;
-		Packets = (cPacket**)malloc(nActivePackets * sizeof(cPacket*));
+		nPackets = 0;
+		Packets = (cPacket**)malloc(nPackets * sizeof(cPacket*));
 		return true;
 	}
 	else return false;

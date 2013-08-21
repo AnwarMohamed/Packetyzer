@@ -50,11 +50,14 @@ class DLLEXPORT Packetyzer::Analyzers::cPcapFile : public Packetyzer::Elements::
 
 	BOOL ProcessPCAP(UINT Options);
 	void GetStreams();
+	
+	UINT PSize;
+	DWORD PBaseAddress;
 
 public:
 
 	UINT nPackets;
-	cPacket** Packets;
+	//cPacket** Packets;
 
 	BOOL FileLoaded;
 

@@ -27,20 +27,20 @@ using namespace std;
 
 INT main(INT argc, CHAR* argv[])
 {
-	int iRet = 0;
-    WCHAR GuidString[40] = { 0 };
+	//int iRet = 0;
+    //WCHAR GuidString[40] = { 0 };
 	
-	cLSPInstall* lspinstall = new cLSPInstall("PacketyzerLSP.dll");
+	//cLSPInstall* lspinstall = new cLSPInstall("PacketyzerLSP.dll");
 	
-	UINT Catalogs[] = {1008};
+	//UINT Catalogs[] = {1008};
 
-	lspinstall->Install(Catalogs, "Packetyzer LSP",FALSE, FALSE, LspCatalog32Only);
+	//lspinstall->Install(Catalogs, "Packetyzer LSP",FALSE, FALSE, LspCatalog32Only);
 
 	//cout << lspinstall->LSPGuid << endl;
-	system("PAUSE");
-	lspinstall->UninstallAll();
+	//system("PAUSE");
+	//lspinstall->UninstallAll();
 
-	if (lspinstall->ReadyInstall)
+	/*if (lspinstall->ReadyInstall)
 	{
 
 		//wprintf(L"WSCEnumProtocols succeeded with protocol count = %d\n\n", lspinstall->nProtocolsInfo);
@@ -99,11 +99,11 @@ INT main(INT argc, CHAR* argv[])
 			wprintf(L"Protocol Chain length:\t\t %d\n",
 					lspinstall->ProtocolsInfo[i].ProtocolChain.ChainLen);*/
 
-			wprintf(L"\n");
+			/*wprintf(L"\n");
 		}
 	}
 
-	delete lspinstall;
+	delete lspinstall;*/
 
 
 	/*printf(	"\n +----------------------------------------------------+\n"
@@ -282,21 +282,24 @@ INT main(INT argc, CHAR* argv[])
 	
 	//ULONGLONG begin = GetTickCount64(); 
 	
+	//cFile* file = new cFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
+	//cout << sizeof(cFile) << endl;
+	//delete file;
 
-	//cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
+	cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
 	/*for (UINT i=0; i < pckts->nPackets; i++)*/ 
 	/*cout << pckts->Packets[4]->PacketError << endl;
 	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;
 	pckts->Packets[4]->FixTCPChecksum();
-	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;
-	//delete pckts;
-	ULONGLONG end = GetTickCount64();
+	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;*/
+	delete pckts;
+	/*ULONGLONG end = GetTickCount64();
 	printf(" %lld millisecond(s)\n", end-begin);*/
 
 	//cPcapFile *pckts = new cPcapFile("D:\\Downloads\\dns.cap", CPACKET_OPTIONS_MALFORM_CHECK);
 	//for (UINT i=0; i < pckts->nPackets; i++)
 	//	cout << pckts->Packets[i]->PacketError << " ";
-	//pckts->Traffic->Connections[0]->ClearActivePackets(0);
+	//pckts->Traffic->Connections[0]->ClearActivePackets(1);
 	//cout << pckts->Traffic->Connections[0]->Packets[0]->hasSLLHeader << endl;
 	//delete pckts;
 

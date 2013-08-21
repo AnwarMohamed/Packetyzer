@@ -40,7 +40,6 @@ cICMPStream::cICMPStream()
 
 cICMPStream::~cICMPStream()
 {
-
 }
 
 BOOL cICMPStream::Identify(cPacket* Packet)
@@ -52,16 +51,15 @@ BOOL cICMPStream::AddPacket(cPacket* Packet)
 {
 	if (!Identify(Packet)) return FALSE;
 
-	if (nActivePackets > 0)
+	if (nPackets > 0)
 	{
 		if ( (	ServerIP == Packet->IPHeader->DestinationAddress && ClientIP == Packet->IPHeader->SourceAddress ) ||
 			 (	ClientIP == Packet->IPHeader->DestinationAddress && ServerIP == Packet->IPHeader->SourceAddress ) )
 		{
-			nActivePackets++;
-			Packets = (cPacket**)realloc(Packets, nActivePackets * sizeof(cPacket*));
-			memcpy(&Packets[(nActivePackets-1)], &Packet, sizeof(cPacket*));
 			nPackets++;
-
+			Packets = (cPacket**)realloc(Packets, nPackets * sizeof(cPacket*));
+			memcpy(&Packets[(nPackets-1)], &Packet, sizeof(cPacket*));
+			
 			AnalyzeProtocol();
 			return TRUE;
 		}
@@ -69,10 +67,9 @@ BOOL cICMPStream::AddPacket(cPacket* Packet)
 	}
 	else
 	{
-		nActivePackets++;
-		Packets = (cPacket**)realloc(Packets, nActivePackets * sizeof(cPacket*));
-		memcpy(&Packets[(nActivePackets-1)], &Packet, sizeof(cPacket*));
 		nPackets++;
+		Packets = (cPacket**)realloc(Packets, nPackets * sizeof(cPacket*));
+		memcpy(&Packets[(nPackets-1)], &Packet, sizeof(cPacket*));
 
 		isIPConnection = Packet->isIPPacket; 
 

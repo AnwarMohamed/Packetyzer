@@ -26,6 +26,7 @@ using namespace Packetyzer::Traffic::Connections;
 
 class DLLEXPORT Packetyzer::Traffic::Connections::cTraffic
 {
+	cConnection* TmpConnection;
 public:
 	UINT nConnections;
 	cConnection** Connections;

@@ -20,22 +20,32 @@
 
 #pragma once
 #include "Packetyzer.h"
+#include <string>
+#include <regex>
 
+using namespace std::tr1;
+using namespace std;
 using namespace Packetyzer::Traffic::Connections;
 
 struct REQUEST
 {
 	UCHAR*	RequestType;
-	cString*	Address;
-	cHash*		Arguments;
-	UINT		ReplyNumber;
+	string*	Address;
+	cHash*	Arguments;
+	UINT	ReplyNumber;
 };
 
 class DLLEXPORT Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::Traffic::Streams::cTCPStream
 {
 	BOOL CheckType(UCHAR* buffer);
 	void AnalyzeProtocol();
-	BOOL CheckPacket(cPacket* Packet);
+	BOOL CheckPacket(cPacket* Packet);	
+
+	CHAR* RegxData;	
+	UINT RegxDataSize;
+	cmatch RegxResult;
+	cString* Cookie;
+
 public:
 
 	static BOOL Identify(cPacket* Packet);
