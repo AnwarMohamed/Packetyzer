@@ -26,57 +26,33 @@ using namespace Packetyzer::Analyzers;
 
 class DLLEXPORT Packetyzer::Traffic::Connections::cTCPReassembler
 {
-	typedef std::map<UINT, cPacket*> cpacket_map;
-	typedef std::pair<UINT, cPacket*> cpacket_pair;
-
-	struct DATA_PACKAGE
+	struct DATASTREAM
 	{
-		BOOL Syn;
-		BOOL SynAck;
-		BOOL sAck;
-		BOOL fPush;
-		BOOL lPush;
-
-		UINT Sequence;
-		UINT Acknowledge;
-
-		cpacket_map *PacketSequences;
+		UCHAR* Pointer;
+		UINT Size;
 	}; 
 
-	struct DATA_EXTRACT
-	{
-		UCHAR*		Buffer;
-		UINT		Size;
-		cPacket**	Packets;
-		UINT		nPackets;
-	};
-
-	void ReassembleAll(UINT id);
-	BOOL CheckPacket(cPacket* Packet);
-
-	UINT	ClientIP;
-	UINT	ServerIP; 
-	USHORT ClientPort;
-	USHORT ServerPort;
-
-	DATA_PACKAGE* DataPackages;
-	UINT nDataPackages;
-
-	cHash DataTable;
+	map<UINT, DATASTREAM*>::iterator DataStreamIterator;
+	map<UINT, DATASTREAM*> DataStream;
+	UCHAR* Stream;
+	UINT PositionPointer;
+	DATASTREAM* DataStreamContainer;
 
 public:
 
-	DATA_EXTRACT* ExtractedData;
-	UINT nExtractedData;
-
 	BOOL AddPacket(cPacket* Packet);
-	BOOL FullSegments;
+	BOOL isReassembled;
+	BOOL BelongsToStream(cPacket* Packet);
 
-	cTCPReassembler(void);
-	~cTCPReassembler(void);
+	UCHAR* GetReassembledStream();
+
+	cTCPReassembler(cPacket* Packet, UINT TotalLength, UINT BodySize);
+	~cTCPReassembler();
+
+	cPacket* RefPacket;
+	UINT TotalSize, CurrentSize;
 
 	void Empty();
-	static BOOL Identify(cPacket* Packet);
-	void UpdateData(UCHAR* Data, UINT DataSize, UINT TableID);
+	static BOOL Identify(cPacket* Packet, UINT AssumendDataSize);
 };
 

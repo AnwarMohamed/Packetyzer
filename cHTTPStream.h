@@ -30,25 +30,44 @@ using namespace Packetyzer::Traffic::Connections;
 struct REQUEST
 {
 	UCHAR*	RequestType;
-	string*	Address;
+	cString*	Address;
 	cHash*	Arguments;
 	UINT	ReplyNumber;
 };
 
 class DLLEXPORT Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::Traffic::Streams::cTCPStream
 {
-	BOOL CheckType(UCHAR* buffer);
+	static BOOL CheckType(UCHAR* buffer);
 	void AnalyzeProtocol();
 	BOOL CheckPacket(cPacket* Packet);	
 
 	CHAR* RegxData;	
 	UINT RegxDataSize;
 	cmatch RegxResult;
-	cString* Cookie;
 
+	cString* Cookie;
+	CHAR* ArgumentBuffer;
+	char* main;
+	char* buffer; 
+	UINT pos;
+	UINT content_length;
+
+	cmatch TmpRegxResult;
+	UINT TmpContentLength;
+	UINT TmpHTTPBodySize;
+
+	cFile* ExtFile;
+	UINT length, i;
+
+	cTCPReassembler* Reassembler;
+	void ExtractFile(cPacket* Packet);
 public:
 
+
+
 	static BOOL Identify(cPacket* Packet);
+	static UCHAR* GetHttpHeader(cPacket* Packet, UINT *EndPos);
+	BOOL NeedsReassembly(cPacket* Packet, UINT* ContentLength);
 
 	cHTTPStream();
 	virtual ~cHTTPStream();

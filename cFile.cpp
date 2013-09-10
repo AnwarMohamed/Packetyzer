@@ -24,6 +24,7 @@ using namespace Packetyzer::Elements;
 
 cFile::cFile(char* szFilename)
 {
+	IsReassembled = FALSE;
 	Attributes = GetFileAttributes(/*(LPCWSTR)*/szFilename);
     hFile = CreateFileA(szFilename,
                         GENERIC_READ,
@@ -76,6 +77,7 @@ cFile::cFile(char* buffer,DWORD size)
 	Attributes = NULL;
 	Filename = NULL;
 	IsFile = FALSE;
+	IsReassembled = TRUE;
 }
 cFile::~cFile()
 {
@@ -84,5 +86,15 @@ cFile::~cFile()
 		UnmapViewOfFile((LPVOID)BaseAddress);
 		CloseHandle(hMapping);
 		CloseHandle(hFile);
+	}
+
+	if (!IsFile && IsReassembled && BaseAddress != NULL)
+	{
+		try {
+			//delete (DWORD*)BaseAddress;
+		}
+		catch (int){
+			//free((DWORD*)BaseAddress);
+		}
 	}
 }

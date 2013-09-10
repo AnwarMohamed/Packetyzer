@@ -17,4 +17,5 @@ public:
 	cFile(char* buffer,DWORD size);
 	int OpenFile(char* szFilename);
 	~cFile();
+	BOOL		IsReassembled;
 };

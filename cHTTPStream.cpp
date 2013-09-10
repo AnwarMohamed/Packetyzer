@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include "Packetyzer.h"
+#include <string>
+#include <fstream>
 
 using namespace std;
 using namespace std::tr1;
@@ -41,6 +43,8 @@ cHTTPStream::cHTTPStream()
 
 	nRequests = 0;
 	Requests = (REQUEST*)malloc(nRequests * sizeof(REQUEST)); 
+
+	Reassembler = NULL;
 };
 
 BOOL cHTTPStream::Identify(cPacket* Packet)
@@ -54,21 +58,22 @@ BOOL cHTTPStream::CheckPacket(cPacket* Packet) { return Identify(Packet); }
 
 void cHTTPStream::AnalyzeProtocol()
 {
-
 	if (Packets[nPackets - 1]->TCPDataSize > 0 && 
-		CheckType(Packets[nPackets - 1]->TCPData))
+		(CheckType(Packets[nPackets - 1]->TCPData) ||
+		Reassembler != NULL))
 	{
 		RegxData = (CHAR*)Packets[nPackets - 1]->TCPData;
 		RegxDataSize = Packets[nPackets - 1]->TCPDataSize;
+
+		ExtractFile(Packets[nPackets - 1]);
 	}	else return;
-	
-	
+		
 	if (CheckType(Packets[nPackets - 1]->TCPData))
 	{
 		/* check new cookies */
 		if (regex_search(RegxData, RegxResult, regex("Set-Cookie:\\s(.*?)\\r\\n")))
 		{
-			Cookie = new cString(string(RegxResult[1]).c_str());
+			Cookie = new cString(RegxResult[1].str().c_str());
 			Cookies = (cString**)realloc(Cookies, (nCookies + 1) * sizeof(cString*));
 			memcpy(&Cookies[nCookies], &Cookie, sizeof(cString*));
 			nCookies++;
@@ -76,104 +81,130 @@ void cHTTPStream::AnalyzeProtocol()
 		
 		/* get user-agent */
 		if (UserAgent == NULL && regex_search(RegxData, RegxResult, regex("User-Agent:\\s(.*?)\\r\\n")))
-			UserAgent = new cString(string(RegxResult[1]).c_str());
+			UserAgent = new cString(RegxResult[1].str().c_str());
 
 		/* get server */
 		if (ServerType == NULL && regex_search(RegxData, RegxResult, regex("Server:\\s(.*?)\\r\\n")))
-			ServerType = new cString(string(RegxResult[1]).c_str());
+			ServerType = new cString(RegxResult[1].str().c_str());
 
 		/* get referer */
 		if (Referer == NULL && regex_search(RegxData, RegxResult, regex("Referer:\\s(.*?)\\r\\n")))
-			Referer = new cString(string(RegxResult[1]).c_str());
-
-		/* check cfile */
-		/*if (regex_search(RegxData, RegxResult, regex("HTTP/(...)\\s(.*?)\\r\\n")) &&
-			string(RegxResult[2]) == "200 OK" &&
-			Packets[nPackets - 1]->TCPHeader->PushFlag == 1 &&
-			Packets[nPackets - 1]->TCPHeader->AcknowledgmentFlag == 1 &&
-			regex_search(RegxData, RegxResult, regex("Content-Type:\\s(.*?)\\r\\n")) &&
-			string(RegxResult[1]).find("application/x-javascript") == string::npos &&
-			string(RegxResult[1]).find("text/css") == string::npos &&
-			string(RegxResult[1]).find("text/javascript") == string::npos &&
-			string(RegxResult[1]).find("text/html") == string::npos &&
-			regex_search(RegxData, RegxResult, regex("Content-Length:\\s(.*?)\\r\\n")) )
-		{
-			UINT length = atoi(string(RegxResult[1]).c_str());
-			Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
-			cFile* ExtFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
-			memcpy(&Files[nFiles], &ExtFile, sizeof(cFile*));
-			nFiles++;
-		}*/
+			Referer = new cString(RegxResult[1].str().c_str());
 	}
-
+	
 	/* check requests */
-	/*if (regex_search(data.c_str(), res, regex("GET\\s(.*?)\\s(.*?)\\r\\n")) ||
-		regex_search(data.c_str(), res, regex("POST\\s(.*?)\\s(.*?)\\r\\n")))
+	if (regex_search(RegxData, RegxResult, regex("GET\\s(.*?)\\s(.*?)\\r\\n")) ||
+		regex_search(RegxData, RegxResult, regex("POST\\s(.*?)\\s(.*?)\\r\\n")))
 	{
 		nRequests ++;
 		Requests = (REQUEST*)realloc(Requests, nRequests * sizeof(REQUEST));
 		memset(&Requests[nRequests - 1], 0, sizeof(REQUEST)); 
 
-		Requests[nRequests - 1].Address = new cString(string(res[1]).c_str());
+		Requests[nRequests - 1].Address = new cString(RegxResult[1].str().c_str());
 		Requests[nRequests - 1].Arguments = new cHash();
 
-		CHAR* ArgumentBuffer;*/
+		ArgumentBuffer = NULL;
 
 		/* parse for get */
-		/*if (memcmp(string(res[0]).c_str(), &head[0], strlen((const char*)head[0])) == 0)
+		if (memcmp(RegxResult[0].str().c_str(), &head[0], strlen((const char*)head[0])) == 0)
 		{
-			Requests[nRequests-1].RequestType = (UCHAR*)(head[0]);*/
+			Requests[nRequests-1].RequestType = (UCHAR*)(head[0]);
 			
 			/* parse arguments */
-			/*char* main; int i=0;
 			main = strtok(Requests[nRequests-1].Address->GetChar(),"?");
 			main = strtok(NULL,"?");	
 			ArgumentBuffer = strtok(main,"&");
-		}*/
+		}
 
 		/* parse for post */
-		/*else if (memcmp(string(res[0]).c_str(), &head[1], strlen((const char*)head[1])) == 0)
+		else if (memcmp(RegxResult[0].str().c_str(), &head[1], strlen((const char*)head[1])) == 0)
 		{
 			Requests[nRequests-1].RequestType = (UCHAR*)(head[1]);
 			
-			if (regex_search(data.c_str(), res, regex("Content-Type:\\s(.*?)\\r\\n")) &&
-				string(res[1]).find("application/x-www-form-urlencoded") != string::npos &&
-				regex_search(data.c_str(), res, regex("Content-Length:\\s(.*?)\\r\\n")) )
+			if (regex_search(RegxData, RegxResult, regex("Content-Type:\\s(.*?)\\r\\n")) &&
+				RegxResult[1].str().find("application/x-www-form-urlencoded") != string::npos &&
+				string(RegxData).find("Content-Length:") != string::npos &&
+				regex_search(RegxData, RegxResult, regex("Content-Length:\\s(.*?)\\r\\n")))
 			{
-				UINT content_length = atoi(string(res[1]).c_str());
-				//cout << content_length << "\t" << data_size << endl;
-				CHAR* buffer = (CHAR*)(data.c_str()) + data_size - content_length;
-				ArgumentBuffer = strtok((CHAR*)(data.c_str()) - content_length ,"&");
+				content_length = atoi(RegxResult[1].str().c_str());
+				ArgumentBuffer = (CHAR*)(RegxData) + RegxDataSize - content_length;
 			}
 		}
-
+	
 		while (ArgumentBuffer != NULL)
 		{
-			UINT pos = string(ArgumentBuffer).find("=");
+			pos = string(ArgumentBuffer).find("=");
 			if (pos != string::npos)
 				Requests[nRequests - 1].Arguments->AddItem(cString(string(ArgumentBuffer).erase(pos, string(ArgumentBuffer).size() - pos).c_str()), cString(string(ArgumentBuffer + pos + 1).c_str()));
 			else
 				Requests[nRequests - 1].Arguments->AddItem(cString(string(ArgumentBuffer).c_str()), cString("None"));
 			ArgumentBuffer = strtok (NULL, "&");
 		}
-	}*/
+	}
 
-	//RegxResult.empty();
+	RegxResult.empty();
+}
+
+void cHTTPStream::ExtractFile(cPacket* Packet)
+{
+	if (!NeedsReassembly(Packets[nPackets - 1], &length))
+	{
+		if (Reassembler != NULL &&
+			/*Reassembler->BelongsToStream(Packets[nPackets - 1]) &&*/
+			Reassembler->AddPacket(Packets[nPackets - 1]) &&
+			Reassembler->isReassembled)
+		{
+			Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
+			ExtFile = new cFile((CHAR*)Reassembler->GetReassembledStream(), Reassembler->TotalSize);
+			ExtFile->IsReassembled = TRUE;
+			memcpy(&Files[nFiles], &ExtFile, sizeof(cFile*));
+			nFiles++;
+
+			delete Reassembler;
+			Reassembler = NULL;
+		}
+		else if (regex_search(RegxData, RegxResult, regex("Content-Type:\\s(.*?)\\r\\n")) &&
+			RegxResult[1].str().find("application/x-javascript") == string::npos &&
+			RegxResult[1].str().find("text/css") == string::npos &&
+			RegxResult[1].str().find("text/javascript") == string::npos &&
+			RegxResult[1].str().find("text/html") == string::npos &&
+			regex_search(RegxData, RegxResult, regex("Content-Length:\\s(.*?)\\r\\n")))
+		{
+			length = atoi(RegxResult[1].str().c_str());
+
+			if (length > 0) {
+				Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
+				ExtFile = new cFile((CHAR*)Packets[nPackets-1]->TCPData[Packets[nPackets-1]->TCPDataSize-length], length);
+				memcpy(&Files[nFiles], &ExtFile, sizeof(cFile*));
+				nFiles++;
+			}
+		}
+	}
+	else 
+	{
+		if (Reassembler == NULL) 
+			Reassembler = new cTCPReassembler(Packets[nPackets - 1], length, Packets[nPackets - 1]->TCPDataSize - TmpHTTPBodySize);
+	}
 }
 
 cHTTPStream::~cHTTPStream() 
 {
 	if (Cookies != NULL) {
-		for (UINT i=0; i<nCookies; i++)
+		for (i=0; i<nCookies; i++)
 			delete Cookies[i];
 		free(Cookies);
 	}
 
-	if (Requests != NULL)
+	if (Requests != NULL) {
+		for (i=0; i<nRequests; i++) {
+			delete Requests[i].Address;
+			delete Requests[i].Arguments;
+		}
 		free(Requests);
+	}
 
 	if (Files != NULL) {
-		for (UINT i=0; i<nFiles; i++)
+		for (i=0; i<nFiles; i++)
 			delete Files[i];
 		free(Files);
 	}
@@ -187,6 +218,8 @@ cHTTPStream::~cHTTPStream()
 	if (ServerType != NULL)
 		delete ServerType;
 
+	if (Reassembler != NULL)
+		delete Reassembler;
 };
 
 BOOL cHTTPStream::CheckType(UCHAR* buffer)
@@ -196,4 +229,38 @@ BOOL cHTTPStream::CheckType(UCHAR* buffer)
 			return TRUE;
 
 	return FALSE;
+}
+
+BOOL cHTTPStream::NeedsReassembly(cPacket* Packet, UINT* ContentLength)
+{
+	*ContentLength = 0;
+	if (regex_search(
+			(CHAR*)Packet->TCPData, 
+			TmpRegxResult, 
+			regex("Content-Length:\\s(.*?)\\r\\n")) &&
+			GetHttpHeader(Packet, &TmpHTTPBodySize) != NULL &&
+			TmpHTTPBodySize != NULL) 
+	{
+		TmpContentLength = atoi(TmpRegxResult[1].str().c_str());
+		length = Packet->TCPDataSize - TmpHTTPBodySize;
+		if (TmpContentLength > length) {
+			*ContentLength = TmpContentLength;
+			return TRUE;
+		}
+		else return FALSE;
+	}
+	else return false;
+}
+
+UCHAR* cHTTPStream::GetHttpHeader(cPacket* Packet, UINT *EndPos)
+{
+	*EndPos = string((CHAR*)Packet->TCPData).find("\r\n\r\n");
+	if (*EndPos == string::npos)
+	{
+		*EndPos = NULL;
+		return NULL;
+	}
+
+	*EndPos += 4;
+	return Packet->TCPData;
 }

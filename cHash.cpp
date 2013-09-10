@@ -29,6 +29,11 @@ cHash::cHash()
 };
 cHash::~cHash()
 {
+	for (UINT i=0; i<nItems; i++)
+	{
+		delete HashArray[i].Name;
+		delete HashArray[i].Value;
+	}
 
 	free(HashArray);
 };

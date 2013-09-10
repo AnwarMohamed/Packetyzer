@@ -286,7 +286,8 @@ INT main(INT argc, CHAR* argv[])
 	//cout << sizeof(cFile) << endl;
 	//delete file;
 
-	cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
+	cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\file1.pcap");
+	//cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
 	/*for (UINT i=0; i < pckts->nPackets; i++)*/ 
 	/*cout << pckts->Packets[4]->PacketError << endl;
 	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;

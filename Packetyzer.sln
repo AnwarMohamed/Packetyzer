@@ -8,16 +8,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketyzerTest", "Packetyze
 		{68699F7C-9D1C-43C8-B680-F825115EB795} = {68699F7C-9D1C-43C8-B680-F825115EB795}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirusTotal-Checker", "VirusTotal-Checker\VirusTotal-Checker.vcxproj", "{83775B67-96DB-4FFA-8338-20EECC6370F7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{68699F7C-9D1C-43C8-B680-F825115EB795} = {68699F7C-9D1C-43C8-B680-F825115EB795}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketyzerLSP", "PacketyzerLSP\PacketyzerLSP.vcxproj", "{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{68699F7C-9D1C-43C8-B680-F825115EB795} = {68699F7C-9D1C-43C8-B680-F825115EB795}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -42,22 +32,6 @@ Global
 		{480984FC-B9FB-4314-A218-A439E399A124}.Release|Win32.Build.0 = Release|Win32
 		{480984FC-B9FB-4314-A218-A439E399A124}.Release|x64.ActiveCfg = Release|x64
 		{480984FC-B9FB-4314-A218-A439E399A124}.Release|x64.Build.0 = Release|x64
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Debug|Win32.ActiveCfg = Debug|Win32
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Debug|Win32.Build.0 = Debug|Win32
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Debug|x64.ActiveCfg = Debug|x64
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Debug|x64.Build.0 = Debug|x64
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Release|Win32.ActiveCfg = Release|Win32
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Release|Win32.Build.0 = Release|Win32
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Release|x64.ActiveCfg = Release|x64
-		{83775B67-96DB-4FFA-8338-20EECC6370F7}.Release|x64.Build.0 = Release|x64
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Debug|Win32.Build.0 = Debug|Win32
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Debug|x64.ActiveCfg = Debug|x64
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Debug|x64.Build.0 = Debug|x64
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Release|Win32.ActiveCfg = Release|Win32
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Release|Win32.Build.0 = Release|Win32
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Release|x64.ActiveCfg = Release|x64
-		{CF41CA24-E07F-444B-B4C4-1ABEC258E9BD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
