@@ -23,12 +23,15 @@
 
 using namespace Packetyzer::Analyzers;
 using namespace Packetyzer::Capture;
+using namespace Packetyzer::Send;
+using namespace Packetyzer::Generators;
+using namespace Packetyzer::Traffic::Streams;
 using namespace std;
 
 INT main(INT argc, CHAR* argv[])
 {
 	//int iRet = 0;
-    //WCHAR GuidString[40] = { 0 };
+	//WCHAR GuidString[40] = { 0 };
 	
 	//cLSPInstall* lspinstall = new cLSPInstall("PacketyzerLSP.dll");
 	
@@ -106,7 +109,7 @@ INT main(INT argc, CHAR* argv[])
 	delete lspinstall;*/
 
 
-	/*printf(	"\n +----------------------------------------------------+\n"
+	printf(	"\n +----------------------------------------------------+\n"
 			" +               Packetyzer Unit Tests                +\n"
 			" +----------------------------------------------------+\n\n");
 
@@ -186,85 +189,99 @@ INT main(INT argc, CHAR* argv[])
 
 	TestPacket = new cPacket((UCHAR*)SLL_IP, sizeof(SLL_IP), NULL, LINKTYPE_LINUX_SLL);
 	printf(" [+] Testing SLL Packet of size %d \t%s\n", TestPacket->PacketSize, TestPacket->hasSLLHeader ? "OK":"FAILED");
-	delete(TestPacket);*/
+	delete(TestPacket);
 
-	/*cPcapFile* TestFile = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\example.pcap");
-	printf(	"\n [*] Packets in pcap file:  (%s)\n" " -------------------------\n", TestFile->FileLoaded? TestFile->Filename:"FILE NOT LOADED");
-
-	printf(	" [+] Filesize %d\n" " [+] %d Packets are parsed\n"	" [+] %d Conversations are stacked\n",		
-			TestFile->FileLength, TestFile->nPackets, TestFile->Traffic.nConnections);
-	
-	printf(	" [+] Using %s link header\n", TestFile->nPackets == 0?"No": TestFile->Packets[0]->hasEtherHeader? "Ethernet":"SLL" );
 
 	ULONGLONG begin = GetTickCount64(); 
-	for (INT i=0; i<TestFile->nPackets; i++) { fflush(stdout); }
+	cPcapFile* TestFile = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\example.pcap");
+	printf(	"\n [*] Packets in pcap file:  (%s)\n" " -------------------------\n", 
+			TestFile->FileLoaded? TestFile->Filename:"FILE NOT LOADED");
+
+	printf(	" [+] Filesize %d\n" " [+] %d Packets are parsed\n"	" [+] %d Conversations are stacked\n",		
+			TestFile->FileLength, TestFile->nPackets, TestFile->Traffic->nConnections);
+
 	ULONGLONG end = GetTickCount64();
+	printf(" [+] %d packets loaded in %lld millisecond(s)\n", TestFile->nPackets, end-begin);
 
-	printf(" [+] Iteratted through %d packets in %lld millisecond(s)\n",TestFile->nPackets, end-begin);*/
 
+	UCHAR buffer[] = {
+		0x00,0x1c,0xc0,0xe6,0xa2,0xab,0x00,0x24,0x2b,0x32,0xc3,0x55,0x08,0x00,
+		0x45,0x00,0x00,0x34,0xc5,0x47,0x40,0x00,0x40,0x06,/*0x61*/ 0x55,0x6a,0x0a,0x00,
+		0x00,0x09,0x0a,0x00,0x00,0x0a,0x90,0x1b,0x0d,0x3d,0x15,0x94,0x78,0x2a,
+		0x01,0xd5,0x41,0x7d,0x80,0x10,0x08,0xa5,/*0xd6*/ 0x44,0x23,0x00,0x00,0x01,0x01,
+		0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
+	};
 
-	//UCHAR buffer[] = {
-	//	0x00,0x1c,0xc0,0xe6,0xa2,0xab,0x00,0x24,0x2b,0x32,0xc3,0x55,0x08,0x00,
-	//	0x45,0x00,0x00,0x34,0xc5,0x47,0x40,0x00,0x40,0x06,/*0x61*/ 0x55,0x6a,0x0a,0x00,
-	//	0x00,0x09,0x0a,0x00,0x00,0x0a,0x90,0x1b,0x0d,0x3d,0x15,0x94,0x78,0x2a,
-	//	0x01,0xd5,0x41,0x7d,0x80,0x10,0x08,0xa5,/*0xd6*/ 0x44,0x23,0x00,0x00,0x01,0x01,
-	//	0x08,0x0a,0x00,0x34,0xb5,0x6d,0x00,0xe3,0x5e,0xf4 
-	//};
-
-	/*cWinpcapSend send;
-
+	cWinpcapSend send;
 	if (send.isReady)
 	{
-		cout << "cWinpcapSend initialised" << endl;
+		cout << "\n [*] cWinpcapSend is initialised" << endl;
 
 		cPacket tmp((UCHAR*)buffer, sizeof(buffer));
 		if (send.SendPacket(3, &tmp)) 
-			cout << endl << "Packet was sent" << endl;
+			cout << " [+] Packet of size " << sizeof(buffer) << " bytes is sent" << endl;
 		else
-			cout << "Packet wasnot sent" << endl;
-	}*/
-
-	/*cWinpcapCapture capture;
-	for (UINT i=0; i< capture.nAdapters; i++)
-	{
-		cout << capture.Adapters[i].Name << endl;
-		cout << capture.Adapters[i].ID << endl << endl;
+			cout << " [x] Packet is not sent" << endl;
 	}
 
-	UINT Packets = 5;
-	if (!capture.CapturePackets(6,Packets, "ip and tcp "))
+	cWinpcapCapture capture;
+	if (capture.isReady) 
 	{
-		cout << "Failed to capture" << endl;
-		system("PAUSE");
-		return FALSE;
+		cout << "\n [*] cWinpcapCapture is initialised" << endl;
+
+		cout << "\n [*] Available Network Adapters:\n" << 
+			" -------------------------------" << endl;
+		for (UINT i=0; i< capture.nAdapters; i++)
+		{
+			cout << " [+] " << capture.Adapters[i].Name << endl;
+			cout << "     " << capture.Adapters[i].ID << endl;
+		}
+
+
 	}
 
-	cout << "Captured Packets: " << capture.nCapturedPackets << endl;
+	cPacketGen PG(GENERATE_TCP);
+	cout << "\n [*] cPacketGen is initialised" << endl;
 
-	cout << capture.Traffic.nConnections << endl;*/
+	PG.SetMACAddress("00:1d:60:b3:01:84","00:26:62:2f:47:87");
+	PG.SetIPAddress("192.168.1.104","174.143.213.184");
+	PG.SetPorts(57678, 80);
+
+	UCHAR options[11] = { 0x01,0x01,0x08,0x0a,0x00,0xd4,0x6d,0xde,0x00,0xa3,0x31,/*0xae*/ };
+	UCHAR data[10] = "Test Case";
+
+	if (PG.CustomizeTCP((UCHAR*)options, sizeof(options), data, sizeof(data), TCP_SYN))
+		cout << " [+] TCP Packet is ready"  << endl;
+	if (PG.CustomizeUDP(data, sizeof(data)))
+		cout << " [+] UDP Packet is ready"  << endl;
+	if (PG.CustomizeICMP(3,0,data, sizeof(data)))
+		cout << " [+] ICMP Packet is ready"  << endl;
+
+	cout << "     ";
+	for (UINT i=0; i< PG.GeneratedPacketSize; i++) {
+		printf("%02x ", PG.GeneratedPacket[i]);
+		if ((i+1)%16 ==  0 && i != 0)
+			cout << endl << "     ";
+	}
+
+
+	//cout << "Captured Packets: " << capture.nCapturedPackets << endl;
+
+	//cout << capture.Traffic.nConnections << endl;
 	/*for (UINT j=0; j<capture.nCapturedPackets; j++)
 		if (capture.CapturedPackets[j].TCPDataSize > 0) 
 			cout << capture.CapturedPackets[j].TCPData << endl;*/
 
-	/*cPacketGen PG(GENERATE_ARP);
-
-	PG.SetMACAddress("00:1d:60:b3:01:84","00:26:62:2f:47:87");
-	PG.SetIPAddress("192.168.1.104","174.143.213.184");
-	PG.SetPorts(57678, 80);*/
-
-	//UCHAR options[11] = { 0x01,0x01,0x08,0x0a,0x00,0xd4,0x6d,0xde,0x00,0xa3,0x31,/*0xae*/ };
-	/*UCHAR data[10] = "Test Case";
-
-	if (PG.CustomizeTCP((UCHAR*)options, sizeof(options),data, sizeof(data), TCP_SYN))
-		cout << "TCP Packet is ready"  << endl;
-	if (PG.CustomizeUDP(data, sizeof(data)))
-		cout << "UDP Packet is ready"  << endl;
-	if (PG.CustomizeICMP(3,0,data, sizeof(data)))
-		cout << "ICMP Packet is ready"  << endl;
+	
+	/*UINT Packets = 5;
+	if (!capture.CapturePackets(2,Packets, "ip and tcp "))
+	{
+		cout << "Failed to capture" << endl;
+		system("PAUSE");
+		return FALSE;
+	}*/
 
 
-	for (UINT i=0; i< PG.GeneratedPacketSize; i++) 
-		printf("%02x ", PG.GeneratedPacket[i]);*/
 
 	/*cPacket gen_packet;
 	gen_packet.GeneratePacket("192.168.1.140","174.143.213.184",GENERATE_TCP,57678,80,NULL,"00:1d:60:b3:01:84","00:26:62:2f:47:87");
@@ -286,14 +303,14 @@ INT main(INT argc, CHAR* argv[])
 	//cout << sizeof(cFile) << endl;
 	//delete file;
 
-	cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\file1.pcap");
+	//cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\file1.pcap");
 	//cPcapFile *pckts = new cPcapFile("H:\\Github\\Packetyzer\\Debug\\test1.pcap");
 	/*for (UINT i=0; i < pckts->nPackets; i++)*/ 
 	/*cout << pckts->Packets[4]->PacketError << endl;
 	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;
 	pckts->Packets[4]->FixTCPChecksum();
 	cout << (USHORT*)pckts->Packets[4]->TCPHeader->Checksum << endl;*/
-	delete pckts;
+	//delete pckts;
 	/*ULONGLONG end = GetTickCount64();
 	printf(" %lld millisecond(s)\n", end-begin);*/
 
@@ -343,11 +360,11 @@ INT main(INT argc, CHAR* argv[])
 	{
 		strm.AddPacket((cPacket*)&pckt);
 		strm.ClearActivePackets(1);
-		cout << strm.nActivePackets << endl;
+		cout << strm.nPackets << endl;
 		cout << (PDWORD)strm.Packets[0]->IPHeader->Checksum << endl;
 		strm.Packets[0]->FixIPChecksum();
 		cout << (PDWORD)strm.Packets[0]->IPHeader->Checksum << endl;
-		/*cout << "IP Checksum\t";
+		cout << "IP Checksum\t";
 		cout << hex << (PDWORD)pckt.IPHeader->Checksum << "\t";
 		pckt.FixIPChecksum();
 		cout << hex << (PDWORD)pckt.IPHeader->Checksum << endl;
