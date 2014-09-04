@@ -20,7 +20,7 @@
 
 #pragma once
 #include "Packetyzer.h"
-
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <ws2spi.h>
@@ -312,3 +312,4 @@ public:
 	LPWSAPROTOCOL_INFOW ProtocolsInfo;
 	UINT nProtocols;
 };
+#endif

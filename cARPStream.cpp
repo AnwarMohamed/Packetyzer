@@ -20,6 +20,11 @@
 
 #include "Packetyzer.h"
 
+#ifndef _WIN32
+#include <netinet/in.h>
+#include <stdlib.h>
+#endif
+
 using namespace Packetyzer::Traffic::Streams;
 
 cARPStream::cARPStream()
@@ -50,17 +55,17 @@ BOOL cARPStream::AddPacket(cPacket* Packet)
 	if (nPackets == 0)
 	{
 		nPackets++;
-		Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+		Packets = (cPacket**)realloc((void*)Packets, (unsigned long int)(nPackets * sizeof(cPacket*)));
 		memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
-		if (ntohs(Packets[0]->ARPHeader->OperationCode) == ARPOP_REQUEST)
+		if (ntohs((unsigned short int)(Packets[0]->ARPHeader->OperationCode)) == ARPOP_REQUEST)
 		{
 			RequestedMACIP = Packets[0]->ARPHeader->TargetProtocolAddress;
 
 			RequesterIP = Packets[0]->ARPHeader->SourceProtocolAddress;
 			memcpy(&RequesterMAC, &Packets[0]->ARPHeader->SourceHardwareAddress, ETHER_ADDR_LEN);
 		}
-		else if (ntohs(Packets[0]->ARPHeader->OperationCode) == ARPOP_REPLY)
+		else if (ntohs((unsigned short int)(Packets[0]->ARPHeader->OperationCode)) == ARPOP_REPLY)
 		{
 			GotReply = TRUE;
 			RequestedMACIP = Packets[0]->ARPHeader->SourceProtocolAddress;
@@ -90,7 +95,7 @@ BOOL cARPStream::AddPacket(cPacket* Packet)
 		{
 
 			nPackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+			Packets = (cPacket**)realloc((void*)Packets, (unsigned long int)(nPackets * sizeof(cPacket*)));
 			memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 
 			AnalyzeProtocol();
@@ -102,7 +107,7 @@ BOOL cARPStream::AddPacket(cPacket* Packet)
 
 void cARPStream::AnalyzeProtocol()
 {
-	if (nPackets > 0 && ntohs(Packets[nPackets - 1]->ARPHeader->OperationCode) == ARPOP_REPLY && !GotReply)
+	if (nPackets > 0 && ntohs((unsigned short int)(Packets[nPackets - 1]->ARPHeader->OperationCode)) == ARPOP_REPLY && !GotReply)
 	{
 		GotReply = TRUE;
 		memcpy(&RequestedMAC, &Packets[nPackets - 1]->ARPHeader->SourceHardwareAddress, ETHER_ADDR_LEN);

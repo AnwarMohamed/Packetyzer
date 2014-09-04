@@ -27,7 +27,7 @@ cConnection::cConnection()
 {
 	nPackets = 0;
 	isIPConnection = FALSE;
-	Packets = (cPacket**)malloc(nPackets * sizeof(cPacket*));
+	Packets = (cPacket**)malloc((unsigned long int)(nPackets * sizeof(cPacket*)));
 };
 
 cConnection::~cConnection()
@@ -42,7 +42,7 @@ BOOL cConnection::AddPacket(cPacket* Packet)
 	if (nPackets == 0)
 	{
 		nPackets++;
-		Packets = (cPacket**)realloc(Packets, nPackets * sizeof(cPacket*));
+		Packets = (cPacket**)realloc(Packets, (unsigned long int)(nPackets * sizeof(cPacket*)));
 		memcpy(&Packets[( nPackets-1)], &Packet, sizeof(cPacket*));
 		isIPConnection = Packet->isIPPacket;	
 		return AnalyzePackets();
@@ -62,7 +62,7 @@ BOOL cConnection::AddPacket(cPacket* Packet)
 					memcmp(&ClientMAC, &Packet->EthernetHeader->DestinationHost, ETHER_ADDR_LEN) == 0))))
 		{
 			nPackets++;
-			Packets = (cPacket**)realloc((void*)Packets, nPackets * sizeof(cPacket*));
+			Packets = (cPacket**)realloc((void*)Packets, (unsigned long int)(nPackets * sizeof(cPacket*)));
 			memcpy((void**)&Packets[(nPackets-1)], (void**)&Packet, sizeof(cPacket*));
 			isIPConnection = Packet->isIPPacket;
 			return AnalyzePackets();
@@ -109,7 +109,7 @@ BOOL cConnection::ClearActivePackets(UINT NumberToBeKeeped)
 		for (UINT i=0; i<nPackets; i++) delete Packets[i];
 		free(Packets);
 		nPackets = 0;
-		Packets = (cPacket**)malloc(nPackets * sizeof(cPacket*));
+		Packets = (cPacket**)malloc((unsigned long int)(nPackets * sizeof(cPacket*)));
 		return true;
 	}
 	else return false;

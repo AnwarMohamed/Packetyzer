@@ -18,7 +18,12 @@
  *
  */
 
+#ifdef _WIN32
 #include <conio.h>
+#else
+#include <curses.h>
+#endif
+
 #include "../Packetyzer.h"
 
 using namespace Packetyzer::Analyzers;
@@ -263,6 +268,8 @@ INT main(INT argc, CHAR* argv[])
 		if ((i+1)%16 ==  0 && i != 0)
 			cout << endl << "     ";
 	}
+
+	cout << endl;
 
 
 	//cout << "Captured Packets: " << capture.nCapturedPackets << endl;

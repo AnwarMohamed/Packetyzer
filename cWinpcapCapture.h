@@ -33,7 +33,7 @@ class DLLEXPORT Packetyzer::Capture::cWinpcapCapture
 {
 	//BOOL CheckAdapter(UINT id);
 	//BOOL InitializeAdaptersList();
-	VOID AnalyzeTraffic();
+	void AnalyzeTraffic();
 
 	#define LINE_LEN 16
 	pcap_if_t *alldevs, *d;

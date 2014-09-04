@@ -23,6 +23,12 @@
 
 #include "Packetyzer.h"
 
+#ifdef _WIN32
+#define SOMEDEF	_cdecl
+#else
+#define SOMEDEF
+#endif
+
 class DLLEXPORT Packetyzer::Elements::cString
 {
 public:
@@ -34,7 +40,7 @@ public:
 	virtual ~cString()						{ if (m_pString)free(m_pString); }
 
 	// operator overloading helper
-	template <class T> friend cString _cdecl operator +(T var, const cString& str);
+	template <class T> friend cString SOMEDEF operator +(T var, const cString& str);
 
 	// operator overloading
 	cString& operator  =(const char* str);

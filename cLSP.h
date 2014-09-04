@@ -21,6 +21,7 @@
 #pragma once
 #include "Packetyzer.h"
 
+#ifdef _WIN32
 #define LSP_NONIFS	0x00
 #define	LSP_IFS		0x01
 
@@ -37,5 +38,5 @@ public:
 
 	GUID LSPGuid;
 };
-
+#endif
 //* CLASS TO BE CODED LATER */

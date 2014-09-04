@@ -21,6 +21,7 @@
 #ifndef HPACKETS_H
 #define HPACKETS_H
 
+#ifdef _WIN32
 #ifndef WINDOWS_HEADER
 #define WINDOWS_HEADER
 #include <Windows.h>
@@ -30,6 +31,13 @@ typedef __int64 int64_t;
 typedef unsigned __int32 u_int32_t;
 typedef unsigned __int16 u_int16_t;
 typedef unsigned __int8 u_int8_t;
+
+#else
+#include <inttypes.h>
+#include <linux/in.h>
+#endif
+
+
 
 
 
@@ -147,11 +155,8 @@ typedef unsigned __int8 u_int8_t;
 
 /*PCAP FILES*/
 
-typedef UINT UINT;
-typedef USHORT USHORT;
-typedef int INT;
 
-struct PCAP_GENERAL_HEADER 
+struct PCAP_GENERAL_HEADER
 {
     UINT magic_number;   /* magic number */
     USHORT version_major;  /* major version number */

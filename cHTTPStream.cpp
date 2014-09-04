@@ -154,8 +154,10 @@ void cHTTPStream::ExtractFile(cPacket* Packet)
 			Reassembler->AddPacket(Packets[nPackets - 1]) &&
 			Reassembler->isReassembled)
 		{
+			GetHttpHeader(Packets[nPackets - 1], &length);
+
 			Files = (cFile**)realloc(Files, (nFiles + 1) * sizeof(cFile*));
-			ExtFile = new cFile((CHAR*)Reassembler->GetReassembledStream(), Reassembler->TotalSize);
+			ExtFile = new cFile((CHAR*)Reassembler->GetReassembledStream() + length, Reassembler->TotalSize - length);
 			ExtFile->IsReassembled = TRUE;
 			memcpy(&Files[nFiles], &ExtFile, sizeof(cFile*));
 			nFiles++;
@@ -163,12 +165,12 @@ void cHTTPStream::ExtractFile(cPacket* Packet)
 			delete Reassembler;
 			Reassembler = NULL;
 		}
-		else if (regex_search(RegxData, RegxResult, regex("Content-Type:\\s(.*?)\\r\\n")) &&
+		else if (regex_search(RegxData, RegxResult, regex("^Content-Type:\\s(.*?)\\r\\n")) &&
 			RegxResult[1].str().find("application/x-javascript") == string::npos &&
 			RegxResult[1].str().find("text/css") == string::npos &&
 			RegxResult[1].str().find("text/javascript") == string::npos &&
 			RegxResult[1].str().find("text/html") == string::npos &&
-			regex_search(RegxData, RegxResult, regex("Content-Length:\\s(.*?)\\r\\n")))
+			regex_search(RegxData, RegxResult, regex("^Content-Length:\\s(.*?)\\r\\n")))
 		{
 			length = atoi(RegxResult[1].str().c_str());
 

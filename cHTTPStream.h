@@ -61,6 +61,7 @@ class DLLEXPORT Packetyzer::Traffic::Streams::cHTTPStream : public Packetyzer::T
 
 	cTCPReassembler* Reassembler;
 	void ExtractFile(cPacket* Packet);
+
 public:
 
 
